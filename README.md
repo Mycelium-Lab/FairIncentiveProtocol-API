@@ -20,6 +20,8 @@
 ```npm run dev```
 
 ### Run tests
+```npm run start```
+In another terminal
 ```npm run test```
 
 ### Run benchmark

@@ -1,8 +1,9 @@
 import * as joi  from 'joi'
 import JoiPhoneNumber from 'joi-phone-number'
+import { joiPasswordExtendCore } from 'joi-password'
 import { isAddress } from 'ethers'
 
-const Joi: any = joi.extend(JoiPhoneNumber)
+let Joi: any = joi.extend(JoiPhoneNumber, joiPasswordExtendCore)
 
 export const SignUp: unknown = {
     $id: 'SignUpCompany',
@@ -47,6 +48,8 @@ export const SignUpValidation: joi.ObjectSchema = Joi.object({
     password: Joi.string()
         .min(8)
         .alphanum()
+        .noWhiteSpaces()
+        .onlyLatinCharacters()
         .required()
         .error(new Error('Password is incorrect (password)')),
 

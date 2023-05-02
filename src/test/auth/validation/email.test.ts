@@ -36,7 +36,7 @@ tap.test('Email is incorrect (email) - not this format', async t => {
   
     t.equal(response.status, 400)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    t.same(await response.json(), { message: 'Email is incorrect (email)' })
+    t.same(await response.json(), { message: "\"email\" must be a valid email" })
 })
 
 
@@ -61,5 +61,5 @@ tap.test('Email is incorrect (email) - empty', async t => {
       
     t.equal(response.status, 400)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    t.same(await response.json(), { message: 'Email is incorrect (email)' })
+    t.same(await response.json(), { message: "\"email\" is required" })
 })

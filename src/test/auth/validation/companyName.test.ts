@@ -36,7 +36,7 @@ tap.test('Сompany name is incorrect - less than 3 symbols', async t => {
 
   t.equal(response.status, 400)
   t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-  t.same(await response.json(), { message: 'Сompany name is incorrect (name)' })
+  t.same(await response.json(), { message: "\"name\" is not allowed to be empty" })
 })
 
 
@@ -63,7 +63,7 @@ tap.test('Сompany name is incorrect - more than 256 symbols', async t => {
   
     t.equal(response.status, 400)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    t.same(await response.json(), { message: 'Сompany name is incorrect (name)' })
+    t.same(await response.json(), { message: "\"name\" length must be less than or equal to 256 characters long" })
 })
 
 
@@ -88,5 +88,5 @@ tap.test('Сompany name is incorrect - empty', async t => {
       
     t.equal(response.status, 400)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    t.same(await response.json(), { message: 'Сompany name is incorrect (name)' })
+    t.same(await response.json(), { message: "\"name\" is required" })
 })

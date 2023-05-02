@@ -37,27 +37,22 @@ export const SignUpValidation: joi.ObjectSchema = Joi.object({
     name: Joi.string()
         .min(3)
         .max(256)
-        .required()
-        .error(new Error('Сompany name is incorrect (name)')),
+        .required(),
 
     email: Joi.string()
         .email()
-        .required()
-        .error(new Error('Email is incorrect (email)')),
+        .required(),
 
     password: Joi.string()
         .min(8)
-        .alphanum()
         .noWhiteSpaces()
         .onlyLatinCharacters()
-        .required()
-        .error(new Error('Password is incorrect (password)')),
+        .required(),
 
     repeat_password: Joi.ref('password'),
 
     phone: Joi.string()
-        .phoneNumber()
-        .error(new Error('Phone is incorrect (phone)')),
+        .phoneNumber(),
 
     wallet: Joi.string()
         .external(checkAddress)

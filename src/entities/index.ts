@@ -1,0 +1,5 @@
+export { SignUpCompany, SignInCompany } from './auth/Company'
+export { Config } from './config/Config'
+export { AuthServiceReply } from './auth/ServiceReply'
+export { PrettyError } from './errors/PrettyError'
+export { Company } from './company/Company'

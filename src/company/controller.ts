@@ -169,7 +169,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     )
 }
 
-function getToken(req: FastifyRequest): string | undefined {
+export function getToken(req: FastifyRequest): string | undefined {
     const headers = req.headers['authorization']
     const token = headers?.split(' ')[1]
     return token 

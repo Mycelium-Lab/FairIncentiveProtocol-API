@@ -6,6 +6,8 @@ import { config } from './config/config'
 import { addSchemas } from './schemas'
 import cors from '@fastify/cors'
 import { companyPlugin } from './company/controller'
+import { tokensPlugin } from './tokens/controller'
+import { usersPlugin } from './users/controller'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -20,6 +22,8 @@ export async function build(opt: AppOptions = {}) {
     app.register(jwtPlugin)
     app.register(authPlugin, { prefix: '/auth' })
     app.register(companyPlugin, { prefix: '/company' })
+    app.register(tokensPlugin, { prefix: '/tokens' })
+    app.register(usersPlugin, { prefix: '/users' })
     app.register(cors, {
         origin: ["http://localhost:3001"],
         methods: ["GET", "POST"]

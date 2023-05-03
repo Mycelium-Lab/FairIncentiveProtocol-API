@@ -1,58 +1,43 @@
 import * as joi  from 'joi'
 import JoiPhoneNumber from 'joi-phone-number'
-import { joiPasswordExtendCore } from 'joi-password'
 import { isAddress } from 'ethers'
 
-let Joi: any = joi.extend(JoiPhoneNumber, joiPasswordExtendCore)
+let Joi: any = joi.extend(JoiPhoneNumber)
 
-export const SignUp: unknown = {
-    $id: 'SignUpCompany',
+export const AddUser: unknown = {
+    $id: 'AddUser',
     type: 'object',
     properties: {
-        name: {
+        firstname: {
+            type: 'string'
+        },
+        lastname: {
+            type: 'string'
+        },
+        patronymic: {
             type: 'string'
         },
         email: {
             type: 'string'
         },
-        password: {
-            type: 'string'
-        },
-        repeat_password: {
-            type: 'string'
-        },
         wallet: {
-            type: 'string'
-        },
-        country: {
-            type: 'string',
-        },
-        phone: {
             type: 'string'
         }
     }
 }
 
-export const SignUpValidation: joi.ObjectSchema = Joi.object({
-    name: Joi.string()
-        .min(3)
+export const AddUserValidation: joi.ObjectSchema = Joi.object({
+    firstname: Joi.string()
         .max(256)
         .required(),
+
+    lastname: Joi.string(),
+
+    patronymic: Joi.string(),
 
     email: Joi.string()
         .email()
         .required(),
-
-    password: Joi.string()
-        .min(8)
-        .noWhiteSpaces()
-        .onlyLatinCharacters()
-        .required(),
-
-    repeat_password: Joi.ref('password'),
-
-    phone: Joi.string()
-        .phoneNumber(),
 
     wallet: Joi.string()
         .external(checkAddress)

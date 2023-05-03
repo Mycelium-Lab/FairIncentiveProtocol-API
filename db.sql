@@ -41,7 +41,7 @@ CREATE TABLE employees(
     firstname   VARCHAR(255) NOT NULL,
     lastname    VARCHAR(255),
     patronymic  VARCHAR(255),
-    wallet      VARCHAR(40) NOT NULL UNIQUE,
+    wallet      VARCHAR(42) NOT NULL UNIQUE,
     phone       VARCHAR(18) UNIQUE,
     role_id     INT NOT NULL DEFAULT 0
 );
@@ -76,11 +76,13 @@ CREATE TABLE roles_permissions(
 );
 
 CREATE TABLE users(
-    id              UUID DEFAULT uuid_generate_v4(),
+    id              UUID UNIQUE DEFAULT uuid_generate_v4(),
     company_id      UUID NOT NULL REFERENCES companies(id),
-    username        VARCHAR(255),
+    firstname       VARCHAR(255) NOT NULL,
+    lastname        VARCHAR(255),
+    patronymic      VARCHAR(255),    
     email           VARCHAR(256) NOT NULL UNIQUE,
-    wallet          VARCHAR(40) NOT NULL UNIQUE,
+    wallet          VARCHAR(42) NOT NULL,
     image           VARCHAR(255),
     notes           TEXT,
     PRIMARY KEY(id, company_id)
@@ -88,7 +90,7 @@ CREATE TABLE users(
 
 /*type либо properties, либо stats*/
 CREATE TABLE user_attributes(
-    user_id         UUID NOT NULL REFERENCES companies(id),
+    user_id         UUID NOT NULL REFERENCES users(id),
     company_id      UUID NOT NULL REFERENCES companies(id),
     name            VARCHAR(255) NOT NULL,
     value           VARCHAR(255) NOT NULL,

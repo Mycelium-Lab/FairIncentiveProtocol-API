@@ -1,0 +1,24 @@
+import Joi  from 'joi'
+import { isAddress } from 'ethers'
+
+export const ChangeCompanyWallet: unknown = {
+    $id: 'ChangeCompanyWallet',
+    type: 'object',
+    properties: {
+        newWallet: {
+            type: 'string'
+        }
+    }
+}
+
+export const ChangeCompanyWalletValidation: Joi.ObjectSchema = Joi.object({
+    newWallet: Joi.string()
+        .external(checkAddress)
+})
+
+function checkAddress(wallet: string) {
+    const _isAddress = isAddress(wallet)
+    if (!_isAddress) {
+        throw Error('Wallet is incorrect')
+    }
+}

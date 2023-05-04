@@ -1,21 +1,21 @@
 import pg from "../config/db";
-import { AddToken, Company, GetCompany, Token } from "../entities";
+import { AddNFT, Company, GetCompany, NFT } from "../entities";
 
-export async function addToken(token: AddToken, getCompany: GetCompany): Promise<boolean> {
+export async function addNFT(nft: AddNFT, getCompany: GetCompany): Promise<boolean> {
     try {
         const company: Company = 
             await pg('companies')
                 .select('*')
                 .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
                 .first()
-        await pg('erc20_tokens')
+        await pg('erc721_tokens')
             .insert({
                 company_id: company.id,
-                name: token.name,
-                symbol: token.symbol,
-                supply_type: 3, //UNLIMITED
-                chain_id: token.chainid,
-                address: token.address
+                name: nft.name,
+                symbol: nft.symbol,
+                chain_id: nft.chainid,
+                address: nft.address,
+                beneficiary: company.wallet
             })
         return true
     } catch (error) {
@@ -24,14 +24,14 @@ export async function addToken(token: AddToken, getCompany: GetCompany): Promise
     }
 }
 
-export async function getTokens(getCompany: GetCompany): Promise<Array<Token>> {
+export async function getNFTs(getCompany: GetCompany): Promise<Array<NFT>> {
     try {
         const company: Company = 
             await pg('companies')
                 .select('*')
                 .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
                 .first()
-        const tokens: Array<Token> = await pg('erc20_tokens')
+        const tokens: Array<NFT> = await pg('erc721_tokens')
             .select('*')
             .where({
                 company_id: company.id

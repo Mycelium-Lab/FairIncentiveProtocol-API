@@ -1,0 +1,16 @@
+export interface Token {
+    company_id: string,
+    name: string,
+    symbol: string,
+    supply_type: number,
+    max_supply: string,
+    chain_id: string,
+    decimals: string,
+    address: string,
+    pausable: boolean,
+    burnable: boolean,
+    mintable: boolean,
+    ownable: boolean,
+    roles: boolean,
+    image: string,
+}

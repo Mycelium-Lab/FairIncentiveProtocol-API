@@ -8,6 +8,7 @@ import cors from '@fastify/cors'
 import { companyPlugin } from './company/controller'
 import { tokensPlugin } from './tokens/controller'
 import { usersPlugin } from './users/controller'
+import { nftsPlugin } from './nfts/controller'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -24,6 +25,7 @@ export async function build(opt: AppOptions = {}) {
     app.register(companyPlugin, { prefix: '/company' })
     app.register(tokensPlugin, { prefix: '/tokens' })
     app.register(usersPlugin, { prefix: '/users' })
+    app.register(nftsPlugin, { prefix: '/nfts' })
     app.register(cors, {
         origin: ["http://localhost:3001"],
         methods: ["GET", "POST"]

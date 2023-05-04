@@ -8,6 +8,8 @@ import { ChangeCompanyPhone } from "./company/phone";
 import { ChangeCompanyWallet } from "./company/wallet";
 import { AddUser } from "./users/add";
 import { DeleteUser } from "./users/delete";
+import { AddToken } from "./tokens/add";
+import { AddNFT } from './nfts/add'
 export { SignUpValidation } from './auth/SignUp'
 export { SignInValidation } from './auth/SignIn'
 export { ChangeCompanyNameValidation } from './company/name'
@@ -17,6 +19,8 @@ export { ChangeCompanyPhoneValidation } from "./company/phone";
 export { ChangeCompanyWalletValidation } from "./company/wallet";
 export { AddUserValidation } from './users/add'
 export { DeleteUserValidation } from './users/delete'
+export { AddTokenValidation } from './tokens/add'
+export { AddNFTValidation } from './nfts/add'
 
 export function addSchemas(app: FastifyInstance) {
     app.addSchema(SignUp)
@@ -28,4 +32,6 @@ export function addSchemas(app: FastifyInstance) {
     app.addSchema(ChangeCompanyWallet)
     app.addSchema(AddUser)
     app.addSchema(DeleteUser)
+    app.addSchema(AddToken)
+    app.addSchema(AddNFT)
 }

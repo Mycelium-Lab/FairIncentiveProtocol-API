@@ -7,6 +7,7 @@ import { ChangeCompanyPassword } from "./company/password";
 import { ChangeCompanyPhone } from "./company/phone";
 import { ChangeCompanyWallet } from "./company/wallet";
 import { AddUser } from "./users/add";
+import { DeleteUser } from "./users/delete";
 export { SignUpValidation } from './auth/SignUp'
 export { SignInValidation } from './auth/SignIn'
 export { ChangeCompanyNameValidation } from './company/name'
@@ -15,6 +16,7 @@ export { ChangeCompanyPasswordValidation } from "./company/password";
 export { ChangeCompanyPhoneValidation } from "./company/phone";
 export { ChangeCompanyWalletValidation } from "./company/wallet";
 export { AddUserValidation } from './users/add'
+export { DeleteUserValidation } from './users/delete'
 
 export function addSchemas(app: FastifyInstance) {
     app.addSchema(SignUp)
@@ -25,4 +27,5 @@ export function addSchemas(app: FastifyInstance) {
     app.addSchema(ChangeCompanyPhone)
     app.addSchema(ChangeCompanyWallet)
     app.addSchema(AddUser)
+    app.addSchema(DeleteUser)
 }

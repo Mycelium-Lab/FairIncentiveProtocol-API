@@ -4,14 +4,14 @@ import { hash } from "../utils/hash";
 
 export async function getCompany(getCompany: GetCompany): Promise<ReplyCompany> {
     try {
-        const selectedCompany: Array<ReplyCompany> = 
+        const selectedCompany: ReplyCompany = 
             await pg
                 .select(['name', 'email', 'wallet', 'id', 'phone', 'role_id'])
                 //if user choose email for signin in or phone
                 .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
                 .from('companies')
-        const company: ReplyCompany = selectedCompany[0]
-        return company
+                .first()
+        return selectedCompany
     } catch (error) {
         console.error(error)
         return {name: '', wallet: ''}

@@ -27,7 +27,7 @@ export async function build(opt: AppOptions = {}) {
     app.register(usersPlugin, { prefix: '/users' })
     app.register(nftsPlugin, { prefix: '/nfts' })
     app.register(cors, {
-        origin: ["http://localhost:3001"],
+        origin: "*",
         methods: ["GET", "POST"]
       });
     app.get('/ping', (req, res) => {res.send('pong')})

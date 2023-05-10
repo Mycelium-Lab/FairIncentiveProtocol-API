@@ -9,6 +9,7 @@ import { companyPlugin } from './company/controller'
 import { tokensPlugin } from './tokens/controller'
 import { usersPlugin } from './users/controller'
 import { nftsPlugin } from './nfts/controller'
+import { rewardsPlugin } from './rewards/controller'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -26,6 +27,7 @@ export async function build(opt: AppOptions = {}) {
     app.register(tokensPlugin, { prefix: '/tokens' })
     app.register(usersPlugin, { prefix: '/users' })
     app.register(nftsPlugin, { prefix: '/nfts' })
+    app.register(rewardsPlugin, { prefix: '/rewards' })
     app.register(cors, {
         origin: "*",
         methods: ["GET", "POST"]

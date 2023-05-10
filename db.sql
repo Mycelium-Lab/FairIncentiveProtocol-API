@@ -205,7 +205,7 @@ CREATE TABLE currencies(
     id              SERIAL PRIMARY KEY,
     type            INT NOT NULL REFERENCES currency_types(id),
     symbol          VARCHAR(20) NOT NULL,
-    address         VARCHAR(40) DEFAULT NULL
+    address         VARCHAR(42) DEFAULT NULL
 );
 
 INSERT INTO currencies (type, symbol) VALUES(1, 'USD');
@@ -237,4 +237,45 @@ CREATE TABLE api_keys(
     company_id      UUID NOT NULL REFERENCES companies(id),
     key             VARCHAR(255) NOT NULL,
     expired         TIMESTAMP NOT NULL
+);
+
+CREATE TABLE rewards_token(
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id      UUID NOT NULL REFERENCES companies(id),
+    name            VARCHAR(255) NOT NULL,
+    description     TEXT,
+    address         VARCHAR(42) NOT NULL REFERENCES erc20_tokens(address),
+    amount          NUMERIC(78,0) NOT NULL
+);
+
+CREATE TABLE rewards_nft(
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id      UUID NOT NULL REFERENCES companies(id),
+    name            VARCHAR(255) NOT NULL,
+    description     TEXT,
+    address         VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address),
+    is_random       BOOLEAN NOT NULL,
+    token_id        NUMERIC(78,0)
+);
+
+CREATE TABLE reward_event_statuses_token (
+    id              SERIAL PRIMARY KEY,
+    status          VARCHAR(255) NOT NULL
+);
+
+INSERT INTO reward_event_statuses_token (status) VALUES('Accrued');
+INSERT INTO reward_event_statuses_token (status) VALUES('Retrieved by user');
+
+CREATE TABLE reward_event_token (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    status          INT NOT NULL REFERENCES reward_event_statuses_token(id),
+    reward_id       UUID NOT NULL REFERENCES rewards_token(id),
+    comment         TEXT
+);
+
+CREATE TABLE reward_event_nft (
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    status          INT NOT NULL REFERENCES reward_event_statuses_token(id),
+    reward_id       UUID NOT NULL REFERENCES rewards_token(id),
+    comment         TEXT
 );

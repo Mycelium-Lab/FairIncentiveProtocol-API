@@ -3,14 +3,9 @@ import { AddToken, Company, GetCompany, Token } from "../entities";
 
 export async function addToken(token: AddToken, getCompany: GetCompany): Promise<boolean> {
     try {
-        const company: Company = 
-            await pg('companies')
-                .select('*')
-                .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
-                .first()
         await pg('erc20_tokens')
             .insert({
-                company_id: company.id,
+                company_id: getCompany.company_id,
                 name: token.name,
                 symbol: token.symbol,
                 supply_type: 3, //UNLIMITED
@@ -26,15 +21,10 @@ export async function addToken(token: AddToken, getCompany: GetCompany): Promise
 
 export async function getTokens(getCompany: GetCompany): Promise<Array<Token>> {
     try {
-        const company: Company = 
-            await pg('companies')
-                .select('*')
-                .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
-                .first()
         const tokens: Array<Token> = await pg('erc20_tokens')
             .select('*')
             .where({
-                company_id: company.id
+                company_id: getCompany.company_id
             })
         return tokens
     } catch (error) {

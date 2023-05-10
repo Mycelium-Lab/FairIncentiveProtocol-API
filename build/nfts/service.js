@@ -17,18 +17,14 @@ const db_1 = __importDefault(require("../config/db"));
 function addNFT(nft, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const company = yield (0, db_1.default)('companies')
-                .select('*')
-                .where(getCompany.email ? { email: getCompany.email } : { phone: getCompany.phone })
-                .first();
             yield (0, db_1.default)('erc721_tokens')
                 .insert({
-                company_id: company.id,
+                company_id: getCompany.company_id,
                 name: nft.name,
                 symbol: nft.symbol,
                 chain_id: nft.chainid,
                 address: nft.address,
-                beneficiary: company.wallet
+                beneficiary: nft.address
             });
             return true;
         }
@@ -42,14 +38,10 @@ exports.addNFT = addNFT;
 function getNFTs(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const company = yield (0, db_1.default)('companies')
-                .select('*')
-                .where(getCompany.email ? { email: getCompany.email } : { phone: getCompany.phone })
-                .first();
             const tokens = yield (0, db_1.default)('erc721_tokens')
                 .select('*')
                 .where({
-                company_id: company.id
+                company_id: getCompany.company_id
             });
             return tokens;
         }

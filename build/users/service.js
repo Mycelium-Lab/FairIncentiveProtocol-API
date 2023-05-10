@@ -17,13 +17,9 @@ const db_1 = __importDefault(require("../config/db"));
 function addUser(user, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const company = yield (0, db_1.default)('companies')
-                .select('*')
-                .where(getCompany.email ? { email: getCompany.email } : { phone: getCompany.phone })
-                .first();
             const createdUserID = yield (0, db_1.default)('users')
                 .insert({
-                company_id: company.id,
+                company_id: getCompany.company_id,
                 firstname: user.firstname,
                 lastname: user.lastname,
                 patronymic: user.patronymic,
@@ -43,14 +39,10 @@ exports.addUser = addUser;
 function getUsers(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const company = yield (0, db_1.default)('companies')
-                .select('*')
-                .where(getCompany.email ? { email: getCompany.email } : { phone: getCompany.phone })
-                .first();
             const users = yield db_1.default
                 .select('*')
                 .where({
-                company_id: company.id
+                company_id: getCompany.company_id
             })
                 .from('users');
             return users;
@@ -65,11 +57,7 @@ exports.getUsers = getUsers;
 function deleteUser(deleteUser, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const company = yield (0, db_1.default)('companies')
-                .select('*')
-                .where(getCompany.email ? { email: getCompany.email } : { phone: getCompany.phone })
-                .first();
-            yield (0, db_1.default)('users').where({ company_id: company.id, id: deleteUser.id }).delete();
+            yield (0, db_1.default)('users').where({ company_id: getCompany.company_id, id: deleteUser.id }).delete();
             return true;
         }
         catch (error) {

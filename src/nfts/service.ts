@@ -3,19 +3,14 @@ import { AddNFT, Company, GetCompany, NFT } from "../entities";
 
 export async function addNFT(nft: AddNFT, getCompany: GetCompany): Promise<boolean> {
     try {
-        const company: Company = 
-            await pg('companies')
-                .select('*')
-                .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
-                .first()
         await pg('erc721_tokens')
             .insert({
-                company_id: company.id,
+                company_id: getCompany.company_id,
                 name: nft.name,
                 symbol: nft.symbol,
                 chain_id: nft.chainid,
                 address: nft.address,
-                beneficiary: company.wallet
+                beneficiary: nft.address
             })
         return true
     } catch (error) {
@@ -26,15 +21,10 @@ export async function addNFT(nft: AddNFT, getCompany: GetCompany): Promise<boole
 
 export async function getNFTs(getCompany: GetCompany): Promise<Array<NFT>> {
     try {
-        const company: Company = 
-            await pg('companies')
-                .select('*')
-                .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
-                .first()
         const tokens: Array<NFT> = await pg('erc721_tokens')
             .select('*')
             .where({
-                company_id: company.id
+                company_id: getCompany.company_id
             })
         return tokens
     } catch (error) {

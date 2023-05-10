@@ -21,7 +21,7 @@ function companyPlugin(app, opt) {
                 const token = getToken(req);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const company = yield (0, service_1.getCompany)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone });
+                    const company = yield (0, service_1.getCompany)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply
                         .code(200)
                         .send(company);
@@ -48,7 +48,7 @@ function companyPlugin(app, opt) {
                 yield schemas_1.ChangeCompanyNameValidation.validateAsync(updateName);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changeName)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone }, updateName.newName);
+                    const res = yield (0, service_1.changeName)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateName.newName);
                     reply
                         .code(res ? 200 : 500)
                         .send({ message: res ? 'Done' : 'Something went wrong' });
@@ -75,7 +75,7 @@ function companyPlugin(app, opt) {
                 yield schemas_1.ChangeCompanyEmailValidation.validateAsync(updateEmail);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changeEmail)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone }, updateEmail.newEmail);
+                    const res = yield (0, service_1.changeEmail)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateEmail.newEmail);
                     reply
                         .code(res ? 200 : 500)
                         .send({ message: res ? 'Done' : 'Something went wrong' });
@@ -102,7 +102,7 @@ function companyPlugin(app, opt) {
                 yield schemas_1.ChangeCompanyPhoneValidation.validateAsync(updatePhone);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changePhone)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone }, updatePhone.newPhone);
+                    const res = yield (0, service_1.changePhone)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updatePhone.newPhone);
                     reply
                         .code(res ? 200 : 500)
                         .send({ message: res ? 'Done' : 'Something went wrong' });
@@ -129,7 +129,7 @@ function companyPlugin(app, opt) {
                 yield schemas_1.ChangeCompanyWalletValidation.validateAsync(updateWallet);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changeWallet)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone }, updateWallet.newWallet);
+                    const res = yield (0, service_1.changeWallet)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateWallet.newWallet);
                     reply
                         .code(res ? 200 : 500)
                         .send({ message: res ? 'Done' : 'Something went wrong' });
@@ -156,7 +156,7 @@ function companyPlugin(app, opt) {
                 yield schemas_1.ChangeCompanyPasswordValidation.validateAsync(updatePassword);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changePassword)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone }, updatePassword.newPassword);
+                    const res = yield (0, service_1.changePassword)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updatePassword.newPassword);
                     reply
                         .code(res ? 200 : 500)
                         .send({ message: res ? 'Done' : 'Something went wrong' });

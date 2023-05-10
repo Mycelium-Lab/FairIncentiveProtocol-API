@@ -20,7 +20,7 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: string | null = await addUser(user, {email: data?.email, phone: data?.phone})
+                    const res: string | null = await addUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     console.log(res)
                     reply    
                         .code(res ? 200 : 500)
@@ -48,7 +48,7 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const users: Array<User> = await getUsers({email: data?.email, phone: data?.phone})
+                    const users: Array<User> = await getUsers({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
                         .code(200)
                         .send({users})
@@ -77,7 +77,7 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: boolean = await deleteUser(user, {email: data?.email, phone: data?.phone})
+                    const res: boolean = await deleteUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply    
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})

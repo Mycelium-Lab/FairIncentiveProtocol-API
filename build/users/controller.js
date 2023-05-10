@@ -27,7 +27,7 @@ function usersPlugin(app, opt) {
                 const token = (0, controller_1.getToken)(req);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone });
+                    const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     console.log(res);
                     reply
                         .code(res ? 200 : 500)
@@ -52,7 +52,7 @@ function usersPlugin(app, opt) {
                     const token = (0, controller_1.getToken)(req);
                     if (token) {
                         const data = app.jwt.decode(token);
-                        const users = yield (0, service_1.getUsers)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone });
+                        const users = yield (0, service_1.getUsers)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                         reply
                             .code(200)
                             .send({ users });
@@ -78,7 +78,7 @@ function usersPlugin(app, opt) {
                     const token = (0, controller_1.getToken)(req);
                     if (token) {
                         const data = app.jwt.decode(token);
-                        const res = yield (0, service_1.deleteUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone });
+                        const res = yield (0, service_1.deleteUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                         reply
                             .code(res ? 200 : 500)
                             .send({ message: res ? 'Done' : 'Something went wrong' });

@@ -14,7 +14,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const company: ReplyCompany = await getCompany({email: data?.email, phone: data?.phone})
+                    const company: ReplyCompany = await getCompany({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
                         .code(200)
                         .send(company)
@@ -42,7 +42,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyNameValidation.validateAsync(updateName)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changeName({email: data?.email, phone: data?.phone}, updateName.newName)
+                    const res = await changeName({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateName.newName)
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
@@ -70,7 +70,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyEmailValidation.validateAsync(updateEmail)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changeEmail({email: data?.email, phone: data?.phone}, updateEmail.newEmail)
+                    const res = await changeEmail({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateEmail.newEmail)
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
@@ -98,7 +98,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyPhoneValidation.validateAsync(updatePhone)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changePhone({email: data?.email, phone: data?.phone}, updatePhone.newPhone)
+                    const res = await changePhone({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updatePhone.newPhone)
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
@@ -126,7 +126,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyWalletValidation.validateAsync(updateWallet)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changeWallet({email: data?.email, phone: data?.phone}, updateWallet.newWallet)
+                    const res = await changeWallet({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateWallet.newWallet)
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
@@ -154,7 +154,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyPasswordValidation.validateAsync(updatePassword)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changePassword({email: data?.email, phone: data?.phone}, updatePassword.newPassword)
+                    const res = await changePassword({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updatePassword.newPassword)
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})

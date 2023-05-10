@@ -20,7 +20,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 await AddNFTValidation.validateAsync(nft)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await addNFT(nft, {email: data?.email, phone: data?.phone})
+                    const res = await addNFT(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
@@ -43,7 +43,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await getNFTs({email: data?.email, phone: data?.phone})
+                    const res = await getNFTs({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
                         .code(200)
                         .send({nfts: res})

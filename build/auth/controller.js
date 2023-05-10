@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authPlugin = void 0;
 const schemas_1 = require("../schemas");
 const service_1 = require("./service");
+const service_2 = require("../company/service");
 function authPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.post('/signup', {
@@ -22,7 +23,7 @@ function authPlugin(app, opt) {
             try {
                 const body = req.body;
                 yield schemas_1.SignUpValidation.validateAsync(body);
-                const serviceReply = yield (0, service_1.createCompany)(body);
+                const serviceReply = yield (0, service_2.createCompany)(body);
                 reply
                     .code(serviceReply.code)
                     .header('Content-Type', 'application/json; charset=utf-8')
@@ -51,7 +52,7 @@ function authPlugin(app, opt) {
                     yield schemas_1.SignInValidation.validateAsync(body);
                     const serviceReply = yield (0, service_1.checkCompany)(body);
                     //create token if OK
-                    const payload = { email: body.email, phone: body.phone, company: true };
+                    const payload = { email: body.email, phone: body.phone, company_id: serviceReply.data.company_id, company: true };
                     if (!serviceReply.isError)
                         serviceReply.res.message = app.jwt.sign(payload);
                     reply

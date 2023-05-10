@@ -1,4 +1,5 @@
 export interface GetCompany {
     email?: string,
-    phone?: string
+    phone?: string,
+    company_id?: string
 }

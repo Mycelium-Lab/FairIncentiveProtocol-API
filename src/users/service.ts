@@ -3,14 +3,9 @@ import { Company, DeleteUser, GetCompany, User } from "../entities";
 
 export async function addUser(user: User, getCompany: GetCompany): Promise<string | null> {
     try {
-        const company: Company = 
-            await pg('companies')
-                .select('*')
-                .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
-                .first()
         const createdUserID: any = await pg('users')
             .insert({
-                company_id: company.id,
+                company_id: getCompany.company_id,
                 firstname: user.firstname,
                 lastname: user.lastname,
                 patronymic: user.patronymic,
@@ -27,16 +22,11 @@ export async function addUser(user: User, getCompany: GetCompany): Promise<strin
 
 export async function getUsers(getCompany: GetCompany): Promise<Array<User>> {
     try {
-        const company: Company = 
-            await pg('companies')
-                .select('*')
-                .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
-                .first()
         const users: Array<User> = 
             await pg
                 .select('*')
                 .where({
-                    company_id: company.id
+                    company_id: getCompany.company_id
                 })
                 .from('users')
         return users
@@ -48,12 +38,7 @@ export async function getUsers(getCompany: GetCompany): Promise<Array<User>> {
 
 export async function deleteUser(deleteUser: DeleteUser, getCompany: GetCompany): Promise<boolean> {
     try {
-        const company: Company = 
-            await pg('companies')
-                .select('*')
-                .where(getCompany.email ? {email: getCompany.email} : {phone: getCompany.phone})
-                .first()
-        await pg('users').where({company_id: company.id, id: deleteUser.id}).delete()
+        await pg('users').where({company_id: getCompany.company_id, id: deleteUser.id}).delete()
         return true
     } catch (error) {
         console.log(error)

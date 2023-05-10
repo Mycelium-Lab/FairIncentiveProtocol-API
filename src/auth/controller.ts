@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { AuthServiceReply, JWTPayload, SignInCompany, SignUpCompany } from "../entities";
 import { SignInValidation, SignUpValidation } from "../schemas";
-import { checkCompany, createCompany } from "./service";
+import { checkCompany } from "./service";
+import { createCompany } from "../company/service";
 
 export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -48,7 +49,7 @@ export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions
             await SignInValidation.validateAsync(body)
             const serviceReply: AuthServiceReply = await checkCompany(body)
             //create token if OK
-            const payload: JWTPayload = {email: body.email, phone: body.phone, company: true}
+            const payload: JWTPayload = {email: body.email, phone: body.phone, company_id: serviceReply.data.company_id, company: true}
             if (!serviceReply.isError) serviceReply.res.message = app.jwt.sign(payload)
             reply   
                 .code(serviceReply.code)

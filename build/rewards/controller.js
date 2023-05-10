@@ -27,18 +27,19 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.AddTokenRewardValidation.validateAsync(tokenReward);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.addTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, tokenReward);
+                    const createdTokenReward = yield (0, service_1.addTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, tokenReward);
                     reply
-                        .code(res ? 200 : 500)
-                        .send({ message: res ? 'Done' : 'Something went wrong' });
+                        .code(createdTokenReward ? 200 : 500)
+                        .send({ createdTokenReward });
                 }
                 else
                     throw Error('Something wrong with token');
             }
             catch (error) {
+                console.log(error);
                 reply
                     .code(500)
-                    .send({ message: 'Something went wrong' });
+                    .send({ createdTokenReward: null });
             }
         })),
             app.get('/get/token', {
@@ -62,6 +63,32 @@ function rewardsPlugin(app, opt) {
                     reply
                         .code(500)
                         .send({ tokenRewards: [] });
+                }
+            })),
+            app.post('/delete/token', {
+                onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+                schema: {
+                    body: { $ref: 'DeleteReward' }
+                }
+            }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    const token = (0, controller_1.getToken)(req);
+                    const deleteReward = req.body;
+                    yield schemas_1.DeleteRewardValidation.validateAsync(deleteReward);
+                    if (token) {
+                        const data = app.jwt.decode(token);
+                        const res = yield (0, service_1.deleteTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, deleteReward);
+                        reply
+                            .code(res ? 200 : 500)
+                            .send({ message: 'Something went wrong' });
+                    }
+                    else
+                        throw Error('Something wrong with token');
+                }
+                catch (error) {
+                    reply
+                        .code(500)
+                        .send({ createdTokenReward: null });
                 }
             }));
     });

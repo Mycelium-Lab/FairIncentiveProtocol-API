@@ -168,12 +168,20 @@ CREATE TABLE social_links(
     link            VARCHAR(500) NOT NULL
 );
 
+CREATE TABLE token_types(
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(10) NOT NULL
+);
+
+INSERT INTO token_types (name) VALUES('erc20');
+INSERT INTO token_types (name) VALUES('erc721');
+
 CREATE TABLE tokens_admin(
     company_id      UUID NOT NULL REFERENCES companies(id),
     token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address),
     chain_id        INT NOT NULL REFERENCES chains(id),
     admin_id        UUID DEFAULT NULL,
-    token_type      VARCHAR(10) NOT NULL DEFAULT 'erc20'
+    token_type      INT NOT NULL REFERENCES token_types(id)
 );
 
 CREATE TABLE tokens_log(
@@ -183,7 +191,7 @@ CREATE TABLE tokens_log(
     admin_id        UUID DEFAULT NULL,
     user_id         UUID,
     description     TEXT NOT NULL,
-    token_type      VARCHAR(10) NOT NULL DEFAULT 'erc20'
+    token_type      INT NOT NULL REFERENCES token_types(id)
 );
 
 CREATE TABLE roles_log(
@@ -239,7 +247,7 @@ CREATE TABLE api_keys(
     expired         TIMESTAMP NOT NULL
 );
 
-CREATE TABLE rewards_token(
+CREATE TABLE rewards_erc20(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id      UUID NOT NULL REFERENCES companies(id),
     name            VARCHAR(255) NOT NULL,
@@ -248,7 +256,7 @@ CREATE TABLE rewards_token(
     amount          NUMERIC(78,0) NOT NULL
 );
 
-CREATE TABLE rewards_nft(
+CREATE TABLE rewards_erc721(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id      UUID NOT NULL REFERENCES companies(id),
     name            VARCHAR(255) NOT NULL,
@@ -258,24 +266,24 @@ CREATE TABLE rewards_nft(
     token_id        NUMERIC(78,0)
 );
 
-CREATE TABLE reward_event_statuses_token (
+CREATE TABLE reward_event_statuses (
     id              SERIAL PRIMARY KEY,
     status          VARCHAR(255) NOT NULL
 );
 
-INSERT INTO reward_event_statuses_token (status) VALUES('Accrued');
-INSERT INTO reward_event_statuses_token (status) VALUES('Retrieved by user');
+INSERT INTO reward_event_statuses (status) VALUES('Accrued');
+INSERT INTO reward_event_statuses (status) VALUES('Retrieved by user');
 
-CREATE TABLE reward_event_token (
+CREATE TABLE reward_event_erc20 (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    status          INT NOT NULL REFERENCES reward_event_statuses_token(id),
-    reward_id       UUID NOT NULL REFERENCES rewards_token(id),
+    status          INT NOT NULL REFERENCES reward_event_statuses(id),
+    reward_id       UUID NOT NULL REFERENCES rewards_erc20(id),
     comment         TEXT
 );
 
-CREATE TABLE reward_event_nft (
+CREATE TABLE reward_event_erc721(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    status          INT NOT NULL REFERENCES reward_event_statuses_token(id),
-    reward_id       UUID NOT NULL REFERENCES rewards_token(id),
+    status          INT NOT NULL REFERENCES reward_event_statuses(id),
+    reward_id       UUID NOT NULL REFERENCES rewards_erc721(id),
     comment         TEXT
 );

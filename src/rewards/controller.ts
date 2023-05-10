@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { JWTPayload, TokenReward } from "../entities";
-import { AddTokenRewardValidation } from "../schemas";
-import { addTokenReward, getTokenRewards } from "./service";
+import { DeleteReward, JWTPayload, TokenReward } from "../entities";
+import { AddTokenRewardValidation, DeleteRewardValidation } from "../schemas";
+import { addTokenReward, deleteTokenReward, getTokenRewards } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -20,18 +20,19 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await AddTokenRewardValidation.validateAsync(tokenReward)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await addTokenReward(
+                    const createdTokenReward = await addTokenReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         tokenReward
                     )
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .code(createdTokenReward ? 200 : 500)
+                        .send({createdTokenReward})
                 } else throw Error('Something wrong with token') 
             } catch (error) {
+                console.log(error)
                 reply
                     .code(500)
-                    .send({message: 'Something went wrong'})
+                    .send({createdTokenReward: null})
             }
         }
     ),
@@ -56,6 +57,36 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 reply
                     .code(500)
                     .send({tokenRewards: []})
+            }
+        }
+    ),
+    app.post(
+        '/delete/token',
+        {
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'DeleteReward' }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const deleteReward: DeleteReward = req.body as DeleteReward
+                await DeleteRewardValidation.validateAsync(deleteReward)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const res = await deleteTokenReward(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        deleteReward
+                    )
+                    reply
+                        .code(res ? 200 : 500)
+                        .send({message: 'Something went wrong'})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                reply
+                    .code(500)
+                    .send({createdTokenReward: null})
             }
         }
     )

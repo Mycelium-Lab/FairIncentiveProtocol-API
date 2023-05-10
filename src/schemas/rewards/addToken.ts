@@ -9,7 +9,7 @@ export const AddTokenReward: unknown = {
             type: 'string'
         },
         description: {
-            type: 'string'
+            type: ['null', 'string'], nullable: true
         },
         address: {
             type: 'string'
@@ -27,8 +27,7 @@ export const AddTokenRewardValidation: Joi.ObjectSchema = Joi.object({
         .required()
         .external(checkAddress),
 
-    description: Joi.string()
-        .required(),
+    description: Joi.string().allow(null, ''),
 
     name: Joi.string()
         .required(),

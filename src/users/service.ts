@@ -20,17 +20,17 @@ export async function addUser(user: User, getCompany: GetCompany): Promise<strin
                     v.user_id = ids[0].id
                     v.company_id = getCompany.company_id
                 })
-                await trx('user_properties').insert(user.properties)
-                await trx('user_stats').insert(user.stats)
+                if (user.properties?.length) await trx('user_properties').insert(user.properties)
+                if (user.stats?.length) await trx('user_stats').insert(user.stats)        
                 return ids[0].id
             })
             .then(async (id) => {
                 await trx.commit()
                 return id
             })
-            .catch((err) => {
+            .catch(async (err) => {
                 console.log(err)
-                trx.rollback
+                await trx.rollback()
                 return null
             })
         return id
@@ -58,7 +58,7 @@ export async function getUsers(getCompany: GetCompany): Promise<Array<User>> {
 
 export async function deleteUser(deleteUser: DeleteUser, getCompany: GetCompany): Promise<boolean> {
     try {
-        await pg('users').where({company_id: getCompany.company_id, id: deleteUser.id}).delete()
+        await pg.raw('DELETE FROM users WHERE company_id=? AND id=?', [getCompany.company_id, deleteUser.id])
         return true
     } catch (error) {
         console.log(error)

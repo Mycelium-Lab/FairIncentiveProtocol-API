@@ -26,7 +26,7 @@ function addUser(user, getCompany) {
                 wallet: user.wallet
             }, 'id')
                 .then((ids) => __awaiter(this, void 0, void 0, function* () {
-                var _a, _b;
+                var _a, _b, _c, _d;
                 (_a = user.properties) === null || _a === void 0 ? void 0 : _a.forEach(v => {
                     v.user_id = ids[0].id;
                     v.company_id = getCompany.company_id;
@@ -35,19 +35,21 @@ function addUser(user, getCompany) {
                     v.user_id = ids[0].id;
                     v.company_id = getCompany.company_id;
                 });
-                yield trx('user_properties').insert(user.properties);
-                yield trx('user_stats').insert(user.stats);
+                if ((_c = user.properties) === null || _c === void 0 ? void 0 : _c.length)
+                    yield trx('user_properties').insert(user.properties);
+                if ((_d = user.stats) === null || _d === void 0 ? void 0 : _d.length)
+                    yield trx('user_stats').insert(user.stats);
                 return ids[0].id;
             }))
                 .then((id) => __awaiter(this, void 0, void 0, function* () {
                 yield trx.commit();
                 return id;
             }))
-                .catch((err) => {
+                .catch((err) => __awaiter(this, void 0, void 0, function* () {
                 console.log(err);
-                trx.rollback;
+                yield trx.rollback();
                 return null;
-            });
+            }));
             return id;
         }
         catch (error) {
@@ -78,7 +80,7 @@ exports.getUsers = getUsers;
 function deleteUser(deleteUser, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield (0, db_1.default)('users').where({ company_id: getCompany.company_id, id: deleteUser.id }).delete();
+            yield db_1.default.raw('DELETE FROM users WHERE company_id=? AND id=?', [getCompany.company_id, deleteUser.id]);
             return true;
         }
         catch (error) {

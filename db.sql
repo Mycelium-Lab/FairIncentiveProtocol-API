@@ -35,7 +35,7 @@ CREATE TABLE companies(
 
 CREATE TABLE employees(
     id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    company_id  UUID REFERENCES companies(id),
+    company_id  UUID REFERENCES companies(id) ON DELETE CASCADE,
     email       VARCHAR(256) NOT NULL,
     password    VARCHAR(256) NOT NULL,
     firstname   VARCHAR(255) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE employees(
 
 CREATE TABLE roles (
     id          INT NOT NULL,
-    company_id  UUID NOT NULL REFERENCES companies(id),
+    company_id  UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     title       VARCHAR(255) NOT NULL,
     PRIMARY KEY (id, company_id)
 );
@@ -70,14 +70,15 @@ EXECUTE FUNCTION set_role_id();
 
 CREATE TABLE roles_permissions(
     id              INT NOT NULL,
-    company_id      UUID NOT NULL REFERENCES companies(id),
-    permission_id   INT NOT NULL REFERENCES permissions(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    permission_id   INT NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
     PRIMARY KEY(id, company_id, permission_id)
 );
 
+/*добавить unique на company_id, email, wallet*/
 CREATE TABLE users(
     id              UUID UNIQUE DEFAULT uuid_generate_v4(),
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     external_id     VARCHAR(255) NOT NULL,
     email           VARCHAR(256),
     wallet          VARCHAR(42) NOT NULL,
@@ -87,16 +88,16 @@ CREATE TABLE users(
 );
 
 CREATE TABLE user_properties(
-    user_id         UUID NOT NULL REFERENCES users(id),
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     value           VARCHAR(255) NOT NULL,
     UNIQUE (user_id, company_id, name)
 );
 
 CREATE TABLE user_stats(
-    user_id         UUID NOT NULL REFERENCES users(id),
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     value           REAL NOT NULL,
     UNIQUE (user_id, company_id, name)
@@ -126,7 +127,7 @@ INSERT INTO chains (id, name, explorer) VALUES(42161, 'ArbitrumMainnet', 'https:
 INSERT INTO chains (id, name, explorer) VALUES(10, 'OptimismMainnet', 'https://optimistic.etherscan.io');
 
 CREATE TABLE erc20_tokens(
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     symbol          VARCHAR(255) NOT NULL,
     supply_type     INT NOT NULL REFERENCES erc20_tokens_supply_types(id),
@@ -144,7 +145,7 @@ CREATE TABLE erc20_tokens(
 );
 
 CREATE TABLE erc721_tokens(
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     symbol          VARCHAR(255) NOT NULL,
     description     TEXT,
@@ -166,8 +167,8 @@ CREATE TABLE erc721_tokens(
 );
 
 CREATE TABLE social_links(
-    company_id      UUID NOT NULL REFERENCES companies(id),
-    token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,
     chain_id        INT NOT NULL REFERENCES chains(id),
     link            VARCHAR(500) NOT NULL
 );
@@ -181,16 +182,16 @@ INSERT INTO token_types (name) VALUES('erc20');
 INSERT INTO token_types (name) VALUES('erc721');
 
 CREATE TABLE tokens_admin(
-    company_id      UUID NOT NULL REFERENCES companies(id),
-    token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,
     chain_id        INT NOT NULL REFERENCES chains(id),
     admin_id        UUID DEFAULT NULL,
     token_type      INT NOT NULL REFERENCES token_types(id)
 );
 
 CREATE TABLE tokens_log(
-    company_id      UUID NOT NULL REFERENCES companies(id),
-    token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,
     chain_id        INT NOT NULL REFERENCES chains(id),
     admin_id        UUID DEFAULT NULL,
     user_id         UUID,
@@ -199,7 +200,7 @@ CREATE TABLE tokens_log(
 );
 
 CREATE TABLE roles_log(
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     admin_id        UUID DEFAULT NULL,
     role_id         UUID NOT NULL,
     description     TEXT NOT NULL
@@ -223,7 +224,7 @@ CREATE TABLE currencies(
 INSERT INTO currencies (type, symbol) VALUES(1, 'USD');
 
 CREATE TABLE balances(
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     currency        INT NOT NULL REFERENCES currencies(id),
     amount          REAL NOT NULL DEFAULT 0
 );
@@ -236,7 +237,7 @@ CREATE TABLE payment_platforms(
 INSERT INTO payment_platforms (name) VALUES('web3');
 
 CREATE TABLE payments(
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     currency        INT NOT NULL REFERENCES currencies(id),
     amount          REAL NOT NULL DEFAULT 0,
     platform        INT NOT NULL REFERENCES payment_platforms(id),
@@ -246,14 +247,14 @@ CREATE TABLE payments(
 );
 
 CREATE TABLE api_keys(
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     key             VARCHAR(255) NOT NULL,
     expired         TIMESTAMP NOT NULL
 );
 
 CREATE TABLE rewards_erc20(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
     address         VARCHAR(42) NOT NULL REFERENCES erc20_tokens(address),
@@ -262,7 +263,7 @@ CREATE TABLE rewards_erc20(
 
 CREATE TABLE rewards_erc721(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    company_id      UUID NOT NULL REFERENCES companies(id),
+    company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
     address         VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address),

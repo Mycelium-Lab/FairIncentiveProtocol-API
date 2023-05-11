@@ -282,13 +282,15 @@ INSERT INTO reward_event_statuses (status) VALUES('Retrieved by user');
 CREATE TABLE reward_event_erc20 (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     status          INT NOT NULL REFERENCES reward_event_statuses(id),
-    reward_id       UUID NOT NULL REFERENCES rewards_erc20(id),
+    reward_id       UUID NOT NULL REFERENCES rewards_erc20(id) ON DELETE CASCADE,
+    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     comment         TEXT
 );
 
 CREATE TABLE reward_event_erc721(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     status          INT NOT NULL REFERENCES reward_event_statuses(id),
-    reward_id       UUID NOT NULL REFERENCES rewards_erc721(id),
+    reward_id       UUID NOT NULL REFERENCES rewards_erc721(id) ON DELETE CASCADE,
+    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     comment         TEXT
 );

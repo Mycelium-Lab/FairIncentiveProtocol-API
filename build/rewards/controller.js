@@ -90,6 +90,33 @@ function rewardsPlugin(app, opt) {
                         .code(500)
                         .send({ createdTokenReward: null });
                 }
+            })),
+            app.post('/reward/token', {
+                onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+                schema: {
+                    body: { $ref: 'RewardWithToken' }
+                }
+            }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    const token = (0, controller_1.getToken)(req);
+                    const reward = req.body;
+                    yield schemas_1.RewardWithTokenValidation.validateAsync(reward);
+                    if (token) {
+                        const data = app.jwt.decode(token);
+                        const rewarded = yield (0, service_1.rewardWithToken)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, reward);
+                        reply
+                            .code(rewarded ? 200 : 500)
+                            .send({ rewarded });
+                    }
+                    else
+                        throw Error('Something wrong with token');
+                }
+                catch (error) {
+                    console.log(error);
+                    reply
+                        .code(500)
+                        .send({ rewarded: null });
+                }
             }));
     });
 }

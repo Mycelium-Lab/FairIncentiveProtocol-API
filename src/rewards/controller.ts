@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { DeleteReward, JWTPayload, TokenReward } from "../entities";
-import { AddTokenRewardValidation, DeleteRewardValidation } from "../schemas";
-import { addTokenReward, deleteTokenReward, getTokenRewards } from "./service";
+import { DeleteReward, JWTPayload, RewardWithToken, TokenReward } from "../entities";
+import { AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation } from "../schemas";
+import { addTokenReward, deleteTokenReward, getTokenRewards, rewardWithToken } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -87,6 +87,37 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 reply
                     .code(500)
                     .send({createdTokenReward: null})
+            }
+        }
+    ),
+    app.post(
+        '/reward/token',
+        {
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'RewardWithToken' }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const reward: RewardWithToken = req.body as RewardWithToken
+                await RewardWithTokenValidation.validateAsync(reward)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const rewarded = await rewardWithToken(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        reward
+                    )
+                    reply
+                        .code(rewarded ? 200 : 500)
+                        .send({rewarded})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                console.log(error)
+                reply
+                    .code(500)
+                    .send({rewarded: null})
             }
         }
     )

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addSchemas = exports.DeleteRewardValidation = exports.AddTokenRewardValidation = exports.AddNFTValidation = exports.AddTokenValidation = exports.DeleteUserValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
+exports.addSchemas = exports.RewardWithTokenValidation = exports.DeleteRewardValidation = exports.AddTokenRewardValidation = exports.AddNFTValidation = exports.AddTokenValidation = exports.DeleteUserValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
 const SignUp_1 = require("./auth/SignUp");
 const SignIn_1 = require("./auth/SignIn");
 const name_1 = require("./company/name");
@@ -14,6 +14,7 @@ const add_2 = require("./tokens/add");
 const add_3 = require("./nfts/add");
 const addToken_1 = require("./rewards/addToken");
 const delete_2 = require("./rewards/delete");
+const rewardWithToken_1 = require("./rewards/rewardWithToken");
 var SignUp_2 = require("./auth/SignUp");
 Object.defineProperty(exports, "SignUpValidation", { enumerable: true, get: function () { return SignUp_2.SignUpValidation; } });
 var SignIn_2 = require("./auth/SignIn");
@@ -40,6 +41,8 @@ var addToken_2 = require("./rewards/addToken");
 Object.defineProperty(exports, "AddTokenRewardValidation", { enumerable: true, get: function () { return addToken_2.AddTokenRewardValidation; } });
 var delete_4 = require("./rewards/delete");
 Object.defineProperty(exports, "DeleteRewardValidation", { enumerable: true, get: function () { return delete_4.DeleteRewardValidation; } });
+var rewardWithToken_2 = require("./rewards/rewardWithToken");
+Object.defineProperty(exports, "RewardWithTokenValidation", { enumerable: true, get: function () { return rewardWithToken_2.RewardWithTokenValidation; } });
 function addSchemas(app) {
     app.addSchema(SignUp_1.SignUp);
     app.addSchema(SignIn_1.SignIn);
@@ -54,5 +57,6 @@ function addSchemas(app) {
     app.addSchema(add_3.AddNFT);
     app.addSchema(addToken_1.AddTokenReward);
     app.addSchema(delete_2.DeleteReward);
+    app.addSchema(rewardWithToken_1.RewardWithToken);
 }
 exports.addSchemas = addSchemas;

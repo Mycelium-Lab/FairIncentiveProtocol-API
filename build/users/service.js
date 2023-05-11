@@ -17,17 +17,38 @@ const db_1 = __importDefault(require("../config/db"));
 function addUser(user, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const createdUserID = yield (0, db_1.default)('users')
+            const trx = yield db_1.default.transaction();
+            const id = yield trx('users')
                 .insert({
                 company_id: getCompany.company_id,
-                firstname: user.firstname,
-                lastname: user.lastname,
-                patronymic: user.patronymic,
+                external_id: user.external_id,
                 email: user.email,
                 wallet: user.wallet
-            })
-                .returning('id');
-            return createdUserID[0].id;
+            }, 'id')
+                .then((ids) => __awaiter(this, void 0, void 0, function* () {
+                var _a, _b;
+                (_a = user.properties) === null || _a === void 0 ? void 0 : _a.forEach(v => {
+                    v.user_id = ids[0].id;
+                    v.company_id = getCompany.company_id;
+                });
+                (_b = user.stats) === null || _b === void 0 ? void 0 : _b.forEach(v => {
+                    v.user_id = ids[0].id;
+                    v.company_id = getCompany.company_id;
+                });
+                yield trx('user_properties').insert(user.properties);
+                yield trx('user_stats').insert(user.stats);
+                return ids[0].id;
+            }))
+                .then((id) => __awaiter(this, void 0, void 0, function* () {
+                yield trx.commit();
+                return id;
+            }))
+                .catch((err) => {
+                console.log(err);
+                trx.rollback;
+                return null;
+            });
+            return id;
         }
         catch (error) {
             console.log(error);

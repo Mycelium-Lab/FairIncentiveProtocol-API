@@ -8,13 +8,7 @@ export const AddUser: unknown = {
     $id: 'AddUser',
     type: 'object',
     properties: {
-        firstname: {
-            type: 'string'
-        },
-        lastname: {
-            type: 'string'
-        },
-        patronymic: {
+        external_id: {
             type: 'string'
         },
         email: {
@@ -22,18 +16,31 @@ export const AddUser: unknown = {
         },
         wallet: {
             type: 'string'
+        },
+        notes: {
+            type: ['null', 'string'], nullable: true
+        },
+        properties: {
+            type: 'array',
+            items: {
+                type: 'object'
+            },
+            default: []
+        },
+        stats: {
+            type: 'array',
+            items: {
+                type: 'object'
+            },
+            default: []
         }
     }
 }
 
 export const AddUserValidation: joi.ObjectSchema = Joi.object({
-    firstname: Joi.string()
+    external_id: Joi.string()
         .max(256)
         .required(),
-
-    lastname: Joi.string(),
-
-    patronymic: Joi.string(),
 
     email: Joi.string()
         .email()
@@ -41,7 +48,13 @@ export const AddUserValidation: joi.ObjectSchema = Joi.object({
 
     wallet: Joi.string()
         .external(checkAddress)
-        .required()
+        .required(),
+
+    notes: Joi.string().allow(null, ''),
+
+    properties: Joi.array().allow(null),
+
+    stats: Joi.array().allow(null)
 
 })
 

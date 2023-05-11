@@ -36,13 +36,13 @@ CREATE TABLE companies(
 CREATE TABLE employees(
     id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id  UUID REFERENCES companies(id),
-    email       VARCHAR(256) NOT NULL UNIQUE,
+    email       VARCHAR(256) NOT NULL,
     password    VARCHAR(256) NOT NULL,
     firstname   VARCHAR(255) NOT NULL,
     lastname    VARCHAR(255),
     patronymic  VARCHAR(255),
-    wallet      VARCHAR(42) NOT NULL UNIQUE,
-    phone       VARCHAR(18) UNIQUE,
+    wallet      VARCHAR(42) NOT NULL,
+    phone       VARCHAR(18),
     role_id     INT NOT NULL DEFAULT 0
 );
 
@@ -78,24 +78,28 @@ CREATE TABLE roles_permissions(
 CREATE TABLE users(
     id              UUID UNIQUE DEFAULT uuid_generate_v4(),
     company_id      UUID NOT NULL REFERENCES companies(id),
-    firstname       VARCHAR(255) NOT NULL,
-    lastname        VARCHAR(255),
-    patronymic      VARCHAR(255),    
-    email           VARCHAR(256) NOT NULL UNIQUE,
+    external_id     VARCHAR(255) NOT NULL,
+    email           VARCHAR(256),
     wallet          VARCHAR(42) NOT NULL,
     image           VARCHAR(255),
     notes           TEXT,
     PRIMARY KEY(id, company_id)
 );
 
-/*type либо properties, либо stats*/
-CREATE TABLE user_attributes(
+CREATE TABLE user_properties(
     user_id         UUID NOT NULL REFERENCES users(id),
     company_id      UUID NOT NULL REFERENCES companies(id),
     name            VARCHAR(255) NOT NULL,
     value           VARCHAR(255) NOT NULL,
-    type            VARCHAR(255) NOT NULL,
-    PRIMARY KEY(user_id, company_id)
+    UNIQUE (user_id, company_id, name)
+);
+
+CREATE TABLE user_stats(
+    user_id         UUID NOT NULL REFERENCES users(id),
+    company_id      UUID NOT NULL REFERENCES companies(id),
+    name            VARCHAR(255) NOT NULL,
+    value           REAL NOT NULL,
+    UNIQUE (user_id, company_id, name)
 );
 
 CREATE TABLE erc20_tokens_supply_types(

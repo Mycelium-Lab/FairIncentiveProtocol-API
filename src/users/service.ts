@@ -3,17 +3,37 @@ import { Company, DeleteUser, GetCompany, User } from "../entities";
 
 export async function addUser(user: User, getCompany: GetCompany): Promise<string | null> {
     try {
-        const createdUserID: any = await pg('users')
+        const trx = await pg.transaction()
+        const id: string | null = await trx('users')
             .insert({
                 company_id: getCompany.company_id,
-                firstname: user.firstname,
-                lastname: user.lastname,
-                patronymic: user.patronymic,
+                external_id: user.external_id,
                 email: user.email,
                 wallet: user.wallet
+            }, 'id')
+            .then(async (ids) => {
+                user.properties?.forEach(v => {
+                    v.user_id = ids[0].id
+                    v.company_id = getCompany.company_id
+                })
+                user.stats?.forEach(v => {
+                    v.user_id = ids[0].id
+                    v.company_id = getCompany.company_id
+                })
+                await trx('user_properties').insert(user.properties)
+                await trx('user_stats').insert(user.stats)
+                return ids[0].id
             })
-            .returning('id');
-        return createdUserID[0].id
+            .then(async (id) => {
+                await trx.commit()
+                return id
+            })
+            .catch((err) => {
+                console.log(err)
+                trx.rollback
+                return null
+            })
+        return id
     } catch (error) {
         console.log(error)
         return null

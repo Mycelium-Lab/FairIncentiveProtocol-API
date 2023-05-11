@@ -23,7 +23,8 @@ function addUser(user, getCompany) {
                 company_id: getCompany.company_id,
                 external_id: user.external_id,
                 email: user.email,
-                wallet: user.wallet
+                wallet: user.wallet,
+                notes: user.notes
             }, 'id')
                 .then((ids) => __awaiter(this, void 0, void 0, function* () {
                 var _a, _b, _c, _d;

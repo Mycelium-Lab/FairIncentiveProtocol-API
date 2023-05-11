@@ -9,7 +9,8 @@ export async function addUser(user: User, getCompany: GetCompany): Promise<strin
                 company_id: getCompany.company_id,
                 external_id: user.external_id,
                 email: user.email,
-                wallet: user.wallet
+                wallet: user.wallet,
+                notes: user.notes
             }, 'id')
             .then(async (ids) => {
                 user.properties?.forEach(v => {

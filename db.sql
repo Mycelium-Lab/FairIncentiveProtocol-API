@@ -166,6 +166,16 @@ CREATE TABLE erc721_tokens(
     PRIMARY KEY(company_id, address)
 );
 
+/*для v,r,s поставить правильную длину*/
+CREATE TABLE nfts(
+    address         VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address),
+    chain_id        INT NOT NULL REFERENCES chains(id),
+    image           TEXT NOT NULL,
+    name            VARCHAR(255) NOT NULL,
+    description     TEXT,
+    amount          INT
+);
+
 CREATE TABLE social_links(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,

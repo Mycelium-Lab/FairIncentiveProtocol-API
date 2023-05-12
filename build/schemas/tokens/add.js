@@ -38,7 +38,7 @@ exports.AddTokenValidation = joi_1.default.object({
         .required()
 });
 function checkAddress(wallet) {
-    const _isAddress = (0, ethers_1.isAddress)(wallet);
+    const _isAddress = ethers_1.utils.isAddress(wallet);
     if (!_isAddress) {
         throw Error('Wallet is incorrect');
     }

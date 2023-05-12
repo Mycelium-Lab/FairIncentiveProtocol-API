@@ -1,7 +1,16 @@
 import dotenv from 'dotenv'
-import { Config } from '../entities'
+import { Config, Network } from '../entities'
 
 dotenv.config()
+
+const networks: Array<Network> = [
+    {
+        name: 'Mumbai',
+        chainid:'80001',
+        rpc: 'https://rpc-mumbai.maticvigil.com',
+        private_key: process.env.PRIVATE_KEY || ''
+    }
+]
 
 export const config: Config = {
     PORT: parseInt(process.env.PORT || '3000'),
@@ -12,5 +21,6 @@ export const config: Config = {
     ?
     `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`
     :
-    `postgresql://${process.env.TEST_DB_USER}:${process.env.TEST_DB_PASSWORD}@${process.env.TEST_DB_HOST}/${process.env.TEST_DB_NAME}`
+    `postgresql://${process.env.TEST_DB_USER}:${process.env.TEST_DB_PASSWORD}@${process.env.TEST_DB_HOST}/${process.env.TEST_DB_NAME}`,
+    networks
 }

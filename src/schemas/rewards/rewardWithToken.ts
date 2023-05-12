@@ -1,4 +1,4 @@
-import { isAddress } from 'ethers'
+import { utils } from 'ethers'
 import Joi  from 'joi'
 
 export const RewardWithToken: unknown = {

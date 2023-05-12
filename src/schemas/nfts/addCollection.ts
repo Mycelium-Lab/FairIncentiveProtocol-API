@@ -1,8 +1,8 @@
 import { utils } from 'ethers'
 import Joi  from 'joi'
 
-export const AddToken: unknown = {
-    $id: 'AddToken',
+export const AddNFTCollection: unknown = {
+    $id: 'AddNFTCollection',
     type: 'object',
     properties: {
         address: {
@@ -20,7 +20,7 @@ export const AddToken: unknown = {
     }
 }
 
-export const AddTokenValidation: Joi.ObjectSchema = Joi.object({
+export const AddNFTCollectionValidation: Joi.ObjectSchema = Joi.object({
     address: Joi.string()
         .min(42)
         .max(42)

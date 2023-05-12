@@ -1,6 +1,6 @@
 import * as joi  from 'joi'
 import JoiPhoneNumber from 'joi-phone-number'
-import { isAddress } from 'ethers'
+import { utils } from 'ethers'
 
 let Joi: any = joi.extend(JoiPhoneNumber)
 
@@ -59,7 +59,7 @@ export const AddUserValidation: joi.ObjectSchema = Joi.object({
 })
 
 function checkAddress(wallet: string) {
-    const _isAddress = isAddress(wallet)
+    const _isAddress = utils.isAddress(wallet)
     if (!_isAddress) {
         throw Error('Wallet is incorrect')
     }

@@ -9,10 +9,11 @@ import { ChangeCompanyWallet } from "./company/wallet";
 import { AddUser } from "./users/add";
 import { DeleteUser } from "./users/delete";
 import { AddToken } from "./tokens/add";
-import { AddNFT } from './nfts/add'
+import { AddNFTCollection } from './nfts/addCollection'
 import { AddTokenReward } from "./rewards/addToken";
 import { DeleteReward } from "./rewards/delete";
 import { RewardWithToken } from './rewards/rewardWithToken'
+import { AddNFT } from './nfts/addNFT'
 export { SignUpValidation } from './auth/SignUp'
 export { SignInValidation } from './auth/SignIn'
 export { ChangeCompanyNameValidation } from './company/name'
@@ -23,10 +24,11 @@ export { ChangeCompanyWalletValidation } from "./company/wallet";
 export { AddUserValidation } from './users/add'
 export { DeleteUserValidation } from './users/delete'
 export { AddTokenValidation } from './tokens/add'
-export { AddNFTValidation } from './nfts/add'
+export { AddNFTCollectionValidation } from './nfts/addCollection'
 export { AddTokenRewardValidation } from './rewards/addToken'
 export { DeleteRewardValidation } from "./rewards/delete";
 export { RewardWithTokenValidation } from './rewards/rewardWithToken'
+export { AddNFTValidation } from './nfts/addNFT'
 
 export function addSchemas(app: FastifyInstance) {
     app.addSchema(SignUp)
@@ -39,8 +41,9 @@ export function addSchemas(app: FastifyInstance) {
     app.addSchema(AddUser)
     app.addSchema(DeleteUser)
     app.addSchema(AddToken)
-    app.addSchema(AddNFT)
+    app.addSchema(AddNFTCollection)
     app.addSchema(AddTokenReward)
     app.addSchema(DeleteReward)
     app.addSchema(RewardWithToken)
+    app.addSchema(AddNFT)
 }

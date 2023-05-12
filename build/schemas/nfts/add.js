@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AddNFTValidation = exports.AddNFT = void 0;
+exports.AddNFTCollectionValidation = exports.AddNFTCollection = void 0;
 const ethers_1 = require("ethers");
 const joi_1 = __importDefault(require("joi"));
-exports.AddNFT = {
-    $id: 'AddNFT',
+exports.AddNFTCollection = {
+    $id: 'AddNFTCollection',
     type: 'object',
     properties: {
         address: {
@@ -24,7 +24,7 @@ exports.AddNFT = {
         }
     }
 };
-exports.AddNFTValidation = joi_1.default.object({
+exports.AddNFTCollectionValidation = joi_1.default.object({
     address: joi_1.default.string()
         .min(42)
         .max(42)

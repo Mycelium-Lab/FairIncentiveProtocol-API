@@ -1,4 +1,4 @@
-import { isAddress } from 'ethers'
+import { utils } from 'ethers'
 import Joi  from 'joi'
 
 export const AddTokenReward: unknown = {
@@ -38,7 +38,7 @@ export const AddTokenRewardValidation: Joi.ObjectSchema = Joi.object({
 })
 
 function checkAddress(wallet: string) {
-    const _isAddress = isAddress(wallet)
+    const _isAddress = utils.isAddress(wallet)
     if (!_isAddress) {
         throw Error('Wallet is incorrect')
     }

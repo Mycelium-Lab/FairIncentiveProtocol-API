@@ -12,19 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNFTs = exports.addNFT = void 0;
+exports.getNFTs = exports.addNFT = exports.getNFTCollections = exports.addNFTCollection = void 0;
+const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../config/db"));
-function addNFT(nft, getCompany) {
+function addNFTCollection(nftCollection, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield (0, db_1.default)('erc721_tokens')
                 .insert({
                 company_id: getCompany.company_id,
-                name: nft.name,
-                symbol: nft.symbol,
-                chain_id: nft.chainid,
-                address: nft.address,
-                beneficiary: nft.address
+                name: nftCollection.name,
+                symbol: nftCollection.symbol,
+                chain_id: nftCollection.chainid,
+                address: nftCollection.address,
+                beneficiary: nftCollection.address
             });
             return true;
         }
@@ -34,8 +35,8 @@ function addNFT(nft, getCompany) {
         }
     });
 }
-exports.addNFT = addNFT;
-function getNFTs(getCompany) {
+exports.addNFTCollection = addNFTCollection;
+function getNFTCollections(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const tokens = yield (0, db_1.default)('erc721_tokens')
@@ -51,4 +52,55 @@ function getNFTs(getCompany) {
         }
     });
 }
+exports.getNFTCollections = getNFTCollections;
+function addNFT(nft, getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const collection = yield (0, db_1.default)('erc721_tokens').select('*').where({ company_id: getCompany.company_id, address: nft.address });
+            if (!collection.length)
+                throw Error('Not found this collection');
+            yield (0, db_1.default)('nfts').insert({
+                address: nft.address,
+                image: "https://gateway.pinata.cloud/ipfs/QmX9qWa4p1Te3PhdRpyyY1SSvdgY9JAjVcGX2sy8HtaFn4?_gl=1*owkaeo*rs_ga*NzVlMGVjN2MtMTExNC00MmRkLTg2ZjQtZGZkZWMyOGY3Nzg4*rs_ga_5RMPXG14TE*MTY4Mzg3OTYxNi42LjEuMTY4Mzg4MDE3Ni42MC4wLjA",
+                chain_id: nft.chainid,
+                amount: nft.amount,
+                name: nft.name,
+                description: nft.description
+            });
+            return true;
+        }
+        catch (error) {
+            console.log(error);
+            return false;
+        }
+    });
+}
+exports.addNFT = addNFT;
+function getNFTs(getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            return [];
+        }
+        catch (error) {
+            console.log(error);
+            return [];
+        }
+    });
+}
 exports.getNFTs = getNFTs;
+// const network = config.networks.find(n => n.chainid == nft.chain_id)
+// const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
+// const signer = new ethers.Wallet(network?.private_key || '', provider)
+function sign(uri, sender, signer, contractAddress) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const message = [uri, sender, contractAddress];
+        const hashMessage = ethers_1.ethers.utils.solidityKeccak256([
+            "string", "uint160", "uint160"
+        ], message);
+        const sign = yield signer.signMessage(ethers_1.ethers.utils.arrayify(hashMessage));
+        const r = sign.substr(0, 66);
+        const s = `0x${sign.substr(66, 64)}`;
+        const v = parseInt(`0x${sign.substr(130, 2)}`);
+        return { r, s, v };
+    });
+}

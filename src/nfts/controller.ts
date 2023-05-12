@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } f
 import { getToken } from "../company/controller";
 import { AddNFT, AddNFTCollection, AddToken, JWTPayload } from "../entities";
 import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation } from "../schemas";
-import { addNFT, addNFTCollection, getNFTCollections } from "./service";
+import { addNFT, addNFTCollection, getNFTCollections, getNFTs } from "./service";
 
 export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -78,6 +78,29 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 } else throw Error('Something wrong with token') 
             } catch (error: any) {
                 console.log(error)
+                //TODO: pretty tokens error
+                reply
+                    .code(500)
+                    .send({message: error.message})
+            }
+        }
+    )
+    app.get(
+        '/nfts',
+        {
+            onRequest: [async (req) => await req.jwtVerify()]
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const res = await getNFTs({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    reply
+                        .code(200)
+                        .send({nfts: res})
+                } else throw Error('Something wrong with token') 
+            } catch (error: any) {
                 //TODO: pretty tokens error
                 reply
                     .code(500)

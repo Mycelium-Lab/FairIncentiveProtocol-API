@@ -79,7 +79,19 @@ exports.addNFT = addNFT;
 function getNFTs(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            return [];
+            const nfts = yield (0, db_1.default)('erc721_tokens')
+                .whereRaw('erc721_tokens.company_id = ?', [getCompany.company_id])
+                .join('nfts', 'nfts.address', '=', 'erc721_tokens.address')
+                .select([
+                'erc721_tokens.address as collection_address',
+                'erc721_tokens.name as collection_name',
+                'erc721_tokens.chain_id as chainid',
+                'nfts.image as image',
+                'nfts.name as nft_name',
+                'nfts.description as nft_description',
+                'nfts.amount as nft_amount'
+            ]);
+            return nfts;
         }
         catch (error) {
             console.log(error);

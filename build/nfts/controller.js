@@ -92,6 +92,28 @@ function nftsPlugin(app, opt) {
                     .send({ message: error.message });
             }
         }));
+        app.get('/nfts', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = (0, controller_1.getToken)(req);
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const res = yield (0, service_1.getNFTs)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    reply
+                        .code(200)
+                        .send({ nfts: res });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                //TODO: pretty tokens error
+                reply
+                    .code(500)
+                    .send({ message: error.message });
+            }
+        }));
     });
 }
 exports.nftsPlugin = nftsPlugin;

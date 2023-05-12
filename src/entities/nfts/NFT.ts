@@ -4,6 +4,6 @@ export interface NFT {
     chainid: string,
     image: string,
     nft_name: string,
-    nft_description: string,
-    nft_amount: number
+    nft_description: string | null,
+    nft_amount: number | null
 }

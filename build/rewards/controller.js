@@ -47,8 +47,6 @@ function rewardsPlugin(app, opt) {
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const token = (0, controller_1.getToken)(req);
-                    const tokenReward = req.body;
-                    yield schemas_1.AddTokenRewardValidation.validateAsync(tokenReward);
                     if (token) {
                         const data = app.jwt.decode(token);
                         const tokenRewards = yield (0, service_1.getTokenRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
@@ -116,6 +114,27 @@ function rewardsPlugin(app, opt) {
                     reply
                         .code(500)
                         .send({ rewarded: null });
+                }
+            })),
+            app.get('/events/tokens', {
+                onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    const token = (0, controller_1.getToken)(req);
+                    if (token) {
+                        const data = app.jwt.decode(token);
+                        const rewardEvents = yield (0, service_1.getRewardTokenEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                        reply
+                            .code(200)
+                            .send({ rewardEvents });
+                    }
+                    else
+                        throw Error('Something wrong with token');
+                }
+                catch (error) {
+                    reply
+                        .code(500)
+                        .send({ rewardEvents: [] });
                 }
             }));
     });

@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { DeleteReward, JWTPayload, RewardWithToken, TokenReward } from "../entities";
+import { DeleteReward, JWTPayload, RewardTokenEvent, RewardWithToken, TokenReward } from "../entities";
 import { AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation } from "../schemas";
-import { addTokenReward, deleteTokenReward, getTokenRewards, rewardWithToken } from "./service";
+import { addTokenReward, deleteTokenReward, getRewardTokenEvents, getTokenRewards, rewardWithToken } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -44,8 +44,6 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const token = getToken(req)
-                const tokenReward: TokenReward = req.body as TokenReward
-                await AddTokenRewardValidation.validateAsync(tokenReward)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const tokenRewards: Array<TokenReward> = await getTokenRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
@@ -118,6 +116,28 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 reply
                     .code(500)
                     .send({rewarded: null})
+            }
+        }
+    ),
+    app.get(
+        '/events/tokens',
+        {
+            onRequest: [async (req) => await req.jwtVerify()]
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const rewardEvents: Array<RewardTokenEvent> = await getRewardTokenEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    reply
+                        .code(200)
+                        .send({rewardEvents})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                reply
+                    .code(500)
+                    .send({rewardEvents: []})
             }
         }
     )

@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { DeleteReward, JWTPayload, RewardTokenEvent, RewardWithToken, TokenReward } from "../entities";
-import { AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation } from "../schemas";
-import { addTokenReward, deleteTokenReward, getRewardTokenEvents, getTokenRewards, rewardWithToken } from "./service";
+import { DeleteReward, JWTPayload, NFTReward, RewardTokenEvent, RewardWithToken, TokenReward } from "../entities";
+import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation } from "../schemas";
+import { addNFTReward, addTokenReward, deleteTokenReward, getRewardTokenEvents, getTokenRewards, rewardWithToken } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -138,6 +138,37 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 reply
                     .code(500)
                     .send({rewardEvents: []})
+            }
+        }
+    )
+    app.post(
+        '/add/nft',
+        {
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'AddNFTReward' }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const nftReward: NFTReward = req.body as NFTReward
+                await AddNFTRewardValidation.validateAsync(nftReward)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const createdNFTReward = await addNFTReward(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        nftReward
+                    )
+                    reply
+                        .code(createdNFTReward ? 200 : 500)
+                        .send({createdNFTReward})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                console.log(error)
+                reply
+                    .code(500)
+                    .send({createdTokenReward: null})
             }
         }
     )

@@ -168,6 +168,7 @@ CREATE TABLE erc721_tokens(
 
 /*для v,r,s поставить правильную длину*/
 CREATE TABLE nfts(
+    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     address         VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address),
     chain_id        INT NOT NULL REFERENCES chains(id),
     image           TEXT NOT NULL,
@@ -276,9 +277,7 @@ CREATE TABLE rewards_erc721(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
-    address         VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address),
-    is_random       BOOLEAN NOT NULL,
-    token_id        NUMERIC(78,0)
+    nft_id          UUID NOT NULL REFERENCES nfts(id)
 );
 
 CREATE TABLE reward_event_statuses (

@@ -137,6 +137,33 @@ function rewardsPlugin(app, opt) {
                         .send({ rewardEvents: [] });
                 }
             }));
+        app.post('/add/nft', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            schema: {
+                body: { $ref: 'AddNFTReward' }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = (0, controller_1.getToken)(req);
+                const nftReward = req.body;
+                yield schemas_1.AddNFTRewardValidation.validateAsync(nftReward);
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const createdNFTReward = yield (0, service_1.addNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, nftReward);
+                    reply
+                        .code(createdNFTReward ? 200 : 500)
+                        .send({ createdNFTReward });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                console.log(error);
+                reply
+                    .code(500)
+                    .send({ createdTokenReward: null });
+            }
+        }));
     });
 }
 exports.rewardsPlugin = rewardsPlugin;

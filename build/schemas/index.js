@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addSchemas = exports.AddNFTValidation = exports.RewardWithTokenValidation = exports.DeleteRewardValidation = exports.AddTokenRewardValidation = exports.AddNFTCollectionValidation = exports.AddTokenValidation = exports.DeleteUserValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
+exports.addSchemas = exports.AddNFTRewardValidation = exports.AddNFTValidation = exports.RewardWithTokenValidation = exports.DeleteRewardValidation = exports.AddTokenRewardValidation = exports.AddNFTCollectionValidation = exports.AddTokenValidation = exports.DeleteUserValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
 const SignUp_1 = require("./auth/SignUp");
 const SignIn_1 = require("./auth/SignIn");
 const name_1 = require("./company/name");
@@ -16,6 +16,7 @@ const addToken_1 = require("./rewards/addToken");
 const delete_2 = require("./rewards/delete");
 const rewardWithToken_1 = require("./rewards/rewardWithToken");
 const addNFT_1 = require("./nfts/addNFT");
+const addNFT_2 = require("./rewards/addNFT");
 var SignUp_2 = require("./auth/SignUp");
 Object.defineProperty(exports, "SignUpValidation", { enumerable: true, get: function () { return SignUp_2.SignUpValidation; } });
 var SignIn_2 = require("./auth/SignIn");
@@ -44,8 +45,10 @@ var delete_4 = require("./rewards/delete");
 Object.defineProperty(exports, "DeleteRewardValidation", { enumerable: true, get: function () { return delete_4.DeleteRewardValidation; } });
 var rewardWithToken_2 = require("./rewards/rewardWithToken");
 Object.defineProperty(exports, "RewardWithTokenValidation", { enumerable: true, get: function () { return rewardWithToken_2.RewardWithTokenValidation; } });
-var addNFT_2 = require("./nfts/addNFT");
-Object.defineProperty(exports, "AddNFTValidation", { enumerable: true, get: function () { return addNFT_2.AddNFTValidation; } });
+var addNFT_3 = require("./nfts/addNFT");
+Object.defineProperty(exports, "AddNFTValidation", { enumerable: true, get: function () { return addNFT_3.AddNFTValidation; } });
+var addNFT_4 = require("./rewards/addNFT");
+Object.defineProperty(exports, "AddNFTRewardValidation", { enumerable: true, get: function () { return addNFT_4.AddNFTRewardValidation; } });
 function addSchemas(app) {
     app.addSchema(SignUp_1.SignUp);
     app.addSchema(SignIn_1.SignIn);
@@ -62,5 +65,6 @@ function addSchemas(app) {
     app.addSchema(delete_2.DeleteReward);
     app.addSchema(rewardWithToken_1.RewardWithToken);
     app.addSchema(addNFT_1.AddNFT);
+    app.addSchema(addNFT_2.AddNFTReward);
 }
 exports.addSchemas = addSchemas;

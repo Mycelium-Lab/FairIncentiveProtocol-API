@@ -6,5 +6,6 @@ export interface NFTReward {
     symbol?: string,
     address?: string,
     count?: number,
+    nft_name: string,
     nft_id: string 
 }

@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } f
 import { getToken } from "../company/controller";
 import { DeleteReward, JWTPayload, NFTReward, RewardTokenEvent, RewardWithToken, TokenReward } from "../entities";
 import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation } from "../schemas";
-import { addNFTReward, addTokenReward, deleteTokenReward, getRewardTokenEvents, getTokenRewards, rewardWithToken } from "./service";
+import { addNFTReward, addTokenReward, deleteTokenReward, getNFTRewards, getRewardTokenEvents, getTokenRewards, rewardWithToken } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -169,6 +169,28 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 reply
                     .code(500)
                     .send({createdTokenReward: null})
+            }
+        }
+    )
+    app.get(
+        '/get/nfts',
+        {
+            onRequest: [async (req) => await req.jwtVerify()]
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const nftRewards: Array<NFTReward> = await getNFTRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    reply
+                        .code(nftRewards.length ? 200 : 500)
+                        .send({nftRewards})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                reply
+                    .code(500)
+                    .send({nftRewards: []})
             }
         }
     )

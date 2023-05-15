@@ -87,11 +87,19 @@ function getNFTs(getCompany) {
                 'erc721_tokens.name as collection_name',
                 'erc721_tokens.chain_id as chainid',
                 'nfts.image as image',
+                'nfts.id as nft_id',
                 'nfts.name as nft_name',
                 'nfts.description as nft_description',
                 'nfts.amount as nft_amount'
             ]);
-            return nfts;
+            const result = nfts.reduce((acc, item) => {
+                if (!acc[item.collection_address]) {
+                    acc[item.collection_address] = [];
+                }
+                acc[item.collection_address].push(item);
+                return acc;
+            }, {});
+            return result;
         }
         catch (error) {
             console.log(error);

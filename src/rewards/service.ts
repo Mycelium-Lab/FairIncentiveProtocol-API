@@ -1,5 +1,5 @@
 import pg from "../config/db";
-import { DeleteReward, GetCompany, NFTReward, RewardTokenEvent, RewardWithToken, Token, TokenReward } from "../entities";
+import { DeleteReward, GetCompany, NFT, NFTReward, RewardTokenEvent, RewardWithToken, Token, TokenReward } from "../entities";
 
 export async function addTokenReward(getCompany: GetCompany, tokenReward: TokenReward): Promise<TokenReward | undefined> {
     try {
@@ -24,7 +24,6 @@ export async function getTokenRewards(getCompany: GetCompany): Promise<Array<Tok
                 .leftJoin('reward_event_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
                 .groupBy('rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol')
                 .select(['rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol'])
-        console.log(tokenRewards)
         return tokenRewards
     } catch (error) {
         console.log(error)
@@ -84,6 +83,13 @@ export async function getRewardTokenEvents(getCompany: GetCompany): Promise<Arra
 export async function addNFTReward(getCompany: GetCompany, nftReward: NFTReward): Promise<NFTReward | undefined> {
     try {
         nftReward.company_id = getCompany.company_id
+        const company: GetCompany = 
+            await pg('nfts')
+            .whereRaw('nfts.id = ?', [nftReward.nft_id])
+            .leftJoin('erc721_tokens', 'nfts.address','=','erc721_tokens.address')
+            .select('erc721_tokens.company_id as company_id')
+            .first()
+        if (!company.company_id) throw Error('Not this company')
         const addedReward: Array<NFTReward> = await pg('rewards_erc721').insert(nftReward).returning('*')
         return addedReward[0]
     } catch (error) {
@@ -92,23 +98,23 @@ export async function addNFTReward(getCompany: GetCompany, nftReward: NFTReward)
     }
 }
 
-// export async function getNFTRewards(getCompany: GetCompany): Promise<Array<TokenReward>> {
-//     try {
-//         const tokenRewards: Array<TokenReward> = 
-//             await pg('rewards_erc20')
-//                 .count('reward_event_erc20.user_id')
-//                 .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id]) 
-//                 .leftJoin('erc20_tokens', 'rewards_erc20.address', '=', 'erc20_tokens.address')
-//                 .leftJoin('reward_event_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
-//                 .groupBy('rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol')
-//                 .select(['rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol'])
-//         console.log(tokenRewards)
-//         return tokenRewards
-//     } catch (error) {
-//         console.log(error)
-//         return []
-//     }
-// }
+export async function getNFTRewards(getCompany: GetCompany): Promise<Array<NFTReward>> {
+    try {
+        const nftRewards: Array<NFTReward> = 
+            await pg('rewards_erc721')
+                .count('reward_event_erc721.user_id')
+                .whereRaw('rewards_erc721.company_id = ?', [getCompany.company_id]) 
+                .leftJoin('nfts', 'rewards_erc721.nft_id', '=', 'nfts.id')
+                .leftJoin('erc721_tokens', 'nfts.address', '=', 'erc721_tokens.address')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
+                .groupBy('rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol','nfts.name')
+                .select(['rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name'])
+        return nftRewards
+    } catch (error) {
+        console.log(error)
+        return []
+    }
+}
 
 // export async function deleteNFTReward(getCompany: GetCompany, deleteReward: DeleteReward): Promise<boolean> {
 //     try {

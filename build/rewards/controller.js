@@ -164,6 +164,27 @@ function rewardsPlugin(app, opt) {
                     .send({ createdTokenReward: null });
             }
         }));
+        app.get('/get/nfts', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = (0, controller_1.getToken)(req);
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const nftRewards = yield (0, service_1.getNFTRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    reply
+                        .code(nftRewards.length ? 200 : 500)
+                        .send({ nftRewards });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                reply
+                    .code(500)
+                    .send({ nftRewards: [] });
+            }
+        }));
     });
 }
 exports.rewardsPlugin = rewardsPlugin;

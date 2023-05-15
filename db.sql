@@ -302,4 +302,4 @@ CREATE TABLE reward_event_erc721(
     reward_id       UUID NOT NULL REFERENCES rewards_erc721(id) ON DELETE CASCADE,
     user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     comment         TEXT
-);
+);      

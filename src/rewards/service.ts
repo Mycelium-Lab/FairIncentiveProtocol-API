@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import pg from "../config/db";
-import { DeleteReward, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, User } from "../entities";
+import { ClaimNFT, DeleteReward, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, User } from "../entities";
 import { config } from "../config/config";
 
 export async function addTokenReward(getCompany: GetCompany, tokenReward: TokenReward): Promise<TokenReward | undefined> {
@@ -152,6 +152,7 @@ export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithTo
         const signer = new ethers.Wallet(network?.private_key || '', provider)
         const user: User = await pg('users').where({id: reward.user_id}).first()
         const signature = await signNFTReward(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '')
+        //TODO: в контракте учитывать то что нельзя использовать эту подпись дважды
         await pg('reward_event_erc721').insert({
             status: 1,//Accrued
             reward_id: reward.reward_id,
@@ -190,6 +191,30 @@ export async function getRewardNFTEvents(getCompany: GetCompany): Promise<Array<
     } catch (error) {
         console.log(error)
         return []
+    }
+}
+
+export async function getClaimableNFT(rewardEventID: string, user_id: string): Promise<ClaimNFT | null> {
+    try {
+        const claimableNFT: ClaimNFT =
+            await pg('reward_event_erc721')
+                .whereRaw('reward_event_erc721.id = ? AND reward_event_erc721.user_id = ?', [rewardEventID, user_id])
+                .first()
+                .leftJoin('rewards_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
+                .leftJoin('nfts', 'nfts.id', '=', 'rewards_erc721.nft_id')
+                .leftJoin('users', 'users.id', '=', 'reward_event_erc721.user_id')
+                .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
+                .select([
+                    'erc721_tokens.name as collection_name', 'erc721_tokens.address as collection.address',
+                    'nfts.name as nft_name', 'nfts.image as nft_image',
+                    'nfts.description as nft_description', 'nfts.chain_id as chainid',
+                    'users.wallet as user_wallet',
+                    'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r'
+                ])
+        return claimableNFT
+    } catch (error) {
+        console.log(error)
+        return null
     }
 }
 

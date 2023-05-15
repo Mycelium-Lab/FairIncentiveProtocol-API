@@ -30,7 +30,7 @@ function build(opt = {}) {
         const app = (0, fastify_1.default)(opt);
         (0, schemas_1.addSchemas)(app);
         app.register(jwt_2.default, {
-            secret: config_1.config.SECRET_KEY,
+            secret: config_1.config.SECRET_KEY
         });
         app.register(jwt_1.jwtPlugin);
         app.register(controller_1.authPlugin, { prefix: '/auth' });

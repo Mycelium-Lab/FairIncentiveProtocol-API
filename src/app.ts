@@ -18,8 +18,7 @@ export async function build(opt: AppOptions = {}) {
     
     addSchemas(app)
     app.register(fastifyJwt, { 
-        secret: config.SECRET_KEY,
-        
+        secret: config.SECRET_KEY
     })
     app.register(jwtPlugin)
     app.register(authPlugin, { prefix: '/auth' })

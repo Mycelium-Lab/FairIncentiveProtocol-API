@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { DeleteReward, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward } from "../entities";
+import { ClaimNFT, DeleteReward, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward } from "../entities";
 import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation } from "../schemas";
-import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken } from "./service";
+import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -274,6 +274,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 reply
                     .code(500)
                     .send({rewardEvents: []})
+            }
+        }
+    )
+    app.get(
+        '/events/claimablenft',
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const query = req.query as any
+                const claimableNFT: ClaimNFT | null = await getClaimableNFT(query.id, query.user_id)
+                reply
+                    .code(200)
+                    .send({claimableNFT})
+            } catch (error) {
+                reply
+                    .code(500)
+                    .send({claimableNFT: null})
             }
         }
     )

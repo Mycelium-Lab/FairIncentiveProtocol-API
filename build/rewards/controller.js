@@ -259,6 +259,20 @@ function rewardsPlugin(app, opt) {
                     .send({ rewardEvents: [] });
             }
         }));
+        app.get('/events/claimablenft', (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const query = req.query;
+                const claimableNFT = yield (0, service_1.getClaimableNFT)(query.id, query.user_id);
+                reply
+                    .code(200)
+                    .send({ claimableNFT });
+            }
+            catch (error) {
+                reply
+                    .code(500)
+                    .send({ claimableNFT: null });
+            }
+        }));
     });
 }
 exports.rewardsPlugin = rewardsPlugin;

@@ -185,6 +185,80 @@ function rewardsPlugin(app, opt) {
                     .send({ nftRewards: [] });
             }
         }));
+        app.post('/delete/nfts', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            schema: {
+                body: { $ref: 'DeleteReward' }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = (0, controller_1.getToken)(req);
+                const deleteReward = req.body;
+                yield schemas_1.DeleteRewardValidation.validateAsync(deleteReward);
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const res = yield (0, service_1.deleteNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, deleteReward);
+                    reply
+                        .code(res ? 200 : 500)
+                        .send({ message: 'Something went wrong' });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                reply
+                    .code(500)
+                    .send({ createdTokenReward: null });
+            }
+        }));
+        app.post('/reward/nft', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            schema: {
+                body: { $ref: 'RewardWithToken' }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = (0, controller_1.getToken)(req);
+                const reward = req.body;
+                yield schemas_1.RewardWithTokenValidation.validateAsync(reward);
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const rewarded = yield (0, service_1.rewardWithNFT)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, reward);
+                    reply
+                        .code(rewarded ? 200 : 500)
+                        .send({ rewarded });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                console.log(error);
+                reply
+                    .code(500)
+                    .send({ rewarded: null });
+            }
+        }));
+        app.get('/events/nfts', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = (0, controller_1.getToken)(req);
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const rewardEvents = yield (0, service_1.getRewardNFTEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    reply
+                        .code(200)
+                        .send({ rewardEvents });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                reply
+                    .code(500)
+                    .send({ rewardEvents: [] });
+            }
+        }));
     });
 }
 exports.rewardsPlugin = rewardsPlugin;

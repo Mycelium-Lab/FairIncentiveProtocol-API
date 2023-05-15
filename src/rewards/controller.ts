@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { DeleteReward, JWTPayload, NFTReward, RewardTokenEvent, RewardWithToken, TokenReward } from "../entities";
+import { DeleteReward, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward } from "../entities";
 import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation } from "../schemas";
-import { addNFTReward, addTokenReward, deleteTokenReward, getNFTRewards, getRewardTokenEvents, getTokenRewards, rewardWithToken } from "./service";
+import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -191,6 +191,89 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 reply
                     .code(500)
                     .send({nftRewards: []})
+            }
+        }
+    )
+    app.post(
+        '/delete/nfts',
+        {
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'DeleteReward' }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const deleteReward: DeleteReward = req.body as DeleteReward
+                await DeleteRewardValidation.validateAsync(deleteReward)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const res = await deleteNFTReward(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        deleteReward
+                    )
+                    reply
+                        .code(res ? 200 : 500)
+                        .send({message: 'Something went wrong'})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                reply
+                    .code(500)
+                    .send({createdTokenReward: null})
+            }
+        }
+    )
+    app.post(
+        '/reward/nft',
+        {
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'RewardWithToken' }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const reward: RewardWithToken = req.body as RewardWithToken
+                await RewardWithTokenValidation.validateAsync(reward)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const rewarded = await rewardWithNFT(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        reward
+                    )
+                    reply
+                        .code(rewarded ? 200 : 500)
+                        .send({rewarded})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                console.log(error)
+                reply
+                    .code(500)
+                    .send({rewarded: null})
+            }
+        }
+    )
+    app.get(
+        '/events/nfts',
+        {
+            onRequest: [async (req) => await req.jwtVerify()]
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const rewardEvents: Array<RewardNFTEvent> = await getRewardNFTEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    reply
+                        .code(200)
+                        .send({rewardEvents})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                reply
+                    .code(500)
+                    .send({rewardEvents: []})
             }
         }
     )

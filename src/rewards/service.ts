@@ -1,5 +1,5 @@
 import pg from "../config/db";
-import { DeleteReward, GetCompany, NFT, NFTReward, RewardTokenEvent, RewardWithToken, Token, TokenReward } from "../entities";
+import { DeleteReward, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward } from "../entities";
 
 export async function addTokenReward(getCompany: GetCompany, tokenReward: TokenReward): Promise<TokenReward | undefined> {
     try {
@@ -60,7 +60,7 @@ export async function rewardWithToken(getCompany: GetCompany, reward: RewardWith
 
 export async function getRewardTokenEvents(getCompany: GetCompany): Promise<Array<RewardTokenEvent>> {
     try {
-        const rewardEvents: Array<RewardTokenEvent> = await pg('rewards_erc20')
+        let rewardEvents: Array<RewardTokenEvent> = await pg('rewards_erc20')
             .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id])
             .leftJoin('reward_event_erc20', 'reward_event_erc20.reward_id', '=', 'rewards_erc20.id')
             .leftJoin('users', 'users.id', '=', 'reward_event_erc20.user_id')
@@ -73,6 +73,7 @@ export async function getRewardTokenEvents(getCompany: GetCompany): Promise<Arra
                 'rewards_erc20.address as token_address', 'erc20_tokens.symbol as token_symbol',
                 'rewards_erc20.amount as token_amount', 'reward_event_erc20.comment as event_comment'
             ])
+        rewardEvents = rewardEvents.filter(v => v.user_id !== null)
         return rewardEvents
     } catch (error) {
         console.log(error)
@@ -91,6 +92,15 @@ export async function addNFTReward(getCompany: GetCompany, nftReward: NFTReward)
             .first()
         if (!company.company_id) throw Error('Not this company')
         const addedReward: Array<NFTReward> = await pg('rewards_erc721').insert(nftReward).returning('*')
+        const nftCollection: any = 
+            await pg('nfts')
+                .whereRaw('nfts.id = ?', [addedReward[0].nft_id])
+                .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
+                .select(['erc721_tokens.symbol', 'nfts.name as nft_name'])
+                .first()
+        addedReward[0].symbol = nftCollection.symbol
+        addedReward[0].nft_name = nftCollection.nft_name
+        console.log(addedReward[0])
         return addedReward[0]
     } catch (error) {
         console.log(error)
@@ -116,51 +126,54 @@ export async function getNFTRewards(getCompany: GetCompany): Promise<Array<NFTRe
     }
 }
 
-// export async function deleteNFTReward(getCompany: GetCompany, deleteReward: DeleteReward): Promise<boolean> {
-//     try {
-//         await pg('rewards_erc20').where({id: deleteReward.id, company_id: getCompany.company_id}).delete()
-//         return true
-//     } catch (error) {
-//         console.log(error)
-//         return false
-//     }
-// }
+export async function deleteNFTReward(getCompany: GetCompany, deleteReward: DeleteReward): Promise<boolean> {
+    try {
+        await pg('rewards_erc721').where({id: deleteReward.id, company_id: getCompany.company_id}).delete()
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
 
-// export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithToken): Promise<boolean> {
-//     try {
-//         const tokenReward: TokenReward = await pg('rewards_erc20').select('*').where({id: reward.reward_id}).first()
-//         if (tokenReward.company_id !== getCompany.company_id) throw Error('Not allowed company')
-//         await pg('reward_event_erc20').insert({
-//             status: 1,
-//             reward_id: reward.reward_id,
-//             user_id: reward.user_id,
-//             comment: reward.comment
-//         })
-//         return true
-//     } catch (error) {
-//         console.log(error)
-//         return false
-//     }
-// }
+export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithToken): Promise<boolean> {
+    try {
+        const nftReward: NFTReward = await pg('rewards_erc721').select('*').where({id: reward.reward_id}).first()
+        if (nftReward.company_id !== getCompany.company_id) throw Error('Not allowed company')
+        await pg('reward_event_erc721').insert({
+            status: 1,//Accrued
+            reward_id: reward.reward_id,
+            user_id: reward.user_id,
+            comment: reward.comment
+        })
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
 
-// export async function getRewardNFTEvents(getCompany: GetCompany): Promise<Array<RewardTokenEvent>> {
-//     try {
-//         const rewardEvents: Array<RewardTokenEvent> = await pg('rewards_erc20')
-//             .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id])
-//             .leftJoin('reward_event_erc20', 'reward_event_erc20.reward_id', '=', 'rewards_erc20.id')
-//             .leftJoin('users', 'users.id', '=', 'reward_event_erc20.user_id')
-//             .leftJoin('erc20_tokens', 'erc20_tokens.address', '=', 'rewards_erc20.address')
-//             .leftJoin('reward_event_statuses', 'reward_event_statuses.id', '=', 'reward_event_erc20.status')
-//             .select([
-//                 'rewards_erc20.id as reward_id', 'rewards_erc20.name as reward_name',
-//                 'users.id as user_id', 'users.external_id as user_external_id', 
-//                 'reward_event_erc20.id as event_id', 'reward_event_statuses.status as status',
-//                 'rewards_erc20.address as token_address', 'erc20_tokens.symbol as token_symbol',
-//                 'rewards_erc20.amount as token_amount', 'reward_event_erc20.comment as event_comment'
-//             ])
-//         return rewardEvents
-//     } catch (error) {
-//         console.log(error)
-//         return []
-//     }
-// }
+export async function getRewardNFTEvents(getCompany: GetCompany): Promise<Array<RewardNFTEvent>> {
+    try {
+        let rewardEvents: Array<RewardNFTEvent> = await pg('rewards_erc721')
+            .whereRaw('rewards_erc721.company_id = ?', [getCompany.company_id])
+            .leftJoin('reward_event_erc721', 'reward_event_erc721.reward_id', '=', 'rewards_erc721.id')
+            .leftJoin('users', 'users.id', '=', 'reward_event_erc721.user_id')
+            .leftJoin('nfts', 'nfts.id', '=', 'rewards_erc721.nft_id')
+            .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
+            .leftJoin('reward_event_statuses', 'reward_event_statuses.id', '=', 'reward_event_erc721.status')
+            .select([
+                'rewards_erc721.id as reward_id', 'rewards_erc721.name as reward_name',
+                'users.id as user_id', 'users.external_id as user_external_id', 
+                'reward_event_erc721.id as event_id', 'reward_event_statuses.status as status',
+                'nfts.address as token_address', 'erc721_tokens.symbol as token_symbol',
+                'reward_event_erc721.comment as event_comment', 'nfts.name as nft_name',
+                'nfts.id as nft_id'
+            ])
+        rewardEvents = rewardEvents.filter(v => v.user_id !== null)
+        return rewardEvents
+    } catch (error) {
+        console.log(error)
+        return []
+    }
+}

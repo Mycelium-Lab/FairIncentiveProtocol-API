@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
+exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
 const db_1 = __importDefault(require("../config/db"));
 function addTokenReward(getCompany, tokenReward) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -86,7 +86,7 @@ exports.rewardWithToken = rewardWithToken;
 function getRewardTokenEvents(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const rewardEvents = yield (0, db_1.default)('rewards_erc20')
+            let rewardEvents = yield (0, db_1.default)('rewards_erc20')
                 .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id])
                 .leftJoin('reward_event_erc20', 'reward_event_erc20.reward_id', '=', 'rewards_erc20.id')
                 .leftJoin('users', 'users.id', '=', 'reward_event_erc20.user_id')
@@ -99,6 +99,7 @@ function getRewardTokenEvents(getCompany) {
                 'rewards_erc20.address as token_address', 'erc20_tokens.symbol as token_symbol',
                 'rewards_erc20.amount as token_amount', 'reward_event_erc20.comment as event_comment'
             ]);
+            rewardEvents = rewardEvents.filter(v => v.user_id !== null);
             return rewardEvents;
         }
         catch (error) {
@@ -120,6 +121,14 @@ function addNFTReward(getCompany, nftReward) {
             if (!company.company_id)
                 throw Error('Not this company');
             const addedReward = yield (0, db_1.default)('rewards_erc721').insert(nftReward).returning('*');
+            const nftCollection = yield (0, db_1.default)('nfts')
+                .whereRaw('nfts.id = ?', [addedReward[0].nft_id])
+                .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
+                .select(['erc721_tokens.symbol', 'nfts.name as nft_name'])
+                .first();
+            addedReward[0].symbol = nftCollection.symbol;
+            addedReward[0].nft_name = nftCollection.nft_name;
+            console.log(addedReward[0]);
             return addedReward[0];
         }
         catch (error) {
@@ -149,49 +158,65 @@ function getNFTRewards(getCompany) {
     });
 }
 exports.getNFTRewards = getNFTRewards;
-// export async function deleteNFTReward(getCompany: GetCompany, deleteReward: DeleteReward): Promise<boolean> {
-//     try {
-//         await pg('rewards_erc20').where({id: deleteReward.id, company_id: getCompany.company_id}).delete()
-//         return true
-//     } catch (error) {
-//         console.log(error)
-//         return false
-//     }
-// }
-// export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithToken): Promise<boolean> {
-//     try {
-//         const tokenReward: TokenReward = await pg('rewards_erc20').select('*').where({id: reward.reward_id}).first()
-//         if (tokenReward.company_id !== getCompany.company_id) throw Error('Not allowed company')
-//         await pg('reward_event_erc20').insert({
-//             status: 1,
-//             reward_id: reward.reward_id,
-//             user_id: reward.user_id,
-//             comment: reward.comment
-//         })
-//         return true
-//     } catch (error) {
-//         console.log(error)
-//         return false
-//     }
-// }
-// export async function getRewardNFTEvents(getCompany: GetCompany): Promise<Array<RewardTokenEvent>> {
-//     try {
-//         const rewardEvents: Array<RewardTokenEvent> = await pg('rewards_erc20')
-//             .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id])
-//             .leftJoin('reward_event_erc20', 'reward_event_erc20.reward_id', '=', 'rewards_erc20.id')
-//             .leftJoin('users', 'users.id', '=', 'reward_event_erc20.user_id')
-//             .leftJoin('erc20_tokens', 'erc20_tokens.address', '=', 'rewards_erc20.address')
-//             .leftJoin('reward_event_statuses', 'reward_event_statuses.id', '=', 'reward_event_erc20.status')
-//             .select([
-//                 'rewards_erc20.id as reward_id', 'rewards_erc20.name as reward_name',
-//                 'users.id as user_id', 'users.external_id as user_external_id', 
-//                 'reward_event_erc20.id as event_id', 'reward_event_statuses.status as status',
-//                 'rewards_erc20.address as token_address', 'erc20_tokens.symbol as token_symbol',
-//                 'rewards_erc20.amount as token_amount', 'reward_event_erc20.comment as event_comment'
-//             ])
-//         return rewardEvents
-//     } catch (error) {
-//         console.log(error)
-//         return []
-//     }
-// }
+function deleteNFTReward(getCompany, deleteReward) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield (0, db_1.default)('rewards_erc721').where({ id: deleteReward.id, company_id: getCompany.company_id }).delete();
+            return true;
+        }
+        catch (error) {
+            console.log(error);
+            return false;
+        }
+    });
+}
+exports.deleteNFTReward = deleteNFTReward;
+function rewardWithNFT(getCompany, reward) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const nftReward = yield (0, db_1.default)('rewards_erc721').select('*').where({ id: reward.reward_id }).first();
+            if (nftReward.company_id !== getCompany.company_id)
+                throw Error('Not allowed company');
+            yield (0, db_1.default)('reward_event_erc721').insert({
+                status: 1,
+                reward_id: reward.reward_id,
+                user_id: reward.user_id,
+                comment: reward.comment
+            });
+            return true;
+        }
+        catch (error) {
+            console.log(error);
+            return false;
+        }
+    });
+}
+exports.rewardWithNFT = rewardWithNFT;
+function getRewardNFTEvents(getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let rewardEvents = yield (0, db_1.default)('rewards_erc721')
+                .whereRaw('rewards_erc721.company_id = ?', [getCompany.company_id])
+                .leftJoin('reward_event_erc721', 'reward_event_erc721.reward_id', '=', 'rewards_erc721.id')
+                .leftJoin('users', 'users.id', '=', 'reward_event_erc721.user_id')
+                .leftJoin('nfts', 'nfts.id', '=', 'rewards_erc721.nft_id')
+                .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
+                .leftJoin('reward_event_statuses', 'reward_event_statuses.id', '=', 'reward_event_erc721.status')
+                .select([
+                'rewards_erc721.id as reward_id', 'rewards_erc721.name as reward_name',
+                'users.id as user_id', 'users.external_id as user_external_id',
+                'reward_event_erc721.id as event_id', 'reward_event_statuses.status as status',
+                'nfts.address as token_address', 'erc721_tokens.symbol as token_symbol',
+                'reward_event_erc721.comment as event_comment', 'nfts.name as nft_name',
+                'nfts.id as nft_id'
+            ]);
+            rewardEvents = rewardEvents.filter(v => v.user_id !== null);
+            return rewardEvents;
+        }
+        catch (error) {
+            console.log(error);
+            return [];
+        }
+    });
+}
+exports.getRewardNFTEvents = getRewardNFTEvents;

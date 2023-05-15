@@ -13,7 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
+const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../config/db"));
+const config_1 = require("../config/config");
 function addTokenReward(getCompany, tokenReward) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -174,14 +176,26 @@ exports.deleteNFTReward = deleteNFTReward;
 function rewardWithNFT(getCompany, reward) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const nftReward = yield (0, db_1.default)('rewards_erc721').select('*').where({ id: reward.reward_id }).first();
+            const nftReward = yield (0, db_1.default)('rewards_erc721')
+                .whereRaw('rewards_erc721.id = ?', [reward.reward_id])
+                .first()
+                .leftJoin('nfts', 'nfts.id', '=', 'rewards_erc721.nft_id')
+                .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'nfts.chain_id as chainid']);
             if (nftReward.company_id !== getCompany.company_id)
                 throw Error('Not allowed company');
+            const network = config_1.config.networks.find(n => n.chainid == nftReward.chainid);
+            const provider = new ethers_1.ethers.providers.JsonRpcProvider(network === null || network === void 0 ? void 0 : network.rpc);
+            const signer = new ethers_1.ethers.Wallet((network === null || network === void 0 ? void 0 : network.private_key) || '', provider);
+            const user = yield (0, db_1.default)('users').where({ id: reward.user_id }).first();
+            const signature = yield signNFTReward(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '');
             yield (0, db_1.default)('reward_event_erc721').insert({
                 status: 1,
                 reward_id: reward.reward_id,
                 user_id: reward.user_id,
-                comment: reward.comment
+                comment: reward.comment,
+                v: signature.v,
+                r: signature.r,
+                s: signature.s
             });
             return true;
         }
@@ -220,3 +234,16 @@ function getRewardNFTEvents(getCompany) {
     });
 }
 exports.getRewardNFTEvents = getRewardNFTEvents;
+function signNFTReward(uri, sender, signer, contractAddress) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const message = [uri, sender, contractAddress];
+        const hashMessage = ethers_1.ethers.utils.solidityKeccak256([
+            "string", "uint160", "uint160"
+        ], message);
+        const sign = yield signer.signMessage(ethers_1.ethers.utils.arrayify(hashMessage));
+        const r = sign.substr(0, 66);
+        const s = `0x${sign.substr(66, 64)}`;
+        const v = parseInt(`0x${sign.substr(130, 2)}`);
+        return { r, s, v };
+    });
+}

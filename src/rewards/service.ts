@@ -1,5 +1,7 @@
+import { ethers } from "ethers";
 import pg from "../config/db";
-import { DeleteReward, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward } from "../entities";
+import { DeleteReward, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, User } from "../entities";
+import { config } from "../config/config";
 
 export async function addTokenReward(getCompany: GetCompany, tokenReward: TokenReward): Promise<TokenReward | undefined> {
     try {
@@ -138,13 +140,26 @@ export async function deleteNFTReward(getCompany: GetCompany, deleteReward: Dele
 
 export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithToken): Promise<boolean> {
     try {
-        const nftReward: NFTReward = await pg('rewards_erc721').select('*').where({id: reward.reward_id}).first()
+        const nftReward: NFTReward = 
+            await pg('rewards_erc721')
+                .whereRaw('rewards_erc721.id = ?', [reward.reward_id])
+                .first()
+                .leftJoin('nfts','nfts.id','=','rewards_erc721.nft_id')
+                .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'nfts.chain_id as chainid'])
         if (nftReward.company_id !== getCompany.company_id) throw Error('Not allowed company')
+        const network = config.networks.find(n => n.chainid == nftReward.chainid)
+        const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
+        const signer = new ethers.Wallet(network?.private_key || '', provider)
+        const user: User = await pg('users').where({id: reward.user_id}).first()
+        const signature = await signNFTReward(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '')
         await pg('reward_event_erc721').insert({
             status: 1,//Accrued
             reward_id: reward.reward_id,
             user_id: reward.user_id,
-            comment: reward.comment
+            comment: reward.comment,
+            v: signature.v,
+            r: signature.r,
+            s: signature.s
         })
         return true
     } catch (error) {
@@ -176,4 +191,18 @@ export async function getRewardNFTEvents(getCompany: GetCompany): Promise<Array<
         console.log(error)
         return []
     }
+}
+
+async function signNFTReward(
+    uri: string, sender: string, signer: ethers.Wallet, contractAddress: string
+) {
+    const message = [uri, sender, contractAddress]
+    const hashMessage = ethers.utils.solidityKeccak256([
+        "string","uint160","uint160"
+    ], message)
+    const sign = await signer.signMessage(ethers.utils.arrayify(hashMessage));
+    const r = sign.substr(0, 66)
+    const s = `0x${sign.substr(66, 64)}`;
+    const v = parseInt(`0x${sign.substr(130,2)}`);
+    return {r,s,v}
 }

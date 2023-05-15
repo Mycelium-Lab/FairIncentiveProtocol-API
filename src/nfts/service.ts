@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { config } from "../config/config";
 import pg from "../config/db";
 import { AddNFT, AddNFTCollection, Company, GetCompany, NFT, NFTCollection } from "../entities";
@@ -82,23 +81,4 @@ export async function getNFTs(getCompany: GetCompany): Promise<Array<NFT>> {
         console.log(error)
         return []
     }
-}
-
-
-// const network = config.networks.find(n => n.chainid == nft.chain_id)
-// const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
-// const signer = new ethers.Wallet(network?.private_key || '', provider)
-
-async function sign(
-    uri: string, sender: string, signer: ethers.Wallet, contractAddress: string
-) {
-    const message = [uri, sender, contractAddress]
-    const hashMessage = ethers.utils.solidityKeccak256([
-        "string","uint160","uint160"
-    ], message)
-    const sign = await signer.signMessage(ethers.utils.arrayify(hashMessage));
-    const r = sign.substr(0, 66)
-    const s = `0x${sign.substr(66, 64)}`;
-    const v = parseInt(`0x${sign.substr(130,2)}`);
-    return {r,s,v}
 }

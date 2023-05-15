@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getNFTs = exports.addNFT = exports.getNFTCollections = exports.addNFTCollection = void 0;
-const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../config/db"));
 function addNFTCollection(nftCollection, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -108,19 +107,3 @@ function getNFTs(getCompany) {
     });
 }
 exports.getNFTs = getNFTs;
-// const network = config.networks.find(n => n.chainid == nft.chain_id)
-// const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
-// const signer = new ethers.Wallet(network?.private_key || '', provider)
-function sign(uri, sender, signer, contractAddress) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const message = [uri, sender, contractAddress];
-        const hashMessage = ethers_1.ethers.utils.solidityKeccak256([
-            "string", "uint160", "uint160"
-        ], message);
-        const sign = yield signer.signMessage(ethers_1.ethers.utils.arrayify(hashMessage));
-        const r = sign.substr(0, 66);
-        const s = `0x${sign.substr(66, 64)}`;
-        const v = parseInt(`0x${sign.substr(130, 2)}`);
-        return { r, s, v };
-    });
-}

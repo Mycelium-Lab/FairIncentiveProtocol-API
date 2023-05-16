@@ -15,6 +15,7 @@ import { DeleteReward } from "./rewards/delete";
 import { RewardWithToken } from './rewards/rewardWithToken'
 import { AddNFT } from './nfts/addNFT'
 import { AddNFTReward } from './rewards/addNFT'
+import { UpdateTokenReward } from './rewards/updateTokenReward'
 export { SignUpValidation } from './auth/SignUp'
 export { SignInValidation } from './auth/SignIn'
 export { ChangeCompanyNameValidation } from './company/name'
@@ -31,6 +32,7 @@ export { DeleteRewardValidation } from "./rewards/delete";
 export { RewardWithTokenValidation } from './rewards/rewardWithToken'
 export { AddNFTValidation } from './nfts/addNFT'
 export { AddNFTRewardValidation } from './rewards/addNFT'
+export { UpdateTokenRewardValidation } from './rewards/updateTokenReward'
 
 export function addSchemas(app: FastifyInstance) {
     app.addSchema(SignUp)
@@ -49,4 +51,5 @@ export function addSchemas(app: FastifyInstance) {
     app.addSchema(RewardWithToken)
     app.addSchema(AddNFT)
     app.addSchema(AddNFTReward)
+    app.addSchema(UpdateTokenReward)
 }

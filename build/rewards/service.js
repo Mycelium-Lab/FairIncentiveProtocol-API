@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getClaimableNFT = exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
+exports.updateTokenReward = exports.getClaimableNFT = exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
 const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../config/db"));
 const config_1 = require("../config/config");
+const sign_1 = require("../utils/sign");
 function addTokenReward(getCompany, tokenReward) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -187,7 +188,7 @@ function rewardWithNFT(getCompany, reward) {
             const provider = new ethers_1.ethers.providers.JsonRpcProvider(network === null || network === void 0 ? void 0 : network.rpc);
             const signer = new ethers_1.ethers.Wallet((network === null || network === void 0 ? void 0 : network.private_key) || '', provider);
             const user = yield (0, db_1.default)('users').where({ id: reward.user_id }).first();
-            const signature = yield signNFTReward(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '');
+            const signature = yield (0, sign_1.signNFTReward)(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '');
             //TODO: в контракте учитывать то что нельзя использовать эту подпись дважды
             yield (0, db_1.default)('reward_event_erc721').insert({
                 status: 1,
@@ -261,16 +262,21 @@ function getClaimableNFT(rewardEventID, user_id) {
     });
 }
 exports.getClaimableNFT = getClaimableNFT;
-function signNFTReward(uri, sender, signer, contractAddress) {
+function updateTokenReward(getCompany, tokenReward) {
     return __awaiter(this, void 0, void 0, function* () {
-        const message = [uri, sender, contractAddress];
-        const hashMessage = ethers_1.ethers.utils.solidityKeccak256([
-            "string", "uint160", "uint160"
-        ], message);
-        const sign = yield signer.signMessage(ethers_1.ethers.utils.arrayify(hashMessage));
-        const r = sign.substr(0, 66);
-        const s = `0x${sign.substr(66, 64)}`;
-        const v = parseInt(`0x${sign.substr(130, 2)}`);
-        return { r, s, v };
+        try {
+            const rewardEvent = yield (0, db_1.default)('reward_event_erc20').count('id').where({ reward_id: tokenReward.id }).first();
+            //if some reward event exist with this reward then can't update token
+            if (rewardEvent.count != 0) {
+                tokenReward.address = undefined;
+            }
+            yield (0, db_1.default)('rewards_erc20').update(tokenReward).where({ company_id: getCompany.company_id, id: tokenReward.id });
+            return true;
+        }
+        catch (error) {
+            console.log(error);
+            return false;
+        }
     });
 }
+exports.updateTokenReward = updateTokenReward;

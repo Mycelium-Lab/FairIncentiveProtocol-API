@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AddUserValidation = exports.AddUser = void 0;
+exports.checkAddress = exports.AddUserValidation = exports.AddUser = void 0;
 const joi = __importStar(require("joi"));
 const joi_phone_number_1 = __importDefault(require("joi-phone-number"));
 const ethers_1 = require("ethers");
@@ -83,3 +83,4 @@ function checkAddress(wallet) {
         throw Error('Wallet is incorrect');
     }
 }
+exports.checkAddress = checkAddress;

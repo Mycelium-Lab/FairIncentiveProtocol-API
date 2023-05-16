@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { ClaimNFT, DeleteReward, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward } from "../entities";
+import { ClaimNFT, DeleteReward, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward, UpdateTokenReward } from "../entities";
 import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation } from "../schemas";
-import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken } from "./service";
+import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateTokenReward } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -290,6 +290,32 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 reply
                     .code(500)
                     .send({claimableNFT: null})
+            }
+        }
+    )
+    app.post(
+        '/update/token',
+        {
+            onRequest: [async (req) => await req.jwtVerify()]
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const update: UpdateTokenReward = req.body as UpdateTokenReward
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const done: boolean = await updateTokenReward(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        update
+                    )
+                    reply
+                        .code(done ? 200 : 500)
+                        .send({done})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                reply
+                    .code(500)
+                    .send({done: false})
             }
         }
     )

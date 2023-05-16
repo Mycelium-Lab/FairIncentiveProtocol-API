@@ -58,7 +58,7 @@ export const AddUserValidation: joi.ObjectSchema = Joi.object({
 
 })
 
-function checkAddress(wallet: string) {
+export function checkAddress(wallet: string) {
     const _isAddress = utils.isAddress(wallet)
     if (!_isAddress) {
         throw Error('Wallet is incorrect')

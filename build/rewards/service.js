@@ -246,7 +246,7 @@ function getClaimableNFT(rewardEventID, user_id) {
                 .leftJoin('users', 'users.id', '=', 'reward_event_erc721.user_id')
                 .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
                 .select([
-                'erc721_tokens.name as collection_name', 'erc721_tokens.address as collection.address',
+                'erc721_tokens.name as collection_name', 'erc721_tokens.address as collection_address',
                 'nfts.name as nft_name', 'nfts.image as nft_image',
                 'nfts.description as nft_description', 'nfts.chain_id as chainid',
                 'users.wallet as user_wallet',

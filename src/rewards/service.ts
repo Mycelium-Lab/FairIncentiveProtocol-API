@@ -3,6 +3,7 @@ import pg from "../config/db";
 import { ClaimNFT, DeleteReward, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
 import { config } from "../config/config";
 import { signNFTReward } from "../utils/sign";
+import { Company } from "../entities";
 
 export async function addTokenReward(getCompany: GetCompany, tokenReward: TokenReward): Promise<TokenReward | undefined> {
     try {
@@ -243,6 +244,40 @@ export async function updateNFTReward(getCompany: GetCompany, nftReward: UpdateN
             nftReward.nft_id = undefined
         }
         await pg('rewards_erc721').update(nftReward).where({company_id: getCompany.company_id, id: nftReward.id})
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
+export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewardEvent: DeleteReward): Promise<boolean> {
+    try {
+        const rewardCompany: Company = 
+            await pg('reward_event_erc20')
+            .whereRaw('reward_event_erc20.id = ?', deleteRewardEvent.id)
+            .leftJoin('rewards_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
+            .first()
+            .select(['rewards_erc20.company_id as id'])
+        if (rewardCompany.id !== getCompany.company_id) throw Error('Not this company token reward')
+        await pg('reward_event_erc20').whereRaw('id = ? AND status = 1', [deleteRewardEvent.id]).delete()
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
+export async function deleteNFTRewardEvent(getCompany: GetCompany, deleteRewardEvent: DeleteReward): Promise<boolean> {
+    try {
+        const rewardCompany: Company = 
+            await pg('reward_event_erc721')
+            .whereRaw('reward_event_erc721.id = ?', deleteRewardEvent.id)
+            .leftJoin('rewards_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
+            .first()
+            .select(['rewards_erc721.company_id as id'])
+        if (rewardCompany.id !== getCompany.company_id) throw Error('Not this company token reward')
+        await pg('reward_event_erc721').whereRaw('id = ? AND status = 1', [deleteRewardEvent.id]).delete()
         return true
     } catch (error) {
         console.log(error)

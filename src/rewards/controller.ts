@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
 import { ClaimNFT, DeleteReward, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
-import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation } from "../schemas";
-import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateNFTReward, updateTokenReward } from "./service";
+import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation, UpdateNFTRewardValidation, UpdateTokenRewardValidation } from "../schemas";
+import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateNFTReward, updateTokenReward, deleteTokenRewardEvent, deleteNFTRewardEvent } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -302,6 +302,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
             try {
                 const token = getToken(req)
                 const update: UpdateTokenReward = req.body as UpdateTokenReward
+                await UpdateTokenRewardValidation.validateAsync(update)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const done: boolean = await updateTokenReward(
@@ -328,6 +329,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
             try {
                 const token = getToken(req)
                 const update: UpdateNFTReward = req.body as UpdateNFTReward
+                await UpdateNFTRewardValidation.validateAsync(update)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const done: boolean = await updateNFTReward(
@@ -339,6 +341,62 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                         .send({done})
                 } else throw Error('Something wrong with token') 
             } catch (error) {
+                reply
+                    .code(500)
+                    .send({done: false})
+            }
+        }
+    )
+    app.post(
+        '/delete/events/token',
+        {
+            onRequest: [async (req) => await req.jwtVerify()]
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const tokenRewardEvent: DeleteReward = req.body as DeleteReward
+                await DeleteRewardValidation.validateAsync(tokenRewardEvent)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const done: boolean = await deleteTokenRewardEvent(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        tokenRewardEvent
+                    )
+                    reply
+                        .code(done ? 200 : 500)
+                        .send({done})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                console.log(error)
+                reply
+                    .code(500)
+                    .send({done: false})
+            }
+        }
+    )
+    app.post(
+        '/delete/events/nft',
+        {
+            onRequest: [async (req) => await req.jwtVerify()]
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const nftRewardEvent: DeleteReward = req.body as DeleteReward
+                await DeleteRewardValidation.validateAsync(nftRewardEvent)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const done: boolean = await deleteNFTRewardEvent(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        nftRewardEvent
+                    )
+                    reply
+                        .code(done ? 200 : 500)
+                        .send({done})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                console.log(error)
                 reply
                     .code(500)
                     .send({done: false})

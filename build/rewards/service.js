@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateNFTReward = exports.updateTokenReward = exports.getClaimableNFT = exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
+exports.deleteNFTRewardEvent = exports.deleteTokenRewardEvent = exports.updateNFTReward = exports.updateTokenReward = exports.getClaimableNFT = exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
 const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../config/db"));
 const config_1 = require("../config/config");
@@ -299,3 +299,43 @@ function updateNFTReward(getCompany, nftReward) {
     });
 }
 exports.updateNFTReward = updateNFTReward;
+function deleteTokenRewardEvent(getCompany, deleteRewardEvent) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const rewardCompany = yield (0, db_1.default)('reward_event_erc20')
+                .whereRaw('reward_event_erc20.id = ?', deleteRewardEvent.id)
+                .leftJoin('rewards_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
+                .first()
+                .select(['rewards_erc20.company_id as id']);
+            if (rewardCompany.id !== getCompany.company_id)
+                throw Error('Not this company token reward');
+            yield (0, db_1.default)('reward_event_erc20').whereRaw('id = ? AND status = 1', [deleteRewardEvent.id]).delete();
+            return true;
+        }
+        catch (error) {
+            console.log(error);
+            return false;
+        }
+    });
+}
+exports.deleteTokenRewardEvent = deleteTokenRewardEvent;
+function deleteNFTRewardEvent(getCompany, deleteRewardEvent) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const rewardCompany = yield (0, db_1.default)('reward_event_erc721')
+                .whereRaw('reward_event_erc721.id = ?', deleteRewardEvent.id)
+                .leftJoin('rewards_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
+                .first()
+                .select(['rewards_erc721.company_id as id']);
+            if (rewardCompany.id !== getCompany.company_id)
+                throw Error('Not this company token reward');
+            yield (0, db_1.default)('reward_event_erc721').whereRaw('id = ? AND status = 1', [deleteRewardEvent.id]).delete();
+            return true;
+        }
+        catch (error) {
+            console.log(error);
+            return false;
+        }
+    });
+}
+exports.deleteNFTRewardEvent = deleteNFTRewardEvent;

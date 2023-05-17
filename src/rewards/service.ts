@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import pg from "../config/db";
-import { ClaimNFT, DeleteReward, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, UpdateTokenReward, User } from "../entities";
+import { ClaimNFT, DeleteReward, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
 import { config } from "../config/config";
 import { signNFTReward } from "../utils/sign";
 
@@ -120,8 +120,8 @@ export async function getNFTRewards(getCompany: GetCompany): Promise<Array<NFTRe
                 .leftJoin('nfts', 'rewards_erc721.nft_id', '=', 'nfts.id')
                 .leftJoin('erc721_tokens', 'nfts.address', '=', 'erc721_tokens.address')
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
-                .groupBy('rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol','nfts.name')
-                .select(['rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name'])
+                .groupBy('rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol','nfts.name', 'nfts.address')
+                .select(['rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name', 'nfts.address as address'])
         return nftRewards
     } catch (error) {
         console.log(error)
@@ -153,7 +153,6 @@ export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithTo
         const signer = new ethers.Wallet(network?.private_key || '', provider)
         const user: User = await pg('users').where({id: reward.user_id}).first()
         const signature = await signNFTReward(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '')
-        //TODO: в контракте учитывать то что нельзя использовать эту подпись дважды
         await pg('reward_event_erc721').insert({
             status: 1,//Accrued
             reward_id: reward.reward_id,
@@ -227,6 +226,23 @@ export async function updateTokenReward(getCompany: GetCompany, tokenReward: Upd
             tokenReward.address = undefined
         }
         await pg('rewards_erc20').update(tokenReward).where({company_id: getCompany.company_id, id: tokenReward.id})
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
+export async function updateNFTReward(getCompany: GetCompany, nftReward: UpdateNFTReward): Promise<boolean> {
+    try {
+        //check if nft_id is in that collection
+        const rewardEvent: any = await pg('reward_event_erc721').count('id').where({reward_id: nftReward.id}).first()
+        //if some reward event exist with this reward then can't update token
+        if (rewardEvent.count != 0) {
+            nftReward.address = undefined
+            nftReward.nft_id = undefined
+        }
+        await pg('rewards_erc721').update(nftReward).where({company_id: getCompany.company_id, id: nftReward.id})
         return true
     } catch (error) {
         console.log(error)

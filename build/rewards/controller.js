@@ -295,6 +295,28 @@ function rewardsPlugin(app, opt) {
                     .send({ done: false });
             }
         }));
+        app.post('/update/nft', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = (0, controller_1.getToken)(req);
+                const update = req.body;
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const done = yield (0, service_1.updateNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, update);
+                    reply
+                        .code(done ? 200 : 500)
+                        .send({ done });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                reply
+                    .code(500)
+                    .send({ done: false });
+            }
+        }));
     });
 }
 exports.rewardsPlugin = rewardsPlugin;

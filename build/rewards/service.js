@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTokenReward = exports.getClaimableNFT = exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
+exports.updateNFTReward = exports.updateTokenReward = exports.getClaimableNFT = exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
 const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../config/db"));
 const config_1 = require("../config/config");
@@ -150,8 +150,8 @@ function getNFTRewards(getCompany) {
                 .leftJoin('nfts', 'rewards_erc721.nft_id', '=', 'nfts.id')
                 .leftJoin('erc721_tokens', 'nfts.address', '=', 'erc721_tokens.address')
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
-                .groupBy('rewards_erc721.id', 'rewards_erc721.name', 'rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name')
-                .select(['rewards_erc721.id', 'rewards_erc721.name', 'rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name']);
+                .groupBy('rewards_erc721.id', 'rewards_erc721.name', 'rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name', 'nfts.address')
+                .select(['rewards_erc721.id', 'rewards_erc721.name', 'rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name', 'nfts.address as address']);
             return nftRewards;
         }
         catch (error) {
@@ -189,7 +189,6 @@ function rewardWithNFT(getCompany, reward) {
             const signer = new ethers_1.ethers.Wallet((network === null || network === void 0 ? void 0 : network.private_key) || '', provider);
             const user = yield (0, db_1.default)('users').where({ id: reward.user_id }).first();
             const signature = yield (0, sign_1.signNFTReward)(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '');
-            //TODO: в контракте учитывать то что нельзя использовать эту подпись дважды
             yield (0, db_1.default)('reward_event_erc721').insert({
                 status: 1,
                 reward_id: reward.reward_id,
@@ -280,3 +279,23 @@ function updateTokenReward(getCompany, tokenReward) {
     });
 }
 exports.updateTokenReward = updateTokenReward;
+function updateNFTReward(getCompany, nftReward) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            //check if nft_id is in that collection
+            const rewardEvent = yield (0, db_1.default)('reward_event_erc721').count('id').where({ reward_id: nftReward.id }).first();
+            //if some reward event exist with this reward then can't update token
+            if (rewardEvent.count != 0) {
+                nftReward.address = undefined;
+                nftReward.nft_id = undefined;
+            }
+            yield (0, db_1.default)('rewards_erc721').update(nftReward).where({ company_id: getCompany.company_id, id: nftReward.id });
+            return true;
+        }
+        catch (error) {
+            console.log(error);
+            return false;
+        }
+    });
+}
+exports.updateNFTReward = updateNFTReward;

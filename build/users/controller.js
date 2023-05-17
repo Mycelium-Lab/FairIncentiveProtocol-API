@@ -28,7 +28,6 @@ function usersPlugin(app, opt) {
                 if (token) {
                     const data = app.jwt.decode(token);
                     const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                    console.log(res);
                     reply
                         .code(res ? 200 : 500)
                         .send({ id: res });
@@ -95,6 +94,35 @@ function usersPlugin(app, opt) {
                     });
                 }
             }));
+        app.post('/update', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            schema: {
+                body: { $ref: 'UpdateUser' }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = req.body;
+                yield schemas_1.UpdateUserValidation.validateAsync(user);
+                const token = (0, controller_1.getToken)(req);
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const res = yield (0, service_1.updateUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    reply
+                        .code(res ? 200 : 500)
+                        .send({ res });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                reply
+                    .code(500)
+                    .header('Content-Type', 'application/json; charset=utf-8')
+                    .send({
+                    message: error.message
+                });
+            }
+        }));
     });
 }
 exports.usersPlugin = usersPlugin;

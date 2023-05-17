@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
-import { DeleteUser, JWTPayload, User } from "../entities";
-import { AddUserValidation, DeleteUserValidation } from "../schemas";
+import { DeleteUser, JWTPayload, UpdateUser, User } from "../entities";
+import { AddUserValidation, DeleteUserValidation, UpdateUserValidation } from "../schemas";
 import { getToken } from "../company/controller";
-import { addUser, deleteUser, getUsers } from "./service";
+import { addUser, deleteUser, getUsers, updateUser } from "./service";
 
 export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -21,7 +21,6 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const res: string | null = await addUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                    console.log(res)
                     reply    
                         .code(res ? 200 : 500)
                         .send({id: res})
@@ -81,6 +80,38 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                     reply    
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
+                } else throw Error('Something wrong with token') 
+            } catch (error: any) {
+                reply
+                    .code(500)
+                    .header('Content-Type', 'application/json; charset=utf-8')
+                    .send(
+                        {
+                            message: error.message
+                        }
+                    )
+            }
+        }
+    )
+    app.post(
+        '/update',
+        {
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'UpdateUser' } 
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const user: UpdateUser = req.body as UpdateUser
+                await UpdateUserValidation.validateAsync(user)
+                const token = getToken(req)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const res: boolean = await updateUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    reply    
+                        .code(res ? 200 : 500)
+                        .send({res})
                 } else throw Error('Something wrong with token') 
             } catch (error: any) {
                 reply

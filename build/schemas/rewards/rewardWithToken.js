@@ -23,5 +23,5 @@ exports.RewardWithToken = {
 exports.RewardWithTokenValidation = joi_1.default.object({
     reward_id: joi_1.default.string().uuid().required(),
     user_id: joi_1.default.string().uuid().required(),
-    comment: joi_1.default.string().allow(null, '')
+    comment: joi_1.default.string().allow(null)
 });

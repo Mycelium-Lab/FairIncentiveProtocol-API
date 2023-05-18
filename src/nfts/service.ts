@@ -1,6 +1,6 @@
 import { config } from "../config/config";
 import pg from "../config/db";
-import { AddNFT, AddNFTCollection, Company, GetCompany, NFT, NFTCollection } from "../entities";
+import { AddNFT, AddNFTCollection, Company, Delete, GetCompany, NFT, NFTCollection, NFTReward } from "../entities";
 
 export async function addNFTCollection(nftCollection: AddNFTCollection, getCompany: GetCompany): Promise<boolean> {
     try {
@@ -55,20 +55,25 @@ export async function addNFT(nft: AddNFT, getCompany: GetCompany): Promise<boole
 
 export async function getNFTs(getCompany: GetCompany): Promise<Array<NFT>> {
     try {
-        const nfts: Array<NFT> = 
+        //TODO: Попробовать убрать reduce чтобы все было в запрос
+        //сейчас reduce нужен чтобы объединять nft по коллекциям
+        const nfts: Array<NFT> =
             await pg('erc721_tokens')
-            .whereRaw('erc721_tokens.company_id = ?', [getCompany.company_id])
-            .join('nfts', 'nfts.address', '=', 'erc721_tokens.address')
-            .select([
-                'erc721_tokens.address as collection_address',
-                'erc721_tokens.name as collection_name',
-                'erc721_tokens.chain_id as chainid',
-                'nfts.image as image',
-                'nfts.id as nft_id',
-                'nfts.name as nft_name',
-                'nfts.description as nft_description',
-                'nfts.amount as nft_amount'
-            ])
+                .whereRaw('erc721_tokens.company_id = ?', [getCompany.company_id])
+                .join('nfts', 'nfts.address', '=', 'erc721_tokens.address')
+                .leftJoin('rewards_erc721', 'rewards_erc721.nft_id', '=', 'nfts.id')
+                .groupBy('erc721_tokens.address', 'erc721_tokens.name', 'erc721_tokens.chain_id', 'nfts.image', 'nfts.id', 'nfts.name', 'nfts.description', 'nfts.amount')
+                .select([
+                    'erc721_tokens.address as collection_address',
+                    'erc721_tokens.name as collection_name',
+                    'erc721_tokens.chain_id as chainid',
+                    'nfts.image as image',
+                    'nfts.id as nft_id',
+                    'nfts.name as nft_name',
+                    'nfts.description as nft_description',
+                    'nfts.amount as nft_amount',
+                pg.raw('COUNT(DISTINCT rewards_erc721.nft_id) as rewards_count') // Изменяем подсчет на COUNT(DISTINCT)
+                ]);
         const result: Array<NFT> = nfts.reduce((acc: any, item) => {
             if (!acc[item.collection_address]) {
                 acc[item.collection_address] = [];
@@ -80,5 +85,23 @@ export async function getNFTs(getCompany: GetCompany): Promise<Array<NFT>> {
     } catch (error) {
         console.log(error)
         return []
+    }
+}
+
+export async function deleteNFT(nft: Delete, getCompany: GetCompany): Promise<boolean> {
+    try {
+        const company: Company = await pg('nfts')
+            .whereRaw('nfts.id = ?', [nft.id])
+            .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
+            .first()
+            .select('erc721_tokens.company_id as id')
+        if (company.id !== getCompany.company_id) throw Error('Not your nft')
+        const reward: Array<NFTReward> = await pg('rewards_erc721').where({nft_id: nft.id}).select('*')
+        if (reward.length) throw Error('This nft in reward')
+        await pg('nfts').where({id: nft.id}).delete()
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
     }
 }

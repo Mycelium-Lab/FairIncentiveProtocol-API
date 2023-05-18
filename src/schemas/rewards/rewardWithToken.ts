@@ -23,6 +23,6 @@ export const RewardWithTokenValidation: Joi.ObjectSchema = Joi.object({
 
     user_id: Joi.string().uuid().required(),
 
-    comment: Joi.string().allow(null, '')
+    comment: Joi.string().allow(null)
 
 })

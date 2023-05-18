@@ -30,7 +30,7 @@ exports.SignUpValidation = exports.SignUp = void 0;
 const joi = __importStar(require("joi"));
 const joi_phone_number_1 = __importDefault(require("joi-phone-number"));
 const joi_password_1 = require("joi-password");
-const ethers_1 = require("ethers");
+const utils_1 = require("../utils");
 let Joi = joi.extend(joi_phone_number_1.default, joi_password_1.joiPasswordExtendCore);
 exports.SignUp = {
     $id: 'SignUpCompany',
@@ -76,12 +76,6 @@ exports.SignUpValidation = Joi.object({
     phone: Joi.string()
         .phoneNumber(),
     wallet: Joi.string()
-        .external(checkAddress)
+        .external(utils_1.checkAddress)
         .required()
 });
-function checkAddress(wallet) {
-    const _isAddress = ethers_1.utils.isAddress(wallet);
-    if (!_isAddress) {
-        throw Error('Wallet is incorrect');
-    }
-}

@@ -26,10 +26,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkAddress = exports.AddUserValidation = exports.AddUser = void 0;
+exports.AddUserValidation = exports.AddUser = void 0;
 const joi = __importStar(require("joi"));
 const joi_phone_number_1 = __importDefault(require("joi-phone-number"));
-const ethers_1 = require("ethers");
+const utils_1 = require("../utils");
 let Joi = joi.extend(joi_phone_number_1.default);
 exports.AddUser = {
     $id: 'AddUser',
@@ -71,16 +71,9 @@ exports.AddUserValidation = Joi.object({
         .email()
         .required(),
     wallet: Joi.string()
-        .external(checkAddress)
+        .external(utils_1.checkAddress)
         .required(),
-    notes: Joi.string().allow(null, ''),
+    notes: Joi.string().allow(null),
     properties: Joi.array().allow(null),
     stats: Joi.array().allow(null)
 });
-function checkAddress(wallet) {
-    const _isAddress = ethers_1.utils.isAddress(wallet);
-    if (!_isAddress) {
-        throw Error('Wallet is incorrect');
-    }
-}
-exports.checkAddress = checkAddress;

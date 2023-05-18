@@ -66,16 +66,16 @@ function rewardsPlugin(app, opt) {
             app.post('/delete/token', {
                 onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
                 schema: {
-                    body: { $ref: 'DeleteReward' }
+                    body: { $ref: 'Delete' }
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const token = (0, controller_1.getToken)(req);
-                    const deleteReward = req.body;
-                    yield schemas_1.DeleteRewardValidation.validateAsync(deleteReward);
+                    const Delete = req.body;
+                    yield schemas_1.DeleteValidation.validateAsync(Delete);
                     if (token) {
                         const data = app.jwt.decode(token);
-                        const res = yield (0, service_1.deleteTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, deleteReward);
+                        const res = yield (0, service_1.deleteTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, Delete);
                         reply
                             .code(res ? 200 : 500)
                             .send({ message: 'Something went wrong' });
@@ -188,16 +188,16 @@ function rewardsPlugin(app, opt) {
         app.post('/delete/nfts', {
             onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
             schema: {
-                body: { $ref: 'DeleteReward' }
+                body: { $ref: 'Delete' }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = (0, controller_1.getToken)(req);
-                const deleteReward = req.body;
-                yield schemas_1.DeleteRewardValidation.validateAsync(deleteReward);
+                const Delete = req.body;
+                yield schemas_1.DeleteValidation.validateAsync(Delete);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.deleteNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, deleteReward);
+                    const res = yield (0, service_1.deleteNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, Delete);
                     reply
                         .code(res ? 200 : 500)
                         .send({ message: 'Something went wrong' });
@@ -314,6 +314,7 @@ function rewardsPlugin(app, opt) {
                     throw Error('Something wrong with token');
             }
             catch (error) {
+                console.log(error);
                 reply
                     .code(500)
                     .send({ done: false });
@@ -325,7 +326,7 @@ function rewardsPlugin(app, opt) {
             try {
                 const token = (0, controller_1.getToken)(req);
                 const tokenRewardEvent = req.body;
-                yield schemas_1.DeleteRewardValidation.validateAsync(tokenRewardEvent);
+                yield schemas_1.DeleteValidation.validateAsync(tokenRewardEvent);
                 if (token) {
                     const data = app.jwt.decode(token);
                     const done = yield (0, service_1.deleteTokenRewardEvent)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, tokenRewardEvent);
@@ -349,7 +350,7 @@ function rewardsPlugin(app, opt) {
             try {
                 const token = (0, controller_1.getToken)(req);
                 const nftRewardEvent = req.body;
-                yield schemas_1.DeleteRewardValidation.validateAsync(nftRewardEvent);
+                yield schemas_1.DeleteValidation.validateAsync(nftRewardEvent);
                 if (token) {
                     const data = app.jwt.decode(token);
                     const done = yield (0, service_1.deleteNFTRewardEvent)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, nftRewardEvent);

@@ -27,7 +27,7 @@ export const AddTokenRewardValidation: Joi.ObjectSchema = Joi.object({
         .required()
         .external(checkAddress),
 
-    description: Joi.string().allow(null, ''),
+    description: Joi.string().allow(null),
 
     name: Joi.string()
         .required(),

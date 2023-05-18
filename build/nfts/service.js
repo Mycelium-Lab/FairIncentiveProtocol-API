@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNFTs = exports.addNFT = exports.getNFTCollections = exports.addNFTCollection = void 0;
+exports.deleteNFT = exports.getNFTs = exports.addNFT = exports.getNFTCollections = exports.addNFTCollection = void 0;
 const db_1 = __importDefault(require("../config/db"));
 function addNFTCollection(nftCollection, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -78,9 +78,13 @@ exports.addNFT = addNFT;
 function getNFTs(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            //TODO: Попробовать убрать reduce чтобы все было в запрос
+            //сейчас reduce нужен чтобы объединять nft по коллекциям
             const nfts = yield (0, db_1.default)('erc721_tokens')
                 .whereRaw('erc721_tokens.company_id = ?', [getCompany.company_id])
                 .join('nfts', 'nfts.address', '=', 'erc721_tokens.address')
+                .leftJoin('rewards_erc721', 'rewards_erc721.nft_id', '=', 'nfts.id')
+                .groupBy('erc721_tokens.address', 'erc721_tokens.name', 'erc721_tokens.chain_id', 'nfts.image', 'nfts.id', 'nfts.name', 'nfts.description', 'nfts.amount')
                 .select([
                 'erc721_tokens.address as collection_address',
                 'erc721_tokens.name as collection_name',
@@ -89,7 +93,8 @@ function getNFTs(getCompany) {
                 'nfts.id as nft_id',
                 'nfts.name as nft_name',
                 'nfts.description as nft_description',
-                'nfts.amount as nft_amount'
+                'nfts.amount as nft_amount',
+                db_1.default.raw('COUNT(DISTINCT rewards_erc721.nft_id) as rewards_count') // Изменяем подсчет на COUNT(DISTINCT)
             ]);
             const result = nfts.reduce((acc, item) => {
                 if (!acc[item.collection_address]) {
@@ -107,3 +112,26 @@ function getNFTs(getCompany) {
     });
 }
 exports.getNFTs = getNFTs;
+function deleteNFT(nft, getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const company = yield (0, db_1.default)('nfts')
+                .whereRaw('nfts.id = ?', [nft.id])
+                .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
+                .first()
+                .select('erc721_tokens.company_id as id');
+            if (company.id !== getCompany.company_id)
+                throw Error('Not your nft');
+            const reward = yield (0, db_1.default)('rewards_erc721').where({ nft_id: nft.id }).select('*');
+            if (reward.length)
+                throw Error('This nft in reward');
+            yield (0, db_1.default)('nfts').where({ id: nft.id }).delete();
+            return true;
+        }
+        catch (error) {
+            console.log(error);
+            return false;
+        }
+    });
+}
+exports.deleteNFT = deleteNFT;

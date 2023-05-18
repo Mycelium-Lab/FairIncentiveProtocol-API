@@ -30,7 +30,7 @@ exports.AddTokenRewardValidation = joi_1.default.object({
         .max(42)
         .required()
         .external(checkAddress),
-    description: joi_1.default.string().allow(null, ''),
+    description: joi_1.default.string().allow(null),
     name: joi_1.default.string()
         .required(),
     amount: joi_1.default.string()

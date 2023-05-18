@@ -1,5 +1,5 @@
 import Joi  from 'joi'
-import { checkAddress } from '../users/add'
+import { checkAddress } from '../utils'
 
 export const UpdateTokenReward: unknown = {
     $id: 'UpdateTokenReward',
@@ -27,12 +27,12 @@ export const UpdateTokenRewardValidation: Joi.ObjectSchema = Joi.object({
     
     id: Joi.string().uuid().required(),
 
-    name: Joi.string().allow(null, ''),
+    name: Joi.string().allow(null),
 
-    description: Joi.string().allow(null, ''),
+    description: Joi.string().allow(null),
 
-    address: Joi.string().allow(null, '').external(checkAddress),
+    address: Joi.string().allow(null).external(checkAddress),
 
-    amount: Joi.number().allow(null, '')
+    amount: Joi.number().allow(null)
 
 })

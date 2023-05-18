@@ -2,6 +2,7 @@ import * as joi  from 'joi'
 import JoiPhoneNumber from 'joi-phone-number'
 import { joiPasswordExtendCore } from 'joi-password'
 import { utils } from 'ethers'
+import { checkAddress } from '../utils'
 
 let Joi: any = joi.extend(JoiPhoneNumber, joiPasswordExtendCore)
 
@@ -59,10 +60,3 @@ export const SignUpValidation: joi.ObjectSchema = Joi.object({
         .required()
 
 })
-
-function checkAddress(wallet: string) {
-    const _isAddress = utils.isAddress(wallet)
-    if (!_isAddress) {
-        throw Error('Wallet is incorrect')
-    }
-}

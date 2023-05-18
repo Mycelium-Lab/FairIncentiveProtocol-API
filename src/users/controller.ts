@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
-import { DeleteUser, JWTPayload, UpdateUser, User } from "../entities";
-import { AddUserValidation, DeleteUserValidation, UpdateUserValidation } from "../schemas";
+import { Delete, JWTPayload, UpdateUser, User } from "../entities";
+import { AddUserValidation, DeleteValidation, UpdateUserValidation } from "../schemas";
 import { getToken } from "../company/controller";
 import { addUser, deleteUser, getUsers, updateUser } from "./service";
 
@@ -71,8 +71,8 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const user: DeleteUser = req.body as DeleteUser
-                await DeleteUserValidation.validateAsync(user)
+                const user: Delete = req.body as Delete
+                await DeleteValidation.validateAsync(user)
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)

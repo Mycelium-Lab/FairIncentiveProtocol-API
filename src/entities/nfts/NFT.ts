@@ -6,5 +6,6 @@ export interface NFT {
     nft_id: string,
     nft_name: string,
     nft_description: string | null,
-    nft_amount: number | null
+    nft_amount: number | null,
+    rewards_count?: number
 }

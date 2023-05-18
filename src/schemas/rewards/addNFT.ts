@@ -20,15 +20,8 @@ export const AddNFTReward: unknown = {
 export const AddNFTRewardValidation: Joi.ObjectSchema = Joi.object({
     name: Joi.string().required(),
 
-    description: Joi.string().allow(null, ''),
+    description: Joi.string().allow(null),
 
     nft_id: Joi.string().uuid().required()
 
 })
-
-function checkAddress(wallet: string) {
-    const _isAddress = utils.isAddress(wallet)
-    if (!_isAddress) {
-        throw Error('Wallet is incorrect')
-    }
-}

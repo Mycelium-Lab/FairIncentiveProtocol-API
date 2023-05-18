@@ -1,7 +1,7 @@
 import Joi  from 'joi'
 
-export const DeleteReward: unknown = {
-    $id: 'DeleteReward',
+export const Delete: unknown = {
+    $id: 'Delete',
     type: 'object',
     properties: {
         id: {
@@ -10,7 +10,7 @@ export const DeleteReward: unknown = {
     }
 }
 
-export const DeleteRewardValidation: Joi.ObjectSchema = Joi.object({
+export const DeleteValidation: Joi.ObjectSchema = Joi.object({
     id: Joi.string()
         .uuid()
         .required()

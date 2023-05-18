@@ -1,5 +1,6 @@
 import { utils } from 'ethers'
 import Joi  from 'joi'
+import { checkAddress } from '../utils'
 
 export const AddNFT: unknown = {
     $id: 'AddNFT',
@@ -37,13 +38,6 @@ export const AddNFTValidation: Joi.ObjectSchema = Joi.object({
 
     name: Joi.string().required(),
 
-    description: Joi.string().allow(null, '')
+    description: Joi.string().allow(null)
 
 })
-
-function checkAddress(wallet: string) {
-    const _isAddress = utils.isAddress(wallet)
-    if (!_isAddress) {
-        throw Error('Wallet is incorrect')
-    }
-}

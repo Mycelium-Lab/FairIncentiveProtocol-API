@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { AddNFT, AddNFTCollection, AddToken, JWTPayload } from "../entities";
-import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation } from "../schemas";
-import { addNFT, addNFTCollection, getNFTCollections, getNFTs } from "./service";
+import { AddNFT, AddNFTCollection, AddToken, Delete, JWTPayload } from "../entities";
+import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, DeleteValidation } from "../schemas";
+import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs } from "./service";
 
 export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -101,6 +101,35 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                         .send({nfts: res})
                 } else throw Error('Something wrong with token') 
             } catch (error: any) {
+                //TODO: pretty tokens error
+                reply
+                    .code(500)
+                    .send({message: error.message})
+            }
+        }
+    )
+    app.post(
+        '/delete/nft',
+        {
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'Delete' }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const nft: Delete = req.body as Delete
+                await DeleteValidation.validateAsync(nft)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const res = await deleteNFT(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    reply
+                        .code(res ? 200 : 500)
+                        .send({message: res ? 'Done' : 'Something went wrong'})
+                } else throw Error('Something wrong with token') 
+            } catch (error: any) {
+                console.log(error)
                 //TODO: pretty tokens error
                 reply
                     .code(500)

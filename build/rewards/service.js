@@ -52,10 +52,10 @@ function getTokenRewards(getCompany) {
     });
 }
 exports.getTokenRewards = getTokenRewards;
-function deleteTokenReward(getCompany, deleteReward) {
+function deleteTokenReward(getCompany, Delete) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield (0, db_1.default)('rewards_erc20').where({ id: deleteReward.id, company_id: getCompany.company_id }).delete();
+            yield (0, db_1.default)('rewards_erc20').where({ id: Delete.id, company_id: getCompany.company_id }).delete();
             return true;
         }
         catch (error) {
@@ -161,10 +161,10 @@ function getNFTRewards(getCompany) {
     });
 }
 exports.getNFTRewards = getNFTRewards;
-function deleteNFTReward(getCompany, deleteReward) {
+function deleteNFTReward(getCompany, Delete) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield (0, db_1.default)('rewards_erc721').where({ id: deleteReward.id, company_id: getCompany.company_id }).delete();
+            yield (0, db_1.default)('rewards_erc721').where({ id: Delete.id, company_id: getCompany.company_id }).delete();
             return true;
         }
         catch (error) {
@@ -286,7 +286,6 @@ function updateNFTReward(getCompany, nftReward) {
             const rewardEvent = yield (0, db_1.default)('reward_event_erc721').count('id').where({ reward_id: nftReward.id }).first();
             //if some reward event exist with this reward then can't update token
             if (rewardEvent.count != 0) {
-                nftReward.address = undefined;
                 nftReward.nft_id = undefined;
             }
             yield (0, db_1.default)('rewards_erc721').update(nftReward).where({ company_id: getCompany.company_id, id: nftReward.id });

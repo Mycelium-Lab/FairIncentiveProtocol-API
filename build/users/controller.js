@@ -73,7 +73,7 @@ function usersPlugin(app, opt) {
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const user = req.body;
-                    yield schemas_1.DeleteUserValidation.validateAsync(user);
+                    yield schemas_1.DeleteValidation.validateAsync(user);
                     const token = (0, controller_1.getToken)(req);
                     if (token) {
                         const data = app.jwt.decode(token);

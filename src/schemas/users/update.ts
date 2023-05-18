@@ -1,5 +1,5 @@
 import Joi  from 'joi'
-import { utils } from 'ethers'
+import { checkAddress } from '../utils'
 
 export const UpdateUser: unknown = {
     $id: 'UpdateUser',
@@ -46,29 +46,22 @@ export const UpdateUser: unknown = {
 export const UpdateUserValidation: Joi.ObjectSchema = Joi.object({
     id: Joi.string().uuid().required(),
 
-    company_id: Joi.string().uuid().allow(null, ''),
+    company_id: Joi.string().uuid().allow(null),
 
     external_id: Joi.string()
-        .max(256).allow(null, ''),
+        .max(256).allow(null),
 
     email: Joi.string()
-        .email().allow(null, ''),
+        .email().allow(null),
 
-    wallet: Joi.string().allow(null, ''),
+    wallet: Joi.string().allow(null).external(checkAddress),
 
-    notes: Joi.string().allow(null, ''),
+    notes: Joi.string().allow(null),
 
-    image: Joi.string().allow(null, ''),
+    image: Joi.string().allow(null),
 
     properties: Joi.array().allow(null),
 
     stats: Joi.array().allow(null)
 
 })
-
-export function checkAddress(wallet: string) {
-    const _isAddress = utils.isAddress(wallet)
-    if (!_isAddress) {
-        throw Error('Wallet is incorrect')
-    }
-}

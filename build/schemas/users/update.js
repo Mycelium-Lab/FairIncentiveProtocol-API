@@ -3,9 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkAddress = exports.UpdateUserValidation = exports.UpdateUser = void 0;
+exports.UpdateUserValidation = exports.UpdateUser = void 0;
 const joi_1 = __importDefault(require("joi"));
-const ethers_1 = require("ethers");
+const utils_1 = require("../utils");
 exports.UpdateUser = {
     $id: 'UpdateUser',
     type: 'object',
@@ -49,21 +49,14 @@ exports.UpdateUser = {
 };
 exports.UpdateUserValidation = joi_1.default.object({
     id: joi_1.default.string().uuid().required(),
-    company_id: joi_1.default.string().uuid().allow(null, ''),
+    company_id: joi_1.default.string().uuid().allow(null),
     external_id: joi_1.default.string()
-        .max(256).allow(null, ''),
+        .max(256).allow(null),
     email: joi_1.default.string()
-        .email().allow(null, ''),
-    wallet: joi_1.default.string().allow(null, ''),
-    notes: joi_1.default.string().allow(null, ''),
-    image: joi_1.default.string().allow(null, ''),
+        .email().allow(null),
+    wallet: joi_1.default.string().allow(null).external(utils_1.checkAddress),
+    notes: joi_1.default.string().allow(null),
+    image: joi_1.default.string().allow(null),
     properties: joi_1.default.array().allow(null),
     stats: joi_1.default.array().allow(null)
 });
-function checkAddress(wallet) {
-    const _isAddress = ethers_1.utils.isAddress(wallet);
-    if (!_isAddress) {
-        throw Error('Wallet is incorrect');
-    }
-}
-exports.checkAddress = checkAddress;

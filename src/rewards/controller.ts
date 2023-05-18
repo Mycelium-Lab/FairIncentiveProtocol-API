@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { ClaimNFT, DeleteReward, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
-import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteRewardValidation, RewardWithTokenValidation, UpdateNFTRewardValidation, UpdateTokenRewardValidation } from "../schemas";
+import { ClaimNFT, Delete, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
+import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteValidation, RewardWithTokenValidation, UpdateNFTRewardValidation, UpdateTokenRewardValidation } from "../schemas";
 import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateNFTReward, updateTokenReward, deleteTokenRewardEvent, deleteNFTRewardEvent } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
@@ -63,19 +63,19 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         {
             onRequest: [async (req) => await req.jwtVerify()],
             schema: { 
-                body: { $ref: 'DeleteReward' }
+                body: { $ref: 'Delete' }
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const token = getToken(req)
-                const deleteReward: DeleteReward = req.body as DeleteReward
-                await DeleteRewardValidation.validateAsync(deleteReward)
+                const Delete: Delete = req.body as Delete
+                await DeleteValidation.validateAsync(Delete)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const res = await deleteTokenReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
-                        deleteReward
+                        Delete
                     )
                     reply
                         .code(res ? 200 : 500)
@@ -199,19 +199,19 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         {
             onRequest: [async (req) => await req.jwtVerify()],
             schema: { 
-                body: { $ref: 'DeleteReward' }
+                body: { $ref: 'Delete' }
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const token = getToken(req)
-                const deleteReward: DeleteReward = req.body as DeleteReward
-                await DeleteRewardValidation.validateAsync(deleteReward)
+                const Delete: Delete = req.body as Delete
+                await DeleteValidation.validateAsync(Delete)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const res = await deleteNFTReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
-                        deleteReward
+                        Delete
                     )
                     reply
                         .code(res ? 200 : 500)
@@ -341,6 +341,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                         .send({done})
                 } else throw Error('Something wrong with token') 
             } catch (error) {
+                console.log(error)
                 reply
                     .code(500)
                     .send({done: false})
@@ -355,8 +356,8 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const token = getToken(req)
-                const tokenRewardEvent: DeleteReward = req.body as DeleteReward
-                await DeleteRewardValidation.validateAsync(tokenRewardEvent)
+                const tokenRewardEvent: Delete = req.body as Delete
+                await DeleteValidation.validateAsync(tokenRewardEvent)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const done: boolean = await deleteTokenRewardEvent(
@@ -383,8 +384,8 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const token = getToken(req)
-                const nftRewardEvent: DeleteReward = req.body as DeleteReward
-                await DeleteRewardValidation.validateAsync(nftRewardEvent)
+                const nftRewardEvent: Delete = req.body as Delete
+                await DeleteValidation.validateAsync(nftRewardEvent)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const done: boolean = await deleteNFTRewardEvent(

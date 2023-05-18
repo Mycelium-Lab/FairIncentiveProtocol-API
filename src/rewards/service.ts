@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import pg from "../config/db";
-import { ClaimNFT, DeleteReward, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
+import { ClaimNFT, Delete, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
 import { config } from "../config/config";
 import { signNFTReward } from "../utils/sign";
 import { Company } from "../entities";
@@ -35,9 +35,9 @@ export async function getTokenRewards(getCompany: GetCompany): Promise<Array<Tok
     }
 }
 
-export async function deleteTokenReward(getCompany: GetCompany, deleteReward: DeleteReward): Promise<boolean> {
+export async function deleteTokenReward(getCompany: GetCompany, Delete: Delete): Promise<boolean> {
     try {
-        await pg('rewards_erc20').where({id: deleteReward.id, company_id: getCompany.company_id}).delete()
+        await pg('rewards_erc20').where({id: Delete.id, company_id: getCompany.company_id}).delete()
         return true
     } catch (error) {
         console.log(error)
@@ -130,9 +130,9 @@ export async function getNFTRewards(getCompany: GetCompany): Promise<Array<NFTRe
     }
 }
 
-export async function deleteNFTReward(getCompany: GetCompany, deleteReward: DeleteReward): Promise<boolean> {
+export async function deleteNFTReward(getCompany: GetCompany, Delete: Delete): Promise<boolean> {
     try {
-        await pg('rewards_erc721').where({id: deleteReward.id, company_id: getCompany.company_id}).delete()
+        await pg('rewards_erc721').where({id: Delete.id, company_id: getCompany.company_id}).delete()
         return true
     } catch (error) {
         console.log(error)
@@ -240,7 +240,6 @@ export async function updateNFTReward(getCompany: GetCompany, nftReward: UpdateN
         const rewardEvent: any = await pg('reward_event_erc721').count('id').where({reward_id: nftReward.id}).first()
         //if some reward event exist with this reward then can't update token
         if (rewardEvent.count != 0) {
-            nftReward.address = undefined
             nftReward.nft_id = undefined
         }
         await pg('rewards_erc721').update(nftReward).where({company_id: getCompany.company_id, id: nftReward.id})
@@ -251,7 +250,7 @@ export async function updateNFTReward(getCompany: GetCompany, nftReward: UpdateN
     }
 }
 
-export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewardEvent: DeleteReward): Promise<boolean> {
+export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewardEvent: Delete): Promise<boolean> {
     try {
         const rewardCompany: Company = 
             await pg('reward_event_erc20')
@@ -268,7 +267,7 @@ export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewar
     }
 }
 
-export async function deleteNFTRewardEvent(getCompany: GetCompany, deleteRewardEvent: DeleteReward): Promise<boolean> {
+export async function deleteNFTRewardEvent(getCompany: GetCompany, deleteRewardEvent: Delete): Promise<boolean> {
     try {
         const rewardCompany: Company = 
             await pg('reward_event_erc721')

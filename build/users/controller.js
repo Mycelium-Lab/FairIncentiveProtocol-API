@@ -115,6 +115,7 @@ function usersPlugin(app, opt) {
                     throw Error('Something wrong with token');
             }
             catch (error) {
+                console.log(error);
                 reply
                     .code(500)
                     .header('Content-Type', 'application/json; charset=utf-8')

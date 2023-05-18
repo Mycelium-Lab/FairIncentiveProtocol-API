@@ -13,6 +13,9 @@ exports.UpdateUser = {
         id: {
             type: 'string'
         },
+        company_id: {
+            type: ['null', 'string'], nullable: true
+        },
         external_id: {
             type: ['null', 'string'], nullable: true
         },
@@ -23,6 +26,9 @@ exports.UpdateUser = {
             type: ['null', 'string'], nullable: true
         },
         notes: {
+            type: ['null', 'string'], nullable: true
+        },
+        image: {
             type: ['null', 'string'], nullable: true
         },
         properties: {
@@ -43,12 +49,14 @@ exports.UpdateUser = {
 };
 exports.UpdateUserValidation = joi_1.default.object({
     id: joi_1.default.string().uuid().required(),
+    company_id: joi_1.default.string().uuid().allow(null, ''),
     external_id: joi_1.default.string()
         .max(256).allow(null, ''),
     email: joi_1.default.string()
         .email().allow(null, ''),
     wallet: joi_1.default.string().allow(null, ''),
     notes: joi_1.default.string().allow(null, ''),
+    image: joi_1.default.string().allow(null, ''),
     properties: joi_1.default.array().allow(null),
     stats: joi_1.default.array().allow(null)
 });

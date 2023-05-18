@@ -114,6 +114,7 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                         .send({res})
                 } else throw Error('Something wrong with token') 
             } catch (error: any) {
+                console.log(error)
                 reply
                     .code(500)
                     .header('Content-Type', 'application/json; charset=utf-8')

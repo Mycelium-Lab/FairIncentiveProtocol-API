@@ -3,6 +3,7 @@ export interface User {
     external_id: string,
     email:  string,
     wallet:  string,
+    image?: string,
     notes?: string,
     properties?: Array<Property>,
     stats?: Array<Stat>
@@ -13,6 +14,7 @@ export interface UpdateUser {
     external_id?: string,
     email?:  string,
     wallet?:  string,
+    image?: string,
     notes?: string,
     properties?: Array<Property>,
     stats?: Array<Stat>

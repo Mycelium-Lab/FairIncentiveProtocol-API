@@ -8,6 +8,9 @@ export const UpdateUser: unknown = {
         id: {
             type: 'string'
         },
+        company_id: {
+            type: ['null', 'string'], nullable: true
+        },
         external_id: {
             type: ['null', 'string'], nullable: true
         },
@@ -18,6 +21,9 @@ export const UpdateUser: unknown = {
             type: ['null', 'string'], nullable: true
         },
         notes: {
+            type: ['null', 'string'], nullable: true
+        },
+        image: {
             type: ['null', 'string'], nullable: true
         },
         properties: {
@@ -40,6 +46,8 @@ export const UpdateUser: unknown = {
 export const UpdateUserValidation: Joi.ObjectSchema = Joi.object({
     id: Joi.string().uuid().required(),
 
+    company_id: Joi.string().uuid().allow(null, ''),
+
     external_id: Joi.string()
         .max(256).allow(null, ''),
 
@@ -49,6 +57,8 @@ export const UpdateUserValidation: Joi.ObjectSchema = Joi.object({
     wallet: Joi.string().allow(null, ''),
 
     notes: Joi.string().allow(null, ''),
+
+    image: Joi.string().allow(null, ''),
 
     properties: Joi.array().allow(null),
 

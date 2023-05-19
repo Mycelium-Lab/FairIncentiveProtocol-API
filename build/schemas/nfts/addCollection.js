@@ -19,8 +19,24 @@ exports.AddNFTCollection = {
         symbol: {
             type: 'string'
         },
+        description: {
+            type: ['null', 'string'], nullable: true
+        },
         chainid: {
             type: 'string'
+        },
+        beneficiary: {
+            type: ['null', 'string'], nullable: true
+        },
+        royalties: {
+            type: 'number'
+        },
+        links: {
+            type: 'array',
+            items: {
+                type: 'object'
+            },
+            default: []
         }
     }
 };
@@ -28,12 +44,17 @@ exports.AddNFTCollectionValidation = joi_1.default.object({
     address: joi_1.default.string()
         .min(42)
         .max(42)
+        .allow('')
         .required()
         .external(utils_1.checkAddress),
     name: joi_1.default.string()
         .required(),
     symbol: joi_1.default.string()
         .required(),
+    description: joi_1.default.string().allow(null).max(1000),
     chainid: joi_1.default.string()
-        .required()
+        .required(),
+    beneficiary: joi_1.default.string().allow(null).external(utils_1.checkAddress),
+    royalties: joi_1.default.number().required(),
+    links: joi_1.default.array().allow(null)
 });

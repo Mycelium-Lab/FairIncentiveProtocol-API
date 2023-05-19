@@ -17,6 +17,7 @@ exports.ChangeCompanyWallet = {
 };
 exports.ChangeCompanyWalletValidation = joi_1.default.object({
     newWallet: joi_1.default.string()
+        .allow('')
         .external(checkAddress)
 });
 function checkAddress(wallet) {

@@ -52,7 +52,7 @@ function authPlugin(app, opt) {
                     yield schemas_1.SignInValidation.validateAsync(body);
                     const serviceReply = yield (0, service_1.checkCompany)(body);
                     //create token if OK
-                    const payload = { email: body.email, phone: body.phone, company_id: serviceReply.data.company_id, company: true };
+                    const payload = { email: body.email, phone: body.phone, company_id: serviceReply.data.company_id, company: true, address: serviceReply.data.address };
                     if (!serviceReply.isError)
                         serviceReply.res.message = app.jwt.sign(payload);
                     reply

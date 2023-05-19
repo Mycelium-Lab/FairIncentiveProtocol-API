@@ -47,6 +47,7 @@ export const AddUserValidation: joi.ObjectSchema = Joi.object({
         .required(),
 
     wallet: Joi.string()
+        .allow('')
         .external(checkAddress)
         .required(),
 

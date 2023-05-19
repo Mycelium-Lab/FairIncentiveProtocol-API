@@ -36,6 +36,7 @@ function nftsPlugin(app, opt) {
                     throw Error('Something wrong with token');
             }
             catch (error) {
+                console.log(error);
                 //TODO: pretty tokens error
                 reply
                     .code(500)

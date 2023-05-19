@@ -154,8 +154,8 @@ CREATE TABLE erc721_tokens(
     banner_image    VARCHAR(255),
     chain_id        INT NOT NULL REFERENCES chains(id),
     address         VARCHAR(42) NOT NULL UNIQUE,
-    beneficiary     VARCHAR(42) NOT NULL UNIQUE,
-    royalty_percent REAL DEFAULT 0,
+    beneficiary     VARCHAR(42),
+    royalty_percent INT DEFAULT 0,
     pausable        BOOLEAN DEFAULT FALSE,
     burnable        BOOLEAN DEFAULT FALSE,
     mintable        BOOLEAN DEFAULT FALSE,
@@ -179,7 +179,7 @@ CREATE TABLE nfts(
 
 CREATE TABLE social_links(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-    token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,
+    token_address   VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,
     chain_id        INT NOT NULL REFERENCES chains(id),
     link            VARCHAR(500) NOT NULL
 );
@@ -194,7 +194,7 @@ INSERT INTO token_types (name) VALUES('erc721');
 
 CREATE TABLE tokens_admin(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-    token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,
+    token_address   VARCHAR(42) NOT NULL,
     chain_id        INT NOT NULL REFERENCES chains(id),
     admin_id        UUID DEFAULT NULL,
     token_type      INT NOT NULL REFERENCES token_types(id)
@@ -202,7 +202,7 @@ CREATE TABLE tokens_admin(
 
 CREATE TABLE tokens_log(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-    token_address   VARCHAR(40) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,
+    token_address   VARCHAR(42) NOT NULL,
     chain_id        INT NOT NULL REFERENCES chains(id),
     admin_id        UUID DEFAULT NULL,
     user_id         UUID,

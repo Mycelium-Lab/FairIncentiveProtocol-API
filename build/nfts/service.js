@@ -17,16 +17,37 @@ const db_1 = __importDefault(require("../config/db"));
 function addNFTCollection(nftCollection, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield (0, db_1.default)('erc721_tokens')
+            const trx = yield db_1.default.transaction();
+            const done = yield trx('erc721_tokens')
                 .insert({
                 company_id: getCompany.company_id,
                 name: nftCollection.name,
                 symbol: nftCollection.symbol,
+                description: nftCollection.description,
                 chain_id: nftCollection.chainid,
                 address: nftCollection.address,
-                beneficiary: nftCollection.address
-            });
-            return true;
+                beneficiary: nftCollection.beneficiary,
+                royalty_percent: nftCollection.royalties
+            })
+                .then(() => __awaiter(this, void 0, void 0, function* () {
+                nftCollection.links.forEach(v => {
+                    v.company_id = getCompany.company_id;
+                    v.token_address = nftCollection.address;
+                    v.chain_id = nftCollection.chainid;
+                });
+                if (nftCollection.links.length)
+                    yield trx('social_links').insert(nftCollection.links);
+            }))
+                .then(() => __awaiter(this, void 0, void 0, function* () {
+                yield trx.commit();
+                return true;
+            }))
+                .catch((err) => __awaiter(this, void 0, void 0, function* () {
+                console.log(err);
+                yield trx.rollback();
+                return false;
+            }));
+            return done;
         }
         catch (error) {
             console.log(error);

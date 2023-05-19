@@ -26,6 +26,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                         .send({message: res ? 'Done' : 'Something went wrong'})
                 } else throw Error('Something wrong with token') 
             } catch (error: any) {
+                console.log(error)
                 //TODO: pretty tokens error
                 reply
                     .code(500)

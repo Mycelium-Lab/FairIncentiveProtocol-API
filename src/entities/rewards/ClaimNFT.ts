@@ -6,6 +6,7 @@ export interface ClaimNFT {
     nft_description: string,
     chainid: string,
     user_wallet: string,
+    beneficiary: string,
     v: string,
     r: string,
     s: string

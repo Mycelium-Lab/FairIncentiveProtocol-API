@@ -14,31 +14,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.build = void 0;
 const fastify_1 = __importDefault(require("fastify"));
-const controller_1 = require("./auth/controller");
-const jwt_1 = require("./auth/jwt");
-const jwt_2 = __importDefault(require("@fastify/jwt"));
+const jwt_1 = __importDefault(require("@fastify/jwt"));
+const cors_1 = __importDefault(require("@fastify/cors"));
 const config_1 = require("./config/config");
 const schemas_1 = require("./schemas");
-const cors_1 = __importDefault(require("@fastify/cors"));
-const controller_2 = require("./company/controller");
-const controller_3 = require("./tokens/controller");
-const controller_4 = require("./users/controller");
-const controller_5 = require("./nfts/controller");
-const controller_6 = require("./rewards/controller");
+const controller_1 = require("./company/controller");
+const controller_2 = require("./tokens/controller");
+const controller_3 = require("./users/controller");
+const controller_4 = require("./nfts/controller");
+const controller_5 = require("./rewards/controller");
+const controller_6 = require("./auth/controller");
+const jwt_2 = require("./auth/jwt");
+const controller_7 = require("./public/controller");
 function build(opt = {}) {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, fastify_1.default)(opt);
         (0, schemas_1.addSchemas)(app);
-        app.register(jwt_2.default, {
+        app.register(jwt_1.default, {
             secret: config_1.config.SECRET_KEY
         });
-        app.register(jwt_1.jwtPlugin);
-        app.register(controller_1.authPlugin, { prefix: '/auth' });
-        app.register(controller_2.companyPlugin, { prefix: '/company' });
-        app.register(controller_3.tokensPlugin, { prefix: '/tokens' });
-        app.register(controller_4.usersPlugin, { prefix: '/users' });
-        app.register(controller_5.nftsPlugin, { prefix: '/nfts' });
-        app.register(controller_6.rewardsPlugin, { prefix: '/rewards' });
+        app.register(jwt_2.jwtPlugin);
+        app.register(controller_6.authPlugin, { prefix: '/auth' });
+        app.register(controller_1.companyPlugin, { prefix: '/company' });
+        app.register(controller_2.tokensPlugin, { prefix: '/tokens' });
+        app.register(controller_3.usersPlugin, { prefix: '/users' });
+        app.register(controller_4.nftsPlugin, { prefix: '/nfts' });
+        app.register(controller_5.rewardsPlugin, { prefix: '/rewards' });
+        app.register(controller_7.publicPlugin, { prefix: '/claim' });
         app.register(cors_1.default, {
             origin: "*",
             methods: ["GET", "POST"]

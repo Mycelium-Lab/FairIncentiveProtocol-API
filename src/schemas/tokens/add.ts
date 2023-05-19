@@ -25,6 +25,7 @@ export const AddTokenValidation: Joi.ObjectSchema = Joi.object({
     address: Joi.string()
         .min(42)
         .max(42)
+        .allow('')
         .required()
         .external(checkAddress),
 

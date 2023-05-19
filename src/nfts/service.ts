@@ -4,16 +4,36 @@ import { AddNFT, AddNFTCollection, Company, Delete, GetCompany, NFT, NFTCollecti
 
 export async function addNFTCollection(nftCollection: AddNFTCollection, getCompany: GetCompany): Promise<boolean> {
     try {
-        await pg('erc721_tokens')
+        const trx = await pg.transaction()
+        const done: boolean = await trx('erc721_tokens')
             .insert({
                 company_id: getCompany.company_id,
                 name: nftCollection.name,
                 symbol: nftCollection.symbol,
+                description: nftCollection.description,
                 chain_id: nftCollection.chainid,
                 address: nftCollection.address,
-                beneficiary: nftCollection.address
+                beneficiary: nftCollection.beneficiary,
+                royalty_percent: nftCollection.royalties
             })
-        return true
+            .then(async () => {
+                nftCollection.links.forEach(v => {
+                    v.company_id = getCompany.company_id
+                    v.token_address = nftCollection.address
+                    v.chain_id = nftCollection.chainid
+                })
+                if (nftCollection.links.length) await trx('social_links').insert(nftCollection.links)
+            })
+            .then(async () => {
+                await trx.commit()
+                return true
+            })
+            .catch(async (err) => {
+                console.log(err)
+                await trx.rollback()
+                return false
+            })
+        return done
     } catch (error) {
         console.log(error)
         return false

@@ -28,6 +28,7 @@ exports.AddTokenValidation = joi_1.default.object({
     address: joi_1.default.string()
         .min(42)
         .max(42)
+        .allow('')
         .required()
         .external(utils_1.checkAddress),
     name: joi_1.default.string()

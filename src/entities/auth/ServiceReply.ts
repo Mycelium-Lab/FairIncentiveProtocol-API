@@ -8,5 +8,6 @@ export interface AuthServiceReply {
 }
 
 interface Data {
-    company_id?: string
+    company_id?: string,
+    address?: string
 }

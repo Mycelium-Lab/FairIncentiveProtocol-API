@@ -15,8 +15,24 @@ export const AddNFTCollection: unknown = {
         symbol: {
             type: 'string'
         },
+        description: {
+            type: ['null', 'string'], nullable: true
+        },
         chainid: {
             type: 'string'
+        },
+        beneficiary: {
+            type: ['null', 'string'], nullable: true
+        },
+        royalties: {
+            type: 'number'
+        },
+        links: {
+            type: 'array',
+            items: {
+                type: 'object'
+            },
+            default: []
         }
     }
 }
@@ -25,6 +41,7 @@ export const AddNFTCollectionValidation: Joi.ObjectSchema = Joi.object({
     address: Joi.string()
         .min(42)
         .max(42)
+        .allow('')
         .required()
         .external(checkAddress),
 
@@ -34,7 +51,15 @@ export const AddNFTCollectionValidation: Joi.ObjectSchema = Joi.object({
     symbol: Joi.string()
         .required(),
 
+    description: Joi.string().allow(null).max(1000),
+
     chainid: Joi.string()
-        .required()
+        .required(),
+    
+    beneficiary: Joi.string().allow(null).external(checkAddress),
+
+    royalties: Joi.number().required(),
+
+    links: Joi.array().allow(null)
 
 })

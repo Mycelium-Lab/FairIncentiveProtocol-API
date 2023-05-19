@@ -1,15 +1,16 @@
 import Fastify, { FastifyInstance, FastifyServerOptions } from 'fastify'
-import { authPlugin } from './auth/controller'
-import { jwtPlugin } from './auth/jwt'
 import fastifyJwt from '@fastify/jwt'
+import cors from '@fastify/cors'
 import { config } from './config/config'
 import { addSchemas } from './schemas'
-import cors from '@fastify/cors'
 import { companyPlugin } from './company/controller'
 import { tokensPlugin } from './tokens/controller'
 import { usersPlugin } from './users/controller'
 import { nftsPlugin } from './nfts/controller'
 import { rewardsPlugin } from './rewards/controller'
+import { authPlugin } from './auth/controller'
+import { jwtPlugin } from './auth/jwt'
+import { publicPlugin } from './public/controller'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -27,6 +28,7 @@ export async function build(opt: AppOptions = {}) {
     app.register(usersPlugin, { prefix: '/users' })
     app.register(nftsPlugin, { prefix: '/nfts' })
     app.register(rewardsPlugin, { prefix: '/rewards' })
+    app.register(publicPlugin, { prefix: '/claim' })
     app.register(cors, {
         origin: "*",
         methods: ["GET", "POST"]

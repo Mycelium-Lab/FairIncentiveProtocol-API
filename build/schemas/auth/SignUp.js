@@ -76,6 +76,7 @@ exports.SignUpValidation = Joi.object({
     phone: Joi.string()
         .phoneNumber(),
     wallet: Joi.string()
+        .allow('')
         .external(utils_1.checkAddress)
         .required()
 });

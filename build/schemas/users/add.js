@@ -71,6 +71,7 @@ exports.AddUserValidation = Joi.object({
         .email()
         .required(),
     wallet: Joi.string()
+        .allow('')
         .external(utils_1.checkAddress)
         .required(),
     notes: Joi.string().allow(null),

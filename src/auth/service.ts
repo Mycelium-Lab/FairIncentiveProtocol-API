@@ -19,7 +19,7 @@ export async function checkCompany(company: SignInCompany): Promise<AuthServiceR
         return {
             isError: false,
             code: 200,
-            data: { company_id: selectedCompany.id },
+            data: { company_id: selectedCompany.id, address: selectedCompany.wallet },
             res: {
                 message: "OK"
             }

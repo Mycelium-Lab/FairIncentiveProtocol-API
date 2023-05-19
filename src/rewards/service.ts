@@ -210,7 +210,8 @@ export async function getClaimableNFT(rewardEventID: string, user_id: string): P
                     'nfts.name as nft_name', 'nfts.image as nft_image',
                     'nfts.description as nft_description', 'nfts.chain_id as chainid',
                     'users.wallet as user_wallet',
-                    'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r'
+                    'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r',
+                    'erc721_tokens.beneficiary as beneficiary'
                 ])
         return claimableNFT
     } catch (error) {

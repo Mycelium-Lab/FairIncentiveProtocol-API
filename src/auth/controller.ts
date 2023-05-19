@@ -49,7 +49,7 @@ export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions
             await SignInValidation.validateAsync(body)
             const serviceReply: AuthServiceReply = await checkCompany(body)
             //create token if OK
-            const payload: JWTPayload = {email: body.email, phone: body.phone, company_id: serviceReply.data.company_id, company: true}
+            const payload: JWTPayload = {email: body.email, phone: body.phone, company_id: serviceReply.data.company_id, company: true, address: serviceReply.data.address}
             if (!serviceReply.isError) serviceReply.res.message = app.jwt.sign(payload)
             reply   
                 .code(serviceReply.code)

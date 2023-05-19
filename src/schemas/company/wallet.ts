@@ -13,6 +13,7 @@ export const ChangeCompanyWallet: unknown = {
 
 export const ChangeCompanyWalletValidation: Joi.ObjectSchema = Joi.object({
     newWallet: Joi.string()
+        .allow('')
         .external(checkAddress)
 })
 

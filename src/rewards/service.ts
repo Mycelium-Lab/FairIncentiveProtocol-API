@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import pg from "../config/db";
 import { ClaimNFT, Delete, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
 import { config } from "../config/config";
-import { signNFTReward } from "../utils/sign";
+import { signNFTReward, signTokenReward } from "../utils/sign";
 import { Company } from "../entities";
 
 export async function addTokenReward(getCompany: GetCompany, tokenReward: TokenReward): Promise<TokenReward | undefined> {
@@ -47,13 +47,31 @@ export async function deleteTokenReward(getCompany: GetCompany, Delete: Delete):
 
 export async function rewardWithToken(getCompany: GetCompany, reward: RewardWithToken): Promise<boolean> {
     try {
-        const tokenReward: TokenReward = await pg('rewards_erc20').select('*').where({id: reward.reward_id}).first()
+        const tokenReward: TokenReward = 
+            await pg('rewards_erc20')
+            .whereRaw('rewards_erc20.id = ?', [reward.reward_id])
+            .leftJoin('erc20_tokens', 'erc20_tokens.address', '=', 'rewards_erc20.address')
+            .select([
+                'rewards_erc20.id', 'rewards_erc20.company_id',
+                'rewards_erc20.name', 'rewards_erc20.description',
+                'erc20_tokens.symbol', 'erc20_tokens.chainid',
+                'rewards_erc20.address', 'rewards_erc20.amount',
+                'erc20_tokens.fpmanager'
+            ]).first()
         if (tokenReward.company_id !== getCompany.company_id) throw Error('Not allowed company')
+        const network = config.networks.find(n => n.chainid == tokenReward.chainid)
+        const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
+        const signer = new ethers.Wallet(network?.private_key || '', provider)
+        const user: User = await pg('users').where({id: reward.user_id}).first()
+        const signature = await signTokenReward(tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address)
         await pg('reward_event_erc20').insert({
             status: 1,
             reward_id: reward.reward_id,
             user_id: reward.user_id,
-            comment: reward.comment
+            comment: reward.comment,
+            v: signature.v,
+            r: signature.r,
+            s: signature.s
         })
         return true
     } catch (error) {
@@ -104,7 +122,6 @@ export async function addNFTReward(getCompany: GetCompany, nftReward: NFTReward)
                 .first()
         addedReward[0].symbol = nftCollection.symbol
         addedReward[0].nft_name = nftCollection.nft_name
-        console.log(addedReward[0])
         return addedReward[0]
     } catch (error) {
         console.log(error)

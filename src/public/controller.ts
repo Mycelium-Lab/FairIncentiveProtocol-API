@@ -12,4 +12,10 @@ export async function publicPlugin(app: FastifyInstance, opt: FastifyPluginOptio
             return reply.sendFile('claimnft.html')
         }
     )
+    app.get(
+        '/token',
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            return reply.sendFile('claimtoken.html')
+        }
+    )
 }

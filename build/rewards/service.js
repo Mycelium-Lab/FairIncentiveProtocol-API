@@ -68,14 +68,31 @@ exports.deleteTokenReward = deleteTokenReward;
 function rewardWithToken(getCompany, reward) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const tokenReward = yield (0, db_1.default)('rewards_erc20').select('*').where({ id: reward.reward_id }).first();
+            const tokenReward = yield (0, db_1.default)('rewards_erc20')
+                .whereRaw('rewards_erc20.id = ?', [reward.reward_id])
+                .leftJoin('erc20_tokens', 'erc20_tokens.address', '=', 'rewards_erc20.address')
+                .select([
+                'rewards_erc20.id', 'rewards_erc20.company_id',
+                'rewards_erc20.name', 'rewards_erc20.description',
+                'erc20_tokens.symbol', 'erc20_tokens.chainid',
+                'rewards_erc20.address', 'rewards_erc20.amount',
+                'erc20_tokens.fpmanager'
+            ]).first();
             if (tokenReward.company_id !== getCompany.company_id)
                 throw Error('Not allowed company');
+            const network = config_1.config.networks.find(n => n.chainid == tokenReward.chainid);
+            const provider = new ethers_1.ethers.providers.JsonRpcProvider(network === null || network === void 0 ? void 0 : network.rpc);
+            const signer = new ethers_1.ethers.Wallet((network === null || network === void 0 ? void 0 : network.private_key) || '', provider);
+            const user = yield (0, db_1.default)('users').where({ id: reward.user_id }).first();
+            const signature = yield (0, sign_1.signTokenReward)(tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address);
             yield (0, db_1.default)('reward_event_erc20').insert({
                 status: 1,
                 reward_id: reward.reward_id,
                 user_id: reward.user_id,
-                comment: reward.comment
+                comment: reward.comment,
+                v: signature.v,
+                r: signature.r,
+                s: signature.s
             });
             return true;
         }
@@ -131,7 +148,6 @@ function addNFTReward(getCompany, nftReward) {
                 .first();
             addedReward[0].symbol = nftCollection.symbol;
             addedReward[0].nft_name = nftCollection.nft_name;
-            console.log(addedReward[0]);
             return addedReward[0];
         }
         catch (error) {

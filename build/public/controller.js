@@ -23,6 +23,9 @@ function publicPlugin(app, opt) {
         app.get('/nft', (req, reply) => __awaiter(this, void 0, void 0, function* () {
             return reply.sendFile('claimnft.html');
         }));
+        app.get('/token', (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            return reply.sendFile('claimtoken.html');
+        }));
     });
 }
 exports.publicPlugin = publicPlugin;

@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { AddToken, JWTPayload } from "../entities";
+import { JWTPayload, Token } from "../entities";
 import { AddTokenValidation } from "../schemas";
 import { addToken, getTokens } from "./service";
 
@@ -16,7 +16,7 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const token = getToken(req)
-                const Token: AddToken = req.body as AddToken
+                const Token: Token = req.body as Token
                 await AddTokenValidation.validateAsync(Token)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)

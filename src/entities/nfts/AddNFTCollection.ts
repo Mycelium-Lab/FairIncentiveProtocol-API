@@ -13,6 +13,6 @@ export interface AddNFTCollection {
 export interface Link {
     company_id?: string
     token_address?: string
-    chain_id?: string
+    chainid?: string
     link: string
 }

@@ -181,7 +181,7 @@ function rewardWithNFT(getCompany, reward) {
                 .whereRaw('rewards_erc721.id = ?', [reward.reward_id])
                 .first()
                 .leftJoin('nfts', 'nfts.id', '=', 'rewards_erc721.nft_id')
-                .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'nfts.chain_id as chainid']);
+                .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'nfts.chainid as chainid']);
             if (nftReward.company_id !== getCompany.company_id)
                 throw Error('Not allowed company');
             const network = config_1.config.networks.find(n => n.chainid == nftReward.chainid);
@@ -248,7 +248,7 @@ function getClaimableNFT(rewardEventID, user_id) {
                 .select([
                 'erc721_tokens.name as collection_name', 'erc721_tokens.address as collection_address',
                 'nfts.name as nft_name', 'nfts.image as nft_image',
-                'nfts.description as nft_description', 'nfts.chain_id as chainid',
+                'nfts.description as nft_description', 'nfts.chainid as chainid',
                 'users.wallet as user_wallet',
                 'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r',
                 'erc721_tokens.beneficiary as beneficiary'

@@ -104,13 +104,13 @@ CREATE TABLE user_stats(
 );
 
 CREATE TABLE erc20_tokens_supply_types(
-    id              SERIAL PRIMARY KEY,
+    id              INT PRIMARY KEY,
     name            VARCHAR(255) NOT NULL
 );
 
-INSERT INTO erc20_tokens_supply_types(name) VALUES('Capped');
-INSERT INTO erc20_tokens_supply_types(name) VALUES('Fixed');
-INSERT INTO erc20_tokens_supply_types(name) VALUES('Unlimited');
+INSERT INTO erc20_tokens_supply_types(id, name) VALUES(0, 'Capped');
+INSERT INTO erc20_tokens_supply_types(id, name) VALUES(1, 'Fixed');
+INSERT INTO erc20_tokens_supply_types(id, name) VALUES(2, 'Unlimited');
 
 CREATE TABLE chains(
     id              INT PRIMARY KEY,
@@ -131,15 +131,17 @@ CREATE TABLE erc20_tokens(
     name            VARCHAR(255) NOT NULL,
     symbol          VARCHAR(255) NOT NULL,
     supply_type     INT NOT NULL REFERENCES erc20_tokens_supply_types(id),
-    max_supply      VARCHAR(256),
-    chain_id        INT NOT NULL REFERENCES chains(id),
+    max_supply      NUMERIC(78,0),
+    initial_supply  NUMERIC(78,0),
+    chainid        INT NOT NULL REFERENCES chains(id),
     decimals        INT NOT NULL DEFAULT 18,
     address         VARCHAR(42) NOT NULL UNIQUE,
     pausable        BOOLEAN DEFAULT FALSE,
     burnable        BOOLEAN DEFAULT FALSE,
-    mintable        BOOLEAN DEFAULT FALSE,
-    ownable         BOOLEAN DEFAULT FALSE,
-    roles           BOOLEAN DEFAULT FALSE,
+    blacklist       BOOLEAN DEFAULT FALSE,
+    recoverable     BOOLEAN DEFAULT FALSE,
+    verified        BOOLEAN DEFAULT FALSE,
+    fpmanager       VARCHAR(42) NOT NULL,
     image           VARCHAR(255),
     PRIMARY KEY(company_id, address)
 );
@@ -152,7 +154,7 @@ CREATE TABLE erc721_tokens(
     logo_image      VARCHAR(255),
     featured_image  VARCHAR(255),
     banner_image    VARCHAR(255),
-    chain_id        INT NOT NULL REFERENCES chains(id),
+    chainid        INT NOT NULL REFERENCES chains(id),
     address         VARCHAR(42) NOT NULL UNIQUE,
     beneficiary     VARCHAR(42),
     royalty_percent INT DEFAULT 0,
@@ -170,7 +172,7 @@ CREATE TABLE erc721_tokens(
 CREATE TABLE nfts(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     address         VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address),
-    chain_id        INT NOT NULL REFERENCES chains(id),
+    chainid        INT NOT NULL REFERENCES chains(id),
     image           TEXT NOT NULL,
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
@@ -180,7 +182,7 @@ CREATE TABLE nfts(
 CREATE TABLE social_links(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     token_address   VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,
-    chain_id        INT NOT NULL REFERENCES chains(id),
+    chainid        INT NOT NULL REFERENCES chains(id),
     link            VARCHAR(500) NOT NULL
 );
 
@@ -195,7 +197,7 @@ INSERT INTO token_types (name) VALUES('erc721');
 CREATE TABLE tokens_admin(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     token_address   VARCHAR(42) NOT NULL,
-    chain_id        INT NOT NULL REFERENCES chains(id),
+    chainid        INT NOT NULL REFERENCES chains(id),
     admin_id        UUID DEFAULT NULL,
     token_type      INT NOT NULL REFERENCES token_types(id)
 );
@@ -203,7 +205,7 @@ CREATE TABLE tokens_admin(
 CREATE TABLE tokens_log(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     token_address   VARCHAR(42) NOT NULL,
-    chain_id        INT NOT NULL REFERENCES chains(id),
+    chainid        INT NOT NULL REFERENCES chains(id),
     admin_id        UUID DEFAULT NULL,
     user_id         UUID,
     description     TEXT NOT NULL,

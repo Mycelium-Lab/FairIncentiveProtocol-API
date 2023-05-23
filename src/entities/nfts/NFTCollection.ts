@@ -6,7 +6,7 @@ export interface NFTCollection {
     logo_image: string,
     featured_image: string,
     banner_image: string,
-    chain_id: string,
+    chainid: string,
     address: string,
     beneficiary: string,
     royalty_percent: number,

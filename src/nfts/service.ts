@@ -11,7 +11,7 @@ export async function addNFTCollection(nftCollection: AddNFTCollection, getCompa
                 name: nftCollection.name,
                 symbol: nftCollection.symbol,
                 description: nftCollection.description,
-                chain_id: nftCollection.chainid,
+                chainid: nftCollection.chainid,
                 address: nftCollection.address,
                 beneficiary: nftCollection.beneficiary,
                 royalty_percent: nftCollection.royalties
@@ -20,7 +20,7 @@ export async function addNFTCollection(nftCollection: AddNFTCollection, getCompa
                 nftCollection.links.forEach(v => {
                     v.company_id = getCompany.company_id
                     v.token_address = nftCollection.address
-                    v.chain_id = nftCollection.chainid
+                    v.chainid = nftCollection.chainid
                 })
                 if (nftCollection.links.length) await trx('social_links').insert(nftCollection.links)
             })
@@ -61,7 +61,7 @@ export async function addNFT(nft: AddNFT, getCompany: GetCompany): Promise<boole
         await pg('nfts').insert({
             address: nft.address,
             image: "https://gateway.pinata.cloud/ipfs/QmX9qWa4p1Te3PhdRpyyY1SSvdgY9JAjVcGX2sy8HtaFn4?_gl=1*owkaeo*rs_ga*NzVlMGVjN2MtMTExNC00MmRkLTg2ZjQtZGZkZWMyOGY3Nzg4*rs_ga_5RMPXG14TE*MTY4Mzg3OTYxNi42LjEuMTY4Mzg4MDE3Ni42MC4wLjA",
-            chain_id: nft.chainid,
+            chainid: nft.chainid,
             amount: nft.amount,
             name: nft.name,
             description: nft.description
@@ -82,11 +82,11 @@ export async function getNFTs(getCompany: GetCompany): Promise<Array<NFT>> {
                 .whereRaw('erc721_tokens.company_id = ?', [getCompany.company_id])
                 .join('nfts', 'nfts.address', '=', 'erc721_tokens.address')
                 .leftJoin('rewards_erc721', 'rewards_erc721.nft_id', '=', 'nfts.id')
-                .groupBy('erc721_tokens.address', 'erc721_tokens.name', 'erc721_tokens.chain_id', 'nfts.image', 'nfts.id', 'nfts.name', 'nfts.description', 'nfts.amount')
+                .groupBy('erc721_tokens.address', 'erc721_tokens.name', 'erc721_tokens.chainid', 'nfts.image', 'nfts.id', 'nfts.name', 'nfts.description', 'nfts.amount')
                 .select([
                     'erc721_tokens.address as collection_address',
                     'erc721_tokens.name as collection_name',
-                    'erc721_tokens.chain_id as chainid',
+                    'erc721_tokens.chainid as chainid',
                     'nfts.image as image',
                     'nfts.id as nft_id',
                     'nfts.name as nft_name',

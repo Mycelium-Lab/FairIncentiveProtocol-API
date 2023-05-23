@@ -22,9 +22,18 @@ function addToken(token, getCompany) {
                 company_id: getCompany.company_id,
                 name: token.name,
                 symbol: token.symbol,
-                supply_type: 3,
-                chain_id: token.chainid,
-                address: token.address
+                supply_type: token.supply_type,
+                chainid: token.chainid,
+                address: token.address,
+                max_supply: token.max_supply,
+                initial_supply: token.initial_supply,
+                pausable: token.pausable,
+                burnable: token.burnable,
+                blacklist: token.blacklist,
+                recoverable: token.recoverable,
+                verified: token.verified,
+                fpmanager: token.fpmanager,
+                image: token.image
             });
             return true;
         }

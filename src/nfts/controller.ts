@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { AddNFT, AddNFTCollection, AddToken, Delete, JWTPayload } from "../entities";
+import { AddNFT, AddNFTCollection, Delete, JWTPayload } from "../entities";
 import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, DeleteValidation } from "../schemas";
 import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs } from "./service";
 

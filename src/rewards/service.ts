@@ -37,6 +37,13 @@ export async function getTokenRewards(getCompany: GetCompany): Promise<Array<Tok
 
 export async function deleteTokenReward(getCompany: GetCompany, Delete: Delete): Promise<boolean> {
     try {
+        const count = await pg('rewards_erc20')
+            .count('reward_event_erc20.reward_id')
+            .whereRaw('rewards_erc20.id = ? AND rewards_erc20.company_id = ?', [Delete.id, getCompany.company_id])
+            .leftJoin('reward_event_erc20', 'reward_event_erc20.reward_id', '=', 'rewards_erc20.id')
+            .whereRaw('reward_event_erc20.status = 1')
+            .select([])
+        if (count[0].count !== '0') throw Error('You have reward events on thihs')
         await pg('rewards_erc20').where({id: Delete.id, company_id: getCompany.company_id}).delete()
         return true
     } catch (error) {
@@ -149,6 +156,13 @@ export async function getNFTRewards(getCompany: GetCompany): Promise<Array<NFTRe
 
 export async function deleteNFTReward(getCompany: GetCompany, Delete: Delete): Promise<boolean> {
     try {
+        const count = await pg('rewards_erc721')
+            .count('reward_event_erc721.reward_id')
+            .whereRaw('rewards_erc721.id = ? AND rewards_erc721.company_id = ?', [Delete.id, getCompany.company_id])
+            .leftJoin('reward_event_erc721', 'reward_event_erc721.reward_id', '=', 'rewards_erc721.id')
+            .whereRaw('reward_event_erc721.status = 1')
+            .select([])
+        if (count[0].count !== '0') throw Error('You have reward events on thihs')
         await pg('rewards_erc721').where({id: Delete.id, company_id: getCompany.company_id}).delete()
         return true
     } catch (error) {

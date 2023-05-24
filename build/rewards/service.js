@@ -55,6 +55,14 @@ exports.getTokenRewards = getTokenRewards;
 function deleteTokenReward(getCompany, Delete) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const count = yield (0, db_1.default)('rewards_erc20')
+                .count('reward_event_erc20.reward_id')
+                .whereRaw('rewards_erc20.id = ? AND rewards_erc20.company_id = ?', [Delete.id, getCompany.company_id])
+                .leftJoin('reward_event_erc20', 'reward_event_erc20.reward_id', '=', 'rewards_erc20.id')
+                .whereRaw('reward_event_erc20.status = 1')
+                .select([]);
+            if (count[0].count !== '0')
+                throw Error('You have reward events on thihs');
             yield (0, db_1.default)('rewards_erc20').where({ id: Delete.id, company_id: getCompany.company_id }).delete();
             return true;
         }
@@ -180,6 +188,14 @@ exports.getNFTRewards = getNFTRewards;
 function deleteNFTReward(getCompany, Delete) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const count = yield (0, db_1.default)('rewards_erc721')
+                .count('reward_event_erc721.reward_id')
+                .whereRaw('rewards_erc721.id = ? AND rewards_erc721.company_id = ?', [Delete.id, getCompany.company_id])
+                .leftJoin('reward_event_erc721', 'reward_event_erc721.reward_id', '=', 'rewards_erc721.id')
+                .whereRaw('reward_event_erc721.status = 1')
+                .select([]);
+            if (count[0].count !== '0')
+                throw Error('You have reward events on thihs');
             yield (0, db_1.default)('rewards_erc721').where({ id: Delete.id, company_id: getCompany.company_id }).delete();
             return true;
         }

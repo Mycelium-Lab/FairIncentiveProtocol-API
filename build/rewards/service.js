@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteNFTRewardEvent = exports.deleteTokenRewardEvent = exports.updateNFTReward = exports.updateTokenReward = exports.getClaimableNFT = exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
+exports.deleteNFTRewardEvent = exports.deleteTokenRewardEvent = exports.updateNFTReward = exports.updateTokenReward = exports.getClaimableNFT = exports.getClaimableToken = exports.getRewardNFTEvents = exports.rewardWithNFT = exports.deleteNFTReward = exports.getNFTRewards = exports.addNFTReward = exports.getRewardTokenEvents = exports.rewardWithToken = exports.deleteTokenReward = exports.getTokenRewards = exports.addTokenReward = void 0;
 const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../config/db"));
 const config_1 = require("../config/config");
@@ -251,6 +251,30 @@ function getRewardNFTEvents(getCompany) {
     });
 }
 exports.getRewardNFTEvents = getRewardNFTEvents;
+function getClaimableToken(rewardEventID, user_id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const claimableToken = yield (0, db_1.default)('reward_event_erc20')
+                .whereRaw('reward_event_erc20.id = ? AND reward_event_erc20.user_id = ?', [rewardEventID, user_id])
+                .first()
+                .leftJoin('rewards_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
+                .leftJoin('erc20_tokens', 'erc20_tokens.address', '=', 'rewards_erc20.address')
+                .leftJoin('users', 'users.id', '=', 'reward_event_erc20.user_id')
+                .select([
+                'erc20_tokens.name as token_name', 'erc20_tokens.symbol as token_symbol',
+                'erc20_tokens.address as token_address', 'erc20_tokens.fpmanager', 'rewards_erc20.name as reward_name',
+                'rewards_erc20.description as reward_description', 'rewards_erc20.amount as reward_amount',
+                'erc20_tokens.chainid', 'users.id as user_id', 'users.wallet as user_wallet',
+                'reward_event_erc20.v', 'reward_event_erc20.r', 'reward_event_erc20.s'
+            ]);
+            return claimableToken;
+        }
+        catch (error) {
+            return null;
+        }
+    });
+}
+exports.getClaimableToken = getClaimableToken;
 function getClaimableNFT(rewardEventID, user_id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

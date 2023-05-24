@@ -1,4 +1,4 @@
-import { erc721DefaultRoyaltyAbi, erc721TokenRoyaltyAbi } from './contracts/contracts.js'
+import { erc721DefaultRoyaltyAbi, erc721TokenRoyaltyAbi } from './contracts/nft_contracts.js'
 let address
 
 function createLongStrView(str) {

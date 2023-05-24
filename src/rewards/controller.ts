@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { ClaimNFT, Delete, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
+import { ClaimNFT, ClaimToken, Delete, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
 import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteValidation, RewardWithTokenValidation, UpdateNFTRewardValidation, UpdateTokenRewardValidation } from "../schemas";
-import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateNFTReward, updateTokenReward, deleteTokenRewardEvent, deleteNFTRewardEvent } from "./service";
+import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateNFTReward, updateTokenReward, deleteTokenRewardEvent, deleteNFTRewardEvent, getClaimableToken } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -274,6 +274,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 reply
                     .code(500)
                     .send({rewardEvents: []})
+            }
+        }
+    )
+    app.get(
+        '/events/claimabletoken',
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const query = req.query as any
+                const claimableToken: ClaimToken | null = await getClaimableToken(query.id, query.user_id)
+                reply
+                    .code(200)
+                    .send({claimableToken})
+            } catch (error) {
+                reply
+                    .code(500)
+                    .send({claimableToken: null})
             }
         }
     )

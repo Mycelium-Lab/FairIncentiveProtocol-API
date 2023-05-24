@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import pg from "../config/db";
-import { ClaimNFT, Delete, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
+import { ClaimNFT, ClaimToken, Delete, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
 import { config } from "../config/config";
 import { signNFTReward, signTokenReward } from "../utils/sign";
 import { Company } from "../entities";
@@ -209,6 +209,29 @@ export async function getRewardNFTEvents(getCompany: GetCompany): Promise<Array<
     } catch (error) {
         console.log(error)
         return []
+    }
+}
+
+export async function getClaimableToken(rewardEventID: string, user_id: string): Promise<ClaimToken | null> {
+    try {
+        const claimableToken: ClaimToken =
+            await pg('reward_event_erc20')
+                .whereRaw('reward_event_erc20.id = ? AND reward_event_erc20.user_id = ?', [rewardEventID, user_id])
+                .first()
+                .leftJoin('rewards_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
+                .leftJoin('erc20_tokens', 'erc20_tokens.address', '=', 'rewards_erc20.address')
+                .leftJoin('users', 'users.id', '=', 'reward_event_erc20.user_id')
+                .select([
+                    'erc20_tokens.name as token_name', 'erc20_tokens.symbol as token_symbol',
+                    'erc20_tokens.address as token_address', 'erc20_tokens.fpmanager', 'rewards_erc20.name as reward_name',
+                    'rewards_erc20.description as reward_description', 'rewards_erc20.amount as reward_amount',
+                    'erc20_tokens.chainid', 'users.id as user_id', 'users.wallet as user_wallet',
+                    'reward_event_erc20.v','reward_event_erc20.r','reward_event_erc20.s'
+                ])
+
+        return claimableToken
+    } catch (error) {
+        return null
     }
 }
 

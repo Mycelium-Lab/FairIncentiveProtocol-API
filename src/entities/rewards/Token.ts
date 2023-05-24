@@ -8,5 +8,6 @@ export interface TokenReward {
     address: string,
     fpmanager?: string,
     amount: string,
-    count?: number
+    count?: number,
+    status?: number
 }

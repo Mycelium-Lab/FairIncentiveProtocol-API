@@ -19,7 +19,7 @@ exports.UpdateNFTReward = {
             type: ['null', 'string'], nullable: true
         },
         nft_id: {
-            type: ['null', 'number'], nullable: true
+            type: ['null', 'string'], nullable: true
         }
     }
 };

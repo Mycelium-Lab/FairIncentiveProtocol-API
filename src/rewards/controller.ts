@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { ClaimNFT, ClaimToken, Delete, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
-import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteValidation, RewardWithTokenValidation, UpdateNFTRewardValidation, UpdateTokenRewardValidation } from "../schemas";
-import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateNFTReward, updateTokenReward, deleteTokenRewardEvent, deleteNFTRewardEvent, getClaimableToken } from "./service";
+import { ClaimNFT, ClaimToken, Delete, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
+import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteValidation, RewardWithTokenValidation, StatusValidation, UpdateNFTRewardValidation, UpdateTokenRewardValidation } from "../schemas";
+import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateNFTReward, updateTokenReward, deleteTokenRewardEvent, deleteNFTRewardEvent, getClaimableToken, setTokenRewardStatus, setNFTRewardStatus } from "./service";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -312,7 +312,10 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     app.post(
         '/update/token',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'UpdateTokenReward' }
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -340,7 +343,10 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     app.post(
         '/update/nft',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'UpdateNFTReward' }
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -352,6 +358,68 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     const done: boolean = await updateNFTReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         update
+                    )
+                    reply
+                        .code(done ? 200 : 500)
+                        .send({done})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                console.log(error)
+                reply
+                    .code(500)
+                    .send({done: false})
+            }
+        }
+    )
+    app.post(
+        '/update/status/token',
+        {
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'Status' }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const status: Status = req.body as Status
+                await StatusValidation.validateAsync(status)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const done: boolean = await setTokenRewardStatus(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        status
+                    )
+                    reply
+                        .code(done ? 200 : 500)
+                        .send({done})
+                } else throw Error('Something wrong with token') 
+            } catch (error) {
+                console.log(error)
+                reply
+                    .code(500)
+                    .send({done: false})
+            }
+        }
+    )
+    app.post(
+        '/update/status/nft',
+        {
+            onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'Status' }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const token = getToken(req)
+                const status: Status = req.body as Status
+                await StatusValidation.validateAsync(status)
+                if (token) {
+                    const data: JWTPayload | null = app.jwt.decode(token)
+                    const done: boolean = await setNFTRewardStatus(
+                        {email: data?.email, phone: data?.phone, company_id: data?.company_id},
+                        status
                     )
                     reply
                         .code(done ? 200 : 500)

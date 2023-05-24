@@ -288,7 +288,10 @@ function rewardsPlugin(app, opt) {
             }
         }));
         app.post('/update/token', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            schema: {
+                body: { $ref: 'UpdateTokenReward' }
+            }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = (0, controller_1.getToken)(req);
@@ -312,7 +315,10 @@ function rewardsPlugin(app, opt) {
             }
         }));
         app.post('/update/nft', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            schema: {
+                body: { $ref: 'UpdateNFTReward' }
+            }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const token = (0, controller_1.getToken)(req);
@@ -321,6 +327,60 @@ function rewardsPlugin(app, opt) {
                 if (token) {
                     const data = app.jwt.decode(token);
                     const done = yield (0, service_1.updateNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, update);
+                    reply
+                        .code(done ? 200 : 500)
+                        .send({ done });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                console.log(error);
+                reply
+                    .code(500)
+                    .send({ done: false });
+            }
+        }));
+        app.post('/update/status/token', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            schema: {
+                body: { $ref: 'Status' }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = (0, controller_1.getToken)(req);
+                const status = req.body;
+                yield schemas_1.StatusValidation.validateAsync(status);
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const done = yield (0, service_1.setTokenRewardStatus)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, status);
+                    reply
+                        .code(done ? 200 : 500)
+                        .send({ done });
+                }
+                else
+                    throw Error('Something wrong with token');
+            }
+            catch (error) {
+                console.log(error);
+                reply
+                    .code(500)
+                    .send({ done: false });
+            }
+        }));
+        app.post('/update/status/nft', {
+            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            schema: {
+                body: { $ref: 'Status' }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const token = (0, controller_1.getToken)(req);
+                const status = req.body;
+                yield schemas_1.StatusValidation.validateAsync(status);
+                if (token) {
+                    const data = app.jwt.decode(token);
+                    const done = yield (0, service_1.setNFTRewardStatus)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, status);
                     reply
                         .code(done ? 200 : 500)
                         .send({ done });

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addSchemas = exports.UpdateUserValidation = exports.UpdateNFTRewardValidation = exports.UpdateTokenRewardValidation = exports.AddNFTRewardValidation = exports.AddNFTValidation = exports.RewardWithTokenValidation = exports.DeleteValidation = exports.AddTokenRewardValidation = exports.AddNFTCollectionValidation = exports.AddTokenValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
+exports.addSchemas = exports.StatusValidation = exports.UpdateUserValidation = exports.UpdateNFTRewardValidation = exports.UpdateTokenRewardValidation = exports.AddNFTRewardValidation = exports.AddNFTValidation = exports.RewardWithTokenValidation = exports.DeleteValidation = exports.AddTokenRewardValidation = exports.AddNFTCollectionValidation = exports.AddTokenValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
 const SignUp_1 = require("./auth/SignUp");
 const SignIn_1 = require("./auth/SignIn");
 const name_1 = require("./company/name");
@@ -19,6 +19,7 @@ const addNFT_2 = require("./rewards/addNFT");
 const updateTokenReward_1 = require("./rewards/updateTokenReward");
 const updateNFTReward_1 = require("./rewards/updateNFTReward");
 const update_1 = require("./users/update");
+const status_1 = require("./rewards/status");
 var SignUp_2 = require("./auth/SignUp");
 Object.defineProperty(exports, "SignUpValidation", { enumerable: true, get: function () { return SignUp_2.SignUpValidation; } });
 var SignIn_2 = require("./auth/SignIn");
@@ -55,6 +56,8 @@ var updateNFTReward_2 = require("./rewards/updateNFTReward");
 Object.defineProperty(exports, "UpdateNFTRewardValidation", { enumerable: true, get: function () { return updateNFTReward_2.UpdateNFTRewardValidation; } });
 var update_2 = require("./users/update");
 Object.defineProperty(exports, "UpdateUserValidation", { enumerable: true, get: function () { return update_2.UpdateUserValidation; } });
+var status_2 = require("./rewards/status");
+Object.defineProperty(exports, "StatusValidation", { enumerable: true, get: function () { return status_2.StatusValidation; } });
 function addSchemas(app) {
     app.addSchema(SignUp_1.SignUp);
     app.addSchema(SignIn_1.SignIn);
@@ -74,5 +77,6 @@ function addSchemas(app) {
     app.addSchema(updateTokenReward_1.UpdateTokenReward);
     app.addSchema(updateNFTReward_1.UpdateNFTReward);
     app.addSchema(update_1.UpdateUser);
+    app.addSchema(status_1.Status);
 }
 exports.addSchemas = addSchemas;

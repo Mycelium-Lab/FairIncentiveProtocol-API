@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import pg from "../config/db";
-import { ClaimNFT, ClaimToken, Delete, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
+import { ClaimNFT, ClaimToken, Delete, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
 import { config } from "../config/config";
 import { signNFTReward, signTokenReward } from "../utils/sign";
 import { Company } from "../entities";
@@ -26,8 +26,8 @@ export async function getTokenRewards(getCompany: GetCompany): Promise<Array<Tok
                 .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id]) 
                 .leftJoin('erc20_tokens', 'rewards_erc20.address', '=', 'erc20_tokens.address')
                 .leftJoin('reward_event_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
-                .groupBy('rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol')
-                .select(['rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol'])
+                .groupBy('rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status')
+                .select(['rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status'])
         return tokenRewards
     } catch (error) {
         console.log(error)
@@ -145,8 +145,8 @@ export async function getNFTRewards(getCompany: GetCompany): Promise<Array<NFTRe
                 .leftJoin('nfts', 'rewards_erc721.nft_id', '=', 'nfts.id')
                 .leftJoin('erc721_tokens', 'nfts.address', '=', 'erc721_tokens.address')
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
-                .groupBy('rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol','nfts.name', 'nfts.address')
-                .select(['rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name', 'nfts.address as address'])
+                .groupBy('rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol','nfts.name', 'nfts.address', 'rewards_erc721.status')
+                .select(['rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name', 'nfts.address as address', 'rewards_erc721.status'])
         return nftRewards
     } catch (error) {
         console.log(error)
@@ -332,6 +332,42 @@ export async function deleteNFTRewardEvent(getCompany: GetCompany, deleteRewardE
             .select(['rewards_erc721.company_id as id'])
         if (rewardCompany.id !== getCompany.company_id) throw Error('Not this company token reward')
         await pg('reward_event_erc721').whereRaw('id = ? AND status = 1', [deleteRewardEvent.id]).delete()
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
+export async function setTokenRewardStatus(getCompany: GetCompany, status: Status): Promise<boolean> {
+    try {
+        const rewardCompany: Company = 
+            await pg('rewards_erc20')
+            .whereRaw('id = ?', status.reward_id)
+            .first()
+            .select('rewards_erc20.company_id as id')
+        if (rewardCompany.id !== getCompany.company_id) throw Error('Not this company token reward')
+        await pg('rewards_erc20')
+            .update({status: status.status})
+            .where({id: status.reward_id})
+        return true
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
+export async function setNFTRewardStatus(getCompany: GetCompany, status: Status): Promise<boolean> {
+    try {
+        const rewardCompany: Company = 
+            await pg('rewards_erc721')
+            .whereRaw('id = ?', status.reward_id)
+            .first()
+            .select('rewards_erc721.company_id as id')
+        if (rewardCompany.id !== getCompany.company_id) throw Error('Not this company token reward')
+        await pg('rewards_erc721')
+            .update({status: status.status})
+            .where({id: status.reward_id})
         return true
     } catch (error) {
         console.log(error)

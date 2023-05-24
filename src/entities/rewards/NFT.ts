@@ -9,5 +9,6 @@ export interface NFTReward {
     nft_name: string,
     nft_id: string,
     image?: string,
-    chainid?: string
+    chainid?: string,
+    status?: number
 }

@@ -265,13 +265,22 @@ CREATE TABLE api_keys(
     expired         TIMESTAMP NOT NULL
 );
 
+CREATE TABLE reward_statuses(
+    id              INT PRIMARY KEY UNIQUE,
+    name            VARCHAR(255) NOT NULL
+);
+
+INSERT INTO reward_statuses (id, name) VALUES(0, 'Works');
+INSERT INTO reward_statuses (id, name) VALUES(1, 'Not works');
+
 CREATE TABLE rewards_erc20(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
     address         VARCHAR(42) NOT NULL REFERENCES erc20_tokens(address),
-    amount          NUMERIC(78,0) NOT NULL
+    amount          NUMERIC(78,0) NOT NULL,
+    status          INT NOT NULL REFERENCES reward_statuses(id) DEFAULT 0
 );
 
 CREATE TABLE rewards_erc721(
@@ -279,7 +288,8 @@ CREATE TABLE rewards_erc721(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
-    nft_id          UUID NOT NULL REFERENCES nfts(id)
+    nft_id          UUID NOT NULL REFERENCES nfts(id),
+    status          INT NOT NULL REFERENCES reward_statuses(id) DEFAULT 0
 );
 
 CREATE TABLE reward_event_statuses (

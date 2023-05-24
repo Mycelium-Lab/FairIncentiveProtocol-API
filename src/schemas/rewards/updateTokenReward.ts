@@ -18,7 +18,7 @@ export const UpdateTokenReward: unknown = {
             type: ['null', 'string'], nullable: true
         },
         amount: {
-            type: ['null', 'number'], nullable: true
+            type: ['null', 'string'], nullable: true
         }
     }
 }
@@ -33,6 +33,6 @@ export const UpdateTokenRewardValidation: Joi.ObjectSchema = Joi.object({
 
     address: Joi.string().allow(null).external(checkAddress),
 
-    amount: Joi.number().allow(null)
+    amount: Joi.string().allow(null)
 
 })

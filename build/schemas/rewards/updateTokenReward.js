@@ -23,7 +23,7 @@ exports.UpdateTokenReward = {
             type: ['null', 'string'], nullable: true
         },
         amount: {
-            type: ['null', 'number'], nullable: true
+            type: ['null', 'string'], nullable: true
         }
     }
 };
@@ -32,5 +32,5 @@ exports.UpdateTokenRewardValidation = joi_1.default.object({
     name: joi_1.default.string().allow(null),
     description: joi_1.default.string().allow(null),
     address: joi_1.default.string().allow(null).external(utils_1.checkAddress),
-    amount: joi_1.default.number().allow(null)
+    amount: joi_1.default.string().allow(null)
 });

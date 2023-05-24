@@ -84,6 +84,36 @@ function getUsers(getCompany) {
                         AND user_stats.name IS NOT NULL
                     ) as stats
                 `),
+                db_1.default.raw(`
+                    ARRAY (
+                        SELECT JSON_BUILD_OBJECT(
+                            'reward_name', rewards_erc721.name,
+                            'nft_name', nfts.name,
+                            'collection_name', erc721_tokens.name,
+                            'count', COUNT(*)
+                        )
+                        FROM reward_event_erc721
+                        LEFT JOIN rewards_erc721 ON rewards_erc721.id = reward_event_erc721.reward_id
+                        LEFT JOIN nfts ON nfts.id = rewards_erc721.nft_id
+                        LEFT JOIN erc721_tokens ON erc721_tokens.address = nfts.address
+                        WHERE reward_event_erc721.user_id = users.id
+                        GROUP BY rewards_erc721.name, nfts.name, erc721_tokens.name
+                    ) as nft_rewards
+                `),
+                db_1.default.raw(`
+                    ARRAY (
+                        SELECT JSON_BUILD_OBJECT(
+                            'token_name', erc20_tokens.name,
+                            'reward_name', rewards_erc20.name,
+                            'count', COUNT(*)
+                        )
+                        FROM reward_event_erc20
+                        LEFT JOIN rewards_erc20 ON rewards_erc20.id = reward_event_erc20.reward_id
+                        LEFT JOIN erc20_tokens ON erc20_tokens.address = rewards_erc20.address
+                        WHERE reward_event_erc20.user_id = users.id
+                        GROUP BY erc20_tokens.name, rewards_erc20.name
+                    ) as token_rewards
+                `)
             ])
                 .leftJoin('user_properties', 'users.id', '=', 'user_properties.user_id')
                 .leftJoin('user_stats', 'users.id', '=', 'user_stats.user_id')

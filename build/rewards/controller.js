@@ -305,6 +305,7 @@ function rewardsPlugin(app, opt) {
                     throw Error('Something wrong with token');
             }
             catch (error) {
+                console.log(error);
                 reply
                     .code(500)
                     .send({ done: false });

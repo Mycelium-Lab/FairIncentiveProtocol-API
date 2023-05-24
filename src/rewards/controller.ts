@@ -330,6 +330,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                         .send({done})
                 } else throw Error('Something wrong with token') 
             } catch (error) {
+                console.log(error)
                 reply
                     .code(500)
                     .send({done: false})

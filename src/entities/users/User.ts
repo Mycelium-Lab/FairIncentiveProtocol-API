@@ -6,7 +6,9 @@ export interface User {
     image?: string,
     notes?: string,
     properties?: Array<Property>,
-    stats?: Array<Stat>
+    stats?: Array<Stat>,
+    nft_rewards?: Array<UserNFTReward>,
+    token_rewards?: Array<UserTokenReward>
 }
 
 export interface UpdateUser {
@@ -32,4 +34,17 @@ export interface Stat {
     value: number,
     user_id?: string,
     company_id?: string
+}
+
+export interface UserNFTReward {
+    reward_name: string,
+    nft_name: string,
+    collection_name: string,
+    count: number
+}
+
+export interface UserTokenReward {
+    token_name: string,
+    reward_name: string,
+    count: number
 }

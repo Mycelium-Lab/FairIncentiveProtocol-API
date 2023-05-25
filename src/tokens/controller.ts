@@ -20,12 +20,13 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
                 await AddTokenValidation.validateAsync(Token)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await addToken(Token, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: Token | null = await addToken(Token, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
                         .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .send({token: res})
                 } else throw Error('Something wrong with token') 
             } catch (error: any) {
+                console.log(error)
                 //TODO: pretty tokens error
                 reply
                     .code(500)

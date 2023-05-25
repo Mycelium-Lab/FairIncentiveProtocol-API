@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { AddNFT, AddNFTCollection, Delete, JWTPayload } from "../entities";
+import { AddNFT, AddNFTCollection, Delete, JWTPayload, NFTCollection } from "../entities";
 import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, DeleteValidation } from "../schemas";
 import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs } from "./service";
 
@@ -20,10 +20,10 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 await AddNFTCollectionValidation.validateAsync(nft)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await addNFTCollection(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: NFTCollection | null = await addNFTCollection(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
                         .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .send({collection: res})
                 } else throw Error('Something wrong with token') 
             } catch (error: any) {
                 console.log(error)

@@ -84,10 +84,12 @@ function rewardWithToken(getCompany, reward) {
                 'rewards_erc20.name', 'rewards_erc20.description',
                 'erc20_tokens.symbol', 'erc20_tokens.chainid',
                 'rewards_erc20.address', 'rewards_erc20.amount',
-                'erc20_tokens.fpmanager'
+                'erc20_tokens.fpmanager', 'rewards_erc20.status'
             ]).first();
             if (tokenReward.company_id !== getCompany.company_id)
                 throw Error('Not allowed company');
+            if (tokenReward.status === 1)
+                throw Error('Not working');
             const network = config_1.config.networks.find(n => n.chainid == tokenReward.chainid);
             const provider = new ethers_1.ethers.providers.JsonRpcProvider(network === null || network === void 0 ? void 0 : network.rpc);
             const signer = new ethers_1.ethers.Wallet((network === null || network === void 0 ? void 0 : network.private_key) || '', provider);
@@ -216,6 +218,8 @@ function rewardWithNFT(getCompany, reward) {
                 .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'nfts.chainid as chainid']);
             if (nftReward.company_id !== getCompany.company_id)
                 throw Error('Not allowed company');
+            if (nftReward.status === 1)
+                throw Error('Not working');
             const network = config_1.config.networks.find(n => n.chainid == nftReward.chainid);
             const provider = new ethers_1.ethers.providers.JsonRpcProvider(network === null || network === void 0 ? void 0 : network.rpc);
             const signer = new ethers_1.ethers.Wallet((network === null || network === void 0 ? void 0 : network.private_key) || '', provider);
@@ -281,8 +285,10 @@ function getClaimableToken(rewardEventID, user_id) {
                 'erc20_tokens.address as token_address', 'erc20_tokens.fpmanager', 'rewards_erc20.name as reward_name',
                 'rewards_erc20.description as reward_description', 'rewards_erc20.amount as reward_amount',
                 'erc20_tokens.chainid', 'users.id as user_id', 'users.wallet as user_wallet',
-                'reward_event_erc20.v', 'reward_event_erc20.r', 'reward_event_erc20.s'
+                'reward_event_erc20.v', 'reward_event_erc20.r', 'reward_event_erc20.s', 'rewards_erc20.status'
             ]);
+            if (claimableToken.status == 1)
+                return null;
             return claimableToken;
         }
         catch (error) {
@@ -307,8 +313,10 @@ function getClaimableNFT(rewardEventID, user_id) {
                 'nfts.description as nft_description', 'nfts.chainid as chainid',
                 'users.wallet as user_wallet',
                 'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r',
-                'erc721_tokens.beneficiary as beneficiary'
+                'erc721_tokens.beneficiary as beneficiary', 'rewards_erc721.status'
             ]);
+            if (claimableNFT.status == 1)
+                return null;
             return claimableNFT;
         }
         catch (error) {

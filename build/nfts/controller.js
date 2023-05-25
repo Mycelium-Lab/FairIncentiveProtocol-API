@@ -30,7 +30,7 @@ function nftsPlugin(app, opt) {
                     const res = yield (0, service_1.addNFTCollection)(nft, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply
                         .code(res ? 200 : 500)
-                        .send({ message: res ? 'Done' : 'Something went wrong' });
+                        .send({ collection: res });
                 }
                 else
                     throw Error('Something wrong with token');

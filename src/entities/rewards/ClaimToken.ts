@@ -11,5 +11,6 @@ export interface ClaimToken {
     user_wallet: string,
     v: string,
     r: string,
-    s: string
+    s: string,
+    status: number
 }

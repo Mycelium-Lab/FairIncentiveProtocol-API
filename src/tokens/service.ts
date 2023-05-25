@@ -1,9 +1,9 @@
 import pg from "../config/db";
 import { Company, GetCompany, Token } from "../entities";
 
-export async function addToken(token: Token, getCompany: GetCompany): Promise<boolean> {
+export async function addToken(token: Token, getCompany: GetCompany): Promise<Token | null> {
     try {
-        await pg('erc20_tokens')
+        const newToken: Array<Token> = await pg('erc20_tokens')
             .insert({
                 company_id: getCompany.company_id,
                 name: token.name,
@@ -21,10 +21,11 @@ export async function addToken(token: Token, getCompany: GetCompany): Promise<bo
                 fpmanager: token.fpmanager,
                 image: token.image
             })
-        return true
+            .returning('*')
+        return newToken[0]
     } catch (error) {
         console.log(error)
-        return false
+        return null
     }
 }
 

@@ -18,7 +18,7 @@ function addNFTCollection(nftCollection, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const trx = yield db_1.default.transaction();
-            const done = yield trx('erc721_tokens')
+            const newCollection = yield trx('erc721_tokens')
                 .insert({
                 company_id: getCompany.company_id,
                 name: nftCollection.name,
@@ -28,8 +28,8 @@ function addNFTCollection(nftCollection, getCompany) {
                 address: nftCollection.address,
                 beneficiary: nftCollection.beneficiary,
                 royalty_percent: nftCollection.royalties
-            })
-                .then(() => __awaiter(this, void 0, void 0, function* () {
+            }, '*')
+                .then((collections) => __awaiter(this, void 0, void 0, function* () {
                 nftCollection.links.forEach(v => {
                     v.company_id = getCompany.company_id;
                     v.token_address = nftCollection.address;
@@ -37,21 +37,22 @@ function addNFTCollection(nftCollection, getCompany) {
                 });
                 if (nftCollection.links.length)
                     yield trx('social_links').insert(nftCollection.links);
+                return collections;
             }))
-                .then(() => __awaiter(this, void 0, void 0, function* () {
+                .then((collections) => __awaiter(this, void 0, void 0, function* () {
                 yield trx.commit();
-                return true;
+                return collections;
             }))
                 .catch((err) => __awaiter(this, void 0, void 0, function* () {
                 console.log(err);
                 yield trx.rollback();
-                return false;
+                return null;
             }));
-            return done;
+            return newCollection ? newCollection[0] : null;
         }
         catch (error) {
             console.log(error);
-            return false;
+            return null;
         }
     });
 }

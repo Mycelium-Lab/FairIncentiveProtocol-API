@@ -9,5 +9,6 @@ export interface ClaimNFT {
     beneficiary: string,
     v: string,
     r: string,
-    s: string
+    s: string,
+    status: number
 }

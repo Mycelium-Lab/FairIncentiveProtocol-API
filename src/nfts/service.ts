@@ -2,10 +2,10 @@ import { config } from "../config/config";
 import pg from "../config/db";
 import { AddNFT, AddNFTCollection, Company, Delete, GetCompany, NFT, NFTCollection, NFTReward } from "../entities";
 
-export async function addNFTCollection(nftCollection: AddNFTCollection, getCompany: GetCompany): Promise<boolean> {
+export async function addNFTCollection(nftCollection: AddNFTCollection, getCompany: GetCompany): Promise<NFTCollection | null> {
     try {
         const trx = await pg.transaction()
-        const done: boolean = await trx('erc721_tokens')
+        const newCollection: Array<NFTCollection> | null = await trx('erc721_tokens')
             .insert({
                 company_id: getCompany.company_id,
                 name: nftCollection.name,
@@ -15,28 +15,29 @@ export async function addNFTCollection(nftCollection: AddNFTCollection, getCompa
                 address: nftCollection.address,
                 beneficiary: nftCollection.beneficiary,
                 royalty_percent: nftCollection.royalties
-            })
-            .then(async () => {
+            }, '*')
+            .then(async (collections) => {
                 nftCollection.links.forEach(v => {
                     v.company_id = getCompany.company_id
                     v.token_address = nftCollection.address
                     v.chainid = nftCollection.chainid
                 })
                 if (nftCollection.links.length) await trx('social_links').insert(nftCollection.links)
+                return collections
             })
-            .then(async () => {
+            .then(async (collections) => {
                 await trx.commit()
-                return true
+                return collections
             })
             .catch(async (err) => {
                 console.log(err)
                 await trx.rollback()
-                return false
+                return null
             })
-        return done
+        return newCollection ? newCollection[0] : null
     } catch (error) {
         console.log(error)
-        return false
+        return null
     }
 }
 

@@ -63,9 +63,10 @@ export async function rewardWithToken(getCompany: GetCompany, reward: RewardWith
                 'rewards_erc20.name', 'rewards_erc20.description',
                 'erc20_tokens.symbol', 'erc20_tokens.chainid',
                 'rewards_erc20.address', 'rewards_erc20.amount',
-                'erc20_tokens.fpmanager'
+                'erc20_tokens.fpmanager', 'rewards_erc20.status'
             ]).first()
         if (tokenReward.company_id !== getCompany.company_id) throw Error('Not allowed company')
+        if (tokenReward.status === 1) throw Error('Not working')
         const network = config.networks.find(n => n.chainid == tokenReward.chainid)
         const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
         const signer = new ethers.Wallet(network?.private_key || '', provider)
@@ -180,6 +181,7 @@ export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithTo
                 .leftJoin('nfts','nfts.id','=','rewards_erc721.nft_id')
                 .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'nfts.chainid as chainid'])
         if (nftReward.company_id !== getCompany.company_id) throw Error('Not allowed company')
+        if (nftReward.status === 1) throw Error('Not working')
         const network = config.networks.find(n => n.chainid == nftReward.chainid)
         const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
         const signer = new ethers.Wallet(network?.private_key || '', provider)
@@ -240,9 +242,9 @@ export async function getClaimableToken(rewardEventID: string, user_id: string):
                     'erc20_tokens.address as token_address', 'erc20_tokens.fpmanager', 'rewards_erc20.name as reward_name',
                     'rewards_erc20.description as reward_description', 'rewards_erc20.amount as reward_amount',
                     'erc20_tokens.chainid', 'users.id as user_id', 'users.wallet as user_wallet',
-                    'reward_event_erc20.v','reward_event_erc20.r','reward_event_erc20.s'
+                    'reward_event_erc20.v','reward_event_erc20.r','reward_event_erc20.s', 'rewards_erc20.status'
                 ])
-
+        if (claimableToken.status == 1) return null
         return claimableToken
     } catch (error) {
         return null
@@ -265,8 +267,9 @@ export async function getClaimableNFT(rewardEventID: string, user_id: string): P
                     'nfts.description as nft_description', 'nfts.chainid as chainid',
                     'users.wallet as user_wallet',
                     'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r',
-                    'erc721_tokens.beneficiary as beneficiary'
+                    'erc721_tokens.beneficiary as beneficiary', 'rewards_erc721.status'
                 ])
+        if (claimableNFT.status == 1) return null
         return claimableNFT
     } catch (error) {
         console.log(error)

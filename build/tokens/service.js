@@ -17,7 +17,7 @@ const db_1 = __importDefault(require("../config/db"));
 function addToken(token, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield (0, db_1.default)('erc20_tokens')
+            const newToken = yield (0, db_1.default)('erc20_tokens')
                 .insert({
                 company_id: getCompany.company_id,
                 name: token.name,
@@ -34,12 +34,13 @@ function addToken(token, getCompany) {
                 verified: token.verified,
                 fpmanager: token.fpmanager,
                 image: token.image
-            });
-            return true;
+            })
+                .returning('*');
+            return newToken[0];
         }
         catch (error) {
             console.log(error);
-            return false;
+            return null;
         }
     });
 }

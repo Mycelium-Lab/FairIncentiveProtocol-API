@@ -24,7 +24,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                     reply
                         .code(res ? 200 : 500)
                         .send({collection: res})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 console.log(error)
                 //TODO: pretty tokens error
@@ -48,7 +48,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                     reply
                         .code(200)
                         .send({nftCollections: res})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 //TODO: pretty tokens error
                 reply
@@ -76,7 +76,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 console.log(error)
                 //TODO: pretty tokens error
@@ -100,7 +100,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                     reply
                         .code(200)
                         .send({nfts: res})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 //TODO: pretty tokens error
                 reply
@@ -128,7 +128,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 console.log(error)
                 //TODO: pretty tokens error

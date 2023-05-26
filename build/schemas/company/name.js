@@ -16,7 +16,6 @@ exports.ChangeCompanyName = {
 };
 exports.ChangeCompanyNameValidation = joi_1.default.object({
     newName: joi_1.default.string()
-        .min(3)
         .max(256)
         .required()
 });

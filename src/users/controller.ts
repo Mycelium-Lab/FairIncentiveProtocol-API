@@ -24,7 +24,7 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                     reply    
                         .code(res ? 200 : 500)
                         .send({id: res})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 reply
                     .code(500)
@@ -51,7 +51,7 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                     reply
                         .code(200)
                         .send({users})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 reply
                     .code(500)
@@ -80,7 +80,7 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                     reply    
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 reply
                     .code(500)
@@ -112,7 +112,7 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                     reply    
                         .code(res ? 200 : 500)
                         .send({res})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 console.log(error)
                 reply

@@ -24,7 +24,7 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
                     reply
                         .code(res ? 200 : 500)
                         .send({token: res})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 console.log(error)
                 //TODO: pretty tokens error
@@ -48,7 +48,7 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
                     reply
                         .code(200)
                         .send({tokens: res})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 //TODO: pretty tokens error
                 reply

@@ -27,7 +27,7 @@ function companyPlugin(app, opt) {
                         .send(company);
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 //TODO: pretty company error
@@ -54,13 +54,17 @@ function companyPlugin(app, opt) {
                         .send({ message: res ? 'Done' : 'Something went wrong' });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
-            catch (error) {
+            catch (err) {
                 //TODO: pretty company error
+                let error = err.message;
+                if (error && error.includes('"newName" length must be less than or equal to 256 characters long')) {
+                    error = `Company name must be less than or equal to 256 characters in length`;
+                }
                 reply
                     .code(500)
-                    .send({ message: error.message });
+                    .send({ error });
             }
         }));
         app.post('/changeemail', {
@@ -81,7 +85,7 @@ function companyPlugin(app, opt) {
                         .send({ message: res ? 'Done' : 'Something went wrong' });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 //TODO: pretty company error
@@ -108,7 +112,7 @@ function companyPlugin(app, opt) {
                         .send({ message: res ? 'Done' : 'Something went wrong' });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 //TODO: pretty company error
@@ -135,7 +139,7 @@ function companyPlugin(app, opt) {
                         .send({ message: res ? 'Done' : 'Something went wrong' });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 //TODO: pretty company error
@@ -162,7 +166,7 @@ function companyPlugin(app, opt) {
                         .send({ message: res ? 'Done' : 'Something went wrong' });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 //TODO: pretty company error

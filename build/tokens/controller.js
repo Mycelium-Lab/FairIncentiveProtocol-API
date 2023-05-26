@@ -33,7 +33,7 @@ function tokensPlugin(app, opt) {
                         .send({ token: res });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -56,7 +56,7 @@ function tokensPlugin(app, opt) {
                         .send({ tokens: res });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 //TODO: pretty tokens error

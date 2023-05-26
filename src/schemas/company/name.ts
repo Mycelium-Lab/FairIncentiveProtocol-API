@@ -12,7 +12,6 @@ export const ChangeCompanyName: unknown = {
 
 export const ChangeCompanyNameValidation: Joi.ObjectSchema = Joi.object({
     newName: Joi.string()
-        .min(3)
         .max(256)
         .required()
 })

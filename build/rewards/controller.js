@@ -33,7 +33,7 @@ function rewardsPlugin(app, opt) {
                         .send({ createdTokenReward });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -55,7 +55,7 @@ function rewardsPlugin(app, opt) {
                             .send({ tokenRewards });
                     }
                     else
-                        throw Error('Something wrong with token');
+                        throw Error('Wrong auth token');
                 }
                 catch (error) {
                     reply
@@ -81,7 +81,7 @@ function rewardsPlugin(app, opt) {
                             .send({ message: 'Something went wrong' });
                     }
                     else
-                        throw Error('Something wrong with token');
+                        throw Error('Wrong auth token');
                 }
                 catch (error) {
                     reply
@@ -107,7 +107,7 @@ function rewardsPlugin(app, opt) {
                             .send({ rewarded });
                     }
                     else
-                        throw Error('Something wrong with token');
+                        throw Error('Wrong auth token');
                 }
                 catch (error) {
                     console.log(error);
@@ -129,7 +129,7 @@ function rewardsPlugin(app, opt) {
                             .send({ rewardEvents });
                     }
                     else
-                        throw Error('Something wrong with token');
+                        throw Error('Wrong auth token');
                 }
                 catch (error) {
                     reply
@@ -155,7 +155,7 @@ function rewardsPlugin(app, opt) {
                         .send({ createdNFTReward });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -177,7 +177,7 @@ function rewardsPlugin(app, opt) {
                         .send({ nftRewards });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 reply
@@ -203,7 +203,7 @@ function rewardsPlugin(app, opt) {
                         .send({ message: 'Something went wrong' });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 reply
@@ -229,7 +229,7 @@ function rewardsPlugin(app, opt) {
                         .send({ rewarded });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -251,7 +251,7 @@ function rewardsPlugin(app, opt) {
                         .send({ rewardEvents });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 reply
@@ -305,7 +305,7 @@ function rewardsPlugin(app, opt) {
                         .send({ done });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -332,7 +332,7 @@ function rewardsPlugin(app, opt) {
                         .send({ done });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -359,7 +359,7 @@ function rewardsPlugin(app, opt) {
                         .send({ done });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -386,7 +386,7 @@ function rewardsPlugin(app, opt) {
                         .send({ done });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -410,7 +410,7 @@ function rewardsPlugin(app, opt) {
                         .send({ done });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -434,7 +434,7 @@ function rewardsPlugin(app, opt) {
                         .send({ done });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);

@@ -18,7 +18,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(200)
                         .send(company)
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 //TODO: pretty company error
                 reply
@@ -46,12 +46,16 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
-            } catch (error: any) {
+                } else throw Error('Wrong auth token') 
+            } catch (err: any) {
                 //TODO: pretty company error
+                let error = err.message
+                if (error && error.includes('"newName" length must be less than or equal to 256 characters long')) {
+                    error = `Company name must be less than or equal to 256 characters in length`
+                }
                 reply
                     .code(500)
-                    .send({message: error.message})
+                    .send({error})
             }
         }
     )
@@ -74,7 +78,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 //TODO: pretty company error
                 reply
@@ -102,7 +106,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 //TODO: pretty company error
                 reply
@@ -130,7 +134,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 //TODO: pretty company error
                 reply
@@ -158,7 +162,7 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(res ? 200 : 500)
                         .send({message: res ? 'Done' : 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 //TODO: pretty company error
                 reply

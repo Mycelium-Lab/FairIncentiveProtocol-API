@@ -27,7 +27,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(createdTokenReward ? 200 : 500)
                         .send({createdTokenReward})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply
@@ -50,7 +50,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(tokenRewards.length ? 200 : 500)
                         .send({tokenRewards})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 reply
                     .code(500)
@@ -80,7 +80,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(res ? 200 : 500)
                         .send({message: 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 reply
                     .code(500)
@@ -110,7 +110,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(rewarded ? 200 : 500)
                         .send({rewarded})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply
@@ -133,7 +133,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(200)
                         .send({rewardEvents})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 reply
                     .code(500)
@@ -163,7 +163,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(createdNFTReward ? 200 : 500)
                         .send({createdNFTReward})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply
@@ -186,7 +186,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(nftRewards.length ? 200 : 500)
                         .send({nftRewards})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 reply
                     .code(500)
@@ -216,7 +216,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(res ? 200 : 500)
                         .send({message: 'Something went wrong'})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 reply
                     .code(500)
@@ -246,7 +246,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(rewarded ? 200 : 500)
                         .send({rewarded})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply
@@ -269,7 +269,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(200)
                         .send({rewardEvents})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 reply
                     .code(500)
@@ -331,7 +331,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(done ? 200 : 500)
                         .send({done})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply
@@ -362,7 +362,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(done ? 200 : 500)
                         .send({done})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply
@@ -393,7 +393,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(done ? 200 : 500)
                         .send({done})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply
@@ -424,7 +424,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(done ? 200 : 500)
                         .send({done})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply
@@ -452,7 +452,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(done ? 200 : 500)
                         .send({done})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply
@@ -480,7 +480,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     reply
                         .code(done ? 200 : 500)
                         .send({done})
-                } else throw Error('Something wrong with token') 
+                } else throw Error('Wrong auth token') 
             } catch (error) {
                 console.log(error)
                 reply

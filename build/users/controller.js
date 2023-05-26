@@ -33,7 +33,7 @@ function usersPlugin(app, opt) {
                         .send({ id: res });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 reply
@@ -57,7 +57,7 @@ function usersPlugin(app, opt) {
                             .send({ users });
                     }
                     else
-                        throw Error('Something wrong with token');
+                        throw Error('Wrong auth token');
                 }
                 catch (error) {
                     reply
@@ -83,7 +83,7 @@ function usersPlugin(app, opt) {
                             .send({ message: res ? 'Done' : 'Something went wrong' });
                     }
                     else
-                        throw Error('Something wrong with token');
+                        throw Error('Wrong auth token');
                 }
                 catch (error) {
                     reply
@@ -112,7 +112,7 @@ function usersPlugin(app, opt) {
                         .send({ res });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);

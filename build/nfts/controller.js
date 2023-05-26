@@ -33,7 +33,7 @@ function nftsPlugin(app, opt) {
                         .send({ collection: res });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -56,7 +56,7 @@ function nftsPlugin(app, opt) {
                         .send({ nftCollections: res });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 //TODO: pretty tokens error
@@ -83,7 +83,7 @@ function nftsPlugin(app, opt) {
                         .send({ message: res ? 'Done' : 'Something went wrong' });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);
@@ -106,7 +106,7 @@ function nftsPlugin(app, opt) {
                         .send({ nfts: res });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 //TODO: pretty tokens error
@@ -133,7 +133,7 @@ function nftsPlugin(app, opt) {
                         .send({ message: res ? 'Done' : 'Something went wrong' });
                 }
                 else
-                    throw Error('Something wrong with token');
+                    throw Error('Wrong auth token');
             }
             catch (error) {
                 console.log(error);

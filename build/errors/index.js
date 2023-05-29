@@ -1,5 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prettyAuthError = void 0;
+exports.prettyCompanyError = exports.prettyRewardsError = exports.prettyTokensError = exports.prettyUsersError = exports.prettyNFTError = exports.prettyAuthError = void 0;
 var auth_1 = require("./prettify/auth");
 Object.defineProperty(exports, "prettyAuthError", { enumerable: true, get: function () { return auth_1.prettyAuthError; } });
+var nfts_1 = require("./prettify/nfts");
+Object.defineProperty(exports, "prettyNFTError", { enumerable: true, get: function () { return nfts_1.prettyNFTError; } });
+var users_1 = require("./prettify/users");
+Object.defineProperty(exports, "prettyUsersError", { enumerable: true, get: function () { return users_1.prettyUsersError; } });
+var tokens_1 = require("./prettify/tokens");
+Object.defineProperty(exports, "prettyTokensError", { enumerable: true, get: function () { return tokens_1.prettyTokensError; } });
+var rewards_1 = require("./prettify/rewards");
+Object.defineProperty(exports, "prettyRewardsError", { enumerable: true, get: function () { return rewards_1.prettyRewardsError; } });
+var company_1 = require("./prettify/company");
+Object.defineProperty(exports, "prettyCompanyError", { enumerable: true, get: function () { return company_1.prettyCompanyError; } });

@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTokens = exports.addToken = void 0;
 const db_1 = __importDefault(require("../config/db"));
+const constants_1 = require("../utils/constants");
 function addToken(token, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -36,11 +37,26 @@ function addToken(token, getCompany) {
                 image: token.image
             })
                 .returning('*');
-            return newToken[0];
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The token was successfully added',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: newToken[0]
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return null;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -53,11 +69,26 @@ function getTokens(getCompany) {
                 .where({
                 company_id: getCompany.company_id
             });
-            return tokens;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Tokens',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: tokens
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return [];
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }

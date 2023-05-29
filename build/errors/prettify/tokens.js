@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prettyCompanyError = void 0;
+exports.prettyTokensError = void 0;
 const constants_1 = require("../../utils/constants");
-function prettyCompanyError(errorMessage) {
+function prettyTokensError(errorMessage) {
     //means that some field in json is wrong or not exist
     if (errorMessage.includes('\"')) {
         return {
@@ -21,4 +21,4 @@ function prettyCompanyError(errorMessage) {
         }
     };
 }
-exports.prettyCompanyError = prettyCompanyError;
+exports.prettyTokensError = prettyTokensError;

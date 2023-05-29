@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
-import { AuthServiceReply, JWTPayload, SignInCompany, SignUpCompany } from "../entities";
+import { AuthServiceReply, ErrorResponse, JWTPayload, SignInCompany, SignUpCompany, SuccessResponse } from "../entities";
 import { SignInValidation, SignUpValidation } from "../schemas";
 import { checkCompany } from "./service";
 import { createCompany } from "../company/service";
+import { prettyAuthError } from "../errors";
 
 export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -16,24 +17,18 @@ export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         try {
             const body: SignUpCompany = req.body as SignUpCompany
             await SignUpValidation.validateAsync(body)
-            const serviceReply: AuthServiceReply = await createCompany(body)
-            reply   
-                .code(serviceReply.code)
-                .header('Content-Type', 'application/json; charset=utf-8')
-                .send(serviceReply.res)
-        } catch (error: any) {
-            //TODO: use pretty authError
-            if (error.message.includes('repeat_password')) {
-                error.message = 'Repeated password is incorrect (repeat_password)'
-            }
+            const res: ErrorResponse | SuccessResponse = await createCompany(body)
             reply
-                .code(400)
-                .header('Content-Type', 'application/json; charset=utf-8')
-                .send(
-                    {
-                        message: error.message
-                    }
-                )
+                .code(res.code)
+                .type('application/json; charset=utf-8')
+                .send('body' in res ? {body: res.body} : {error: res.error})
+        } catch (error: any) {
+            console.log(error.message)
+            const prettyError: ErrorResponse = prettyAuthError(error.message)
+            reply
+                .code(prettyError.code)
+                .type('application/json; charset=utf-8')
+                .send({error: prettyError.error})
         }
     }),
     app.post(
@@ -47,24 +42,23 @@ export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         try {
             const body: SignInCompany = req.body as SignInCompany
             await SignInValidation.validateAsync(body)
-            const serviceReply: AuthServiceReply = await checkCompany(body)
+            const res = await checkCompany(body)
             //create token if OK
-            const payload: JWTPayload = {email: body.email, phone: body.phone, company_id: serviceReply.data.company_id, company: true, address: serviceReply.data.address}
-            if (!serviceReply.isError) serviceReply.res.message = app.jwt.sign(payload)
-            reply   
-                .code(serviceReply.code)
-                .header('Content-Type', 'application/json; charset=utf-8')
-                .send(serviceReply.res)
-        } catch (error: any) {
-            //TODO: use pretty authError
+            if ('body' in res ) {
+                const payload: JWTPayload = {email: body.email, phone: body.phone, company_id: res.body.data.company_id, company: true, address: res.body.data.address}
+                res.body.data.token = app.jwt.sign(payload)
+            }
             reply
-                .code(400)
-                .header('Content-Type', 'application/json; charset=utf-8')
-                .send(
-                    {
-                        message: error.message
-                    }
-                )
+                .code(res.code)
+                .type('application/json; charset=utf-8')
+                .send('body' in res ? {body: res.body} : {error: res.error})
+        } catch (error: any) {
+            console.log(error.message)
+            const prettyError: ErrorResponse = prettyAuthError(error.message)
+            reply
+                .code(prettyError.code)
+                .type('application/json; charset=utf-8')
+                .send({error: prettyError.error})
         }
     })
 }

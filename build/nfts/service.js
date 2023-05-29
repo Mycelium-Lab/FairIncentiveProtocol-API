@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteNFT = exports.getNFTs = exports.addNFT = exports.getNFTCollections = exports.addNFTCollection = void 0;
 const db_1 = __importDefault(require("../config/db"));
+const constants_1 = require("../utils/constants");
 function addNFTCollection(nftCollection, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -37,22 +38,49 @@ function addNFTCollection(nftCollection, getCompany) {
                 });
                 if (nftCollection.links.length)
                     yield trx('social_links').insert(nftCollection.links);
-                return collections;
+                return collections[0];
             }))
-                .then((collections) => __awaiter(this, void 0, void 0, function* () {
+                .then((collection) => __awaiter(this, void 0, void 0, function* () {
                 yield trx.commit();
-                return collections;
+                return collection;
             }))
                 .catch((err) => __awaiter(this, void 0, void 0, function* () {
-                console.log(err);
                 yield trx.rollback();
-                return null;
+                return err.message;
             }));
-            return newCollection ? newCollection[0] : null;
+            //If there is no error
+            if (!(newCollection instanceof String)) {
+                const res = {
+                    code: constants_1.CODES.OK.code,
+                    body: {
+                        message: 'The NFT collection was successfully added',
+                        type: constants_1.SuccessResponseTypes.object,
+                        data: newCollection
+                    }
+                };
+                return res;
+            }
+            else {
+                const err = {
+                    code: constants_1.CODES.INTERNAL_ERROR.code,
+                    error: {
+                        name: constants_1.CODES.INTERNAL_ERROR.name,
+                        message: newCollection.toString()
+                    }
+                };
+                return err;
+            }
         }
         catch (error) {
-            console.log(error);
-            return null;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -65,11 +93,26 @@ function getNFTCollections(getCompany) {
                 .where({
                 company_id: getCompany.company_id
             });
-            return tokens;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Tokens',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: tokens
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return [];
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -78,21 +121,35 @@ function addNFT(nft, getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const collection = yield (0, db_1.default)('erc721_tokens').select('*').where({ company_id: getCompany.company_id, address: nft.address });
-            if (!collection.length)
-                throw Error('Not found this collection');
-            yield (0, db_1.default)('nfts').insert({
+            if (collection.length === 0)
+                throw Error("The collection with this company and address was not found");
+            const nfts = yield (0, db_1.default)('nfts').insert({
                 address: nft.address,
                 image: "https://gateway.pinata.cloud/ipfs/QmX9qWa4p1Te3PhdRpyyY1SSvdgY9JAjVcGX2sy8HtaFn4?_gl=1*owkaeo*rs_ga*NzVlMGVjN2MtMTExNC00MmRkLTg2ZjQtZGZkZWMyOGY3Nzg4*rs_ga_5RMPXG14TE*MTY4Mzg3OTYxNi42LjEuMTY4Mzg4MDE3Ni42MC4wLjA",
-                chainid: nft.chainid,
                 amount: nft.amount,
                 name: nft.name,
                 description: nft.description
-            });
-            return true;
+            }, '*');
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The NFT was successfully added',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: nfts[0]
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -100,36 +157,47 @@ exports.addNFT = addNFT;
 function getNFTs(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            //TODO: Попробовать убрать reduce чтобы все было в запрос
-            //сейчас reduce нужен чтобы объединять nft по коллекциям
-            const nfts = yield (0, db_1.default)('erc721_tokens')
+            const result = yield (0, db_1.default)('erc721_tokens')
                 .whereRaw('erc721_tokens.company_id = ?', [getCompany.company_id])
-                .join('nfts', 'nfts.address', '=', 'erc721_tokens.address')
-                .leftJoin('rewards_erc721', 'rewards_erc721.nft_id', '=', 'nfts.id')
-                .groupBy('erc721_tokens.address', 'erc721_tokens.name', 'erc721_tokens.chainid', 'nfts.image', 'nfts.id', 'nfts.name', 'nfts.description', 'nfts.amount')
                 .select([
                 'erc721_tokens.address as collection_address',
-                'erc721_tokens.name as collection_name',
-                'erc721_tokens.chainid as chainid',
-                'nfts.image as image',
-                'nfts.id as nft_id',
-                'nfts.name as nft_name',
-                'nfts.description as nft_description',
-                'nfts.amount as nft_amount',
-                db_1.default.raw('COUNT(DISTINCT rewards_erc721.nft_id) as rewards_count') // Изменяем подсчет на COUNT(DISTINCT)
+                db_1.default.raw(`
+                    ARRAY(
+                        SELECT JSON_BUILD_OBJECT(
+                            'id', nfts.id,
+                            'image', nfts.image,
+                            'name', nfts.name,
+                            'description', nfts.description,
+                            'amount', nfts.amount,
+                            'count', COUNT(rewards_erc721.nft_id)
+                        )
+                        FROM nfts
+                        LEFT JOIN rewards_erc721 ON rewards_erc721.nft_id = nfts.id AND rewards_erc721.nft_id IS NOT NULL
+                        WHERE nfts.address = erc721_tokens.address
+                        GROUP BY nfts.id
+                    ) as nfts
+                `)
             ]);
-            const result = nfts.reduce((acc, item) => {
-                if (!acc[item.collection_address]) {
-                    acc[item.collection_address] = [];
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'NFTs',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: result
                 }
-                acc[item.collection_address].push(item);
-                return acc;
-            }, {});
-            return result;
+            };
+            return res;
         }
         catch (error) {
             console.log(error);
-            return [];
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -148,11 +216,26 @@ function deleteNFT(nft, getCompany) {
             if (reward.length)
                 throw Error('This nft in reward');
             yield (0, db_1.default)('nfts').where({ id: nft.id }).delete();
-            return true;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The NFT was successfully deleted',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }

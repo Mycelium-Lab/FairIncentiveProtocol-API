@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
-import { Delete, JWTPayload, UpdateUser, User } from "../entities";
+import { Delete, ErrorResponse, JWTPayload, SuccessResponse, UpdateUser, User } from "../entities";
 import { AddUserValidation, DeleteValidation, UpdateUserValidation } from "../schemas";
 import { getToken } from "../company/controller";
 import { addUser, deleteUser, getUsers, updateUser } from "./service";
+import { prettyUsersError } from "../errors";
 
 export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -20,20 +21,19 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: string | null = await addUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                    reply    
-                        .code(res ? 200 : 500)
-                        .send({id: res})
+                    const res: ErrorResponse | SuccessResponse = await addUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    reply
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyUsersError(error.message)
                 reply
-                    .code(500)
-                    .header('Content-Type', 'application/json; charset=utf-8')
-                    .send(
-                        {
-                            message: error.message
-                        }
-                    )
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     ),
@@ -47,20 +47,19 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const users: Array<User> = await getUsers({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await getUsers({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(200)
-                        .send({users})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyUsersError(error.message)
                 reply
-                    .code(500)
-                    .header('Content-Type', 'application/json; charset=utf-8')
-                    .send(
-                        {
-                            message: error.message
-                        }
-                    )
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     ),
@@ -68,6 +67,9 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
         '/delete',
         {
             onRequest: [async (req) => await req.jwtVerify()],
+            schema: { 
+                body: { $ref: 'Delete' } 
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -76,20 +78,19 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: boolean = await deleteUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                    reply    
-                        .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                    const res: ErrorResponse | SuccessResponse = await deleteUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    reply
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyUsersError(error.message)
                 reply
-                    .code(500)
-                    .header('Content-Type', 'application/json; charset=utf-8')
-                    .send(
-                        {
-                            message: error.message
-                        }
-                    )
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -108,21 +109,19 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: boolean = await updateUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                    reply    
-                        .code(res ? 200 : 500)
-                        .send({res})
+                    const res: ErrorResponse | SuccessResponse = await updateUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    reply
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                console.log(error)
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyUsersError(error.message)
                 reply
-                    .code(500)
-                    .header('Content-Type', 'application/json; charset=utf-8')
-                    .send(
-                        {
-                            message: error.message
-                        }
-                    )
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )

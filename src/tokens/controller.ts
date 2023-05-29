@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { JWTPayload, Token } from "../entities";
+import { ErrorResponse, JWTPayload, SuccessResponse, Token } from "../entities";
 import { AddTokenValidation } from "../schemas";
 import { addToken, getTokens } from "./service";
+import { prettyTokensError } from "../errors";
 
 export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -20,17 +21,19 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
                 await AddTokenValidation.validateAsync(Token)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: Token | null = await addToken(Token, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await addToken(Token, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(res ? 200 : 500)
-                        .send({token: res})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                console.log(error)
-                //TODO: pretty tokens error
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyTokensError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -44,16 +47,19 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await getTokens({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await getTokens({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(200)
-                        .send({tokens: res})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                //TODO: pretty tokens error
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyTokensError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )

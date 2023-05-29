@@ -13,6 +13,7 @@ exports.authPlugin = void 0;
 const schemas_1 = require("../schemas");
 const service_1 = require("./service");
 const service_2 = require("../company/service");
+const errors_1 = require("../errors");
 function authPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.post('/signup', {
@@ -23,23 +24,19 @@ function authPlugin(app, opt) {
             try {
                 const body = req.body;
                 yield schemas_1.SignUpValidation.validateAsync(body);
-                const serviceReply = yield (0, service_2.createCompany)(body);
+                const res = yield (0, service_2.createCompany)(body);
                 reply
-                    .code(serviceReply.code)
-                    .header('Content-Type', 'application/json; charset=utf-8')
-                    .send(serviceReply.res);
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
-                //TODO: use pretty authError
-                if (error.message.includes('repeat_password')) {
-                    error.message = 'Repeated password is incorrect (repeat_password)';
-                }
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyAuthError)(error.message);
                 reply
-                    .code(400)
-                    .header('Content-Type', 'application/json; charset=utf-8')
-                    .send({
-                    message: error.message
-                });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         })),
             app.post('/signin', {
@@ -50,24 +47,24 @@ function authPlugin(app, opt) {
                 try {
                     const body = req.body;
                     yield schemas_1.SignInValidation.validateAsync(body);
-                    const serviceReply = yield (0, service_1.checkCompany)(body);
+                    const res = yield (0, service_1.checkCompany)(body);
                     //create token if OK
-                    const payload = { email: body.email, phone: body.phone, company_id: serviceReply.data.company_id, company: true, address: serviceReply.data.address };
-                    if (!serviceReply.isError)
-                        serviceReply.res.message = app.jwt.sign(payload);
+                    if ('body' in res) {
+                        const payload = { email: body.email, phone: body.phone, company_id: res.body.data.company_id, company: true, address: res.body.data.address };
+                        res.body.data.token = app.jwt.sign(payload);
+                    }
                     reply
-                        .code(serviceReply.code)
-                        .header('Content-Type', 'application/json; charset=utf-8')
-                        .send(serviceReply.res);
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 catch (error) {
-                    //TODO: use pretty authError
+                    console.log(error.message);
+                    const prettyError = (0, errors_1.prettyAuthError)(error.message);
                     reply
-                        .code(400)
-                        .header('Content-Type', 'application/json; charset=utf-8')
-                        .send({
-                        message: error.message
-                    });
+                        .code(prettyError.code)
+                        .type('application/json; charset=utf-8')
+                        .send({ error: prettyError.error });
                 }
             }));
     });

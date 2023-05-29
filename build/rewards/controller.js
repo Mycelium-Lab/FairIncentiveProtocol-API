@@ -13,6 +13,7 @@ exports.rewardsPlugin = void 0;
 const controller_1 = require("../company/controller");
 const schemas_1 = require("../schemas");
 const service_1 = require("./service");
+const errors_1 = require("../errors");
 function rewardsPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.post('/add/token', {
@@ -27,19 +28,22 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.AddTokenRewardValidation.validateAsync(tokenReward);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const createdTokenReward = yield (0, service_1.addTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, tokenReward);
+                    const res = yield (0, service_1.addTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, tokenReward);
                     reply
-                        .code(createdTokenReward ? 200 : 500)
-                        .send({ createdTokenReward });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ createdTokenReward: null });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         })),
             app.get('/get/token', {
@@ -49,18 +53,22 @@ function rewardsPlugin(app, opt) {
                     const token = (0, controller_1.getToken)(req);
                     if (token) {
                         const data = app.jwt.decode(token);
-                        const tokenRewards = yield (0, service_1.getTokenRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                        const res = yield (0, service_1.getTokenRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                         reply
-                            .code(tokenRewards.length ? 200 : 500)
-                            .send({ tokenRewards });
+                            .code(res.code)
+                            .type('application/json; charset=utf-8')
+                            .send('body' in res ? { body: res.body } : { error: res.error });
                     }
                     else
                         throw Error('Wrong auth token');
                 }
                 catch (error) {
+                    console.log(error.message);
+                    const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                     reply
-                        .code(500)
-                        .send({ tokenRewards: [] });
+                        .code(prettyError.code)
+                        .type('application/json; charset=utf-8')
+                        .send({ error: prettyError.error });
                 }
             })),
             app.post('/delete/token', {
@@ -77,16 +85,20 @@ function rewardsPlugin(app, opt) {
                         const data = app.jwt.decode(token);
                         const res = yield (0, service_1.deleteTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, Delete);
                         reply
-                            .code(res ? 200 : 500)
-                            .send({ message: 'Something went wrong' });
+                            .code(res.code)
+                            .type('application/json; charset=utf-8')
+                            .send('body' in res ? { body: res.body } : { error: res.error });
                     }
                     else
                         throw Error('Wrong auth token');
                 }
                 catch (error) {
+                    console.log(error.message);
+                    const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                     reply
-                        .code(500)
-                        .send({ createdTokenReward: null });
+                        .code(prettyError.code)
+                        .type('application/json; charset=utf-8')
+                        .send({ error: prettyError.error });
                 }
             })),
             app.post('/reward/token', {
@@ -101,19 +113,22 @@ function rewardsPlugin(app, opt) {
                     yield schemas_1.RewardWithTokenValidation.validateAsync(reward);
                     if (token) {
                         const data = app.jwt.decode(token);
-                        const rewarded = yield (0, service_1.rewardWithToken)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, reward);
+                        const res = yield (0, service_1.rewardWithToken)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, reward);
                         reply
-                            .code(rewarded ? 200 : 500)
-                            .send({ rewarded });
+                            .code(res.code)
+                            .type('application/json; charset=utf-8')
+                            .send('body' in res ? { body: res.body } : { error: res.error });
                     }
                     else
                         throw Error('Wrong auth token');
                 }
                 catch (error) {
-                    console.log(error);
+                    console.log(error.message);
+                    const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                     reply
-                        .code(500)
-                        .send({ rewarded: null });
+                        .code(prettyError.code)
+                        .type('application/json; charset=utf-8')
+                        .send({ error: prettyError.error });
                 }
             })),
             app.get('/events/tokens', {
@@ -123,18 +138,22 @@ function rewardsPlugin(app, opt) {
                     const token = (0, controller_1.getToken)(req);
                     if (token) {
                         const data = app.jwt.decode(token);
-                        const rewardEvents = yield (0, service_1.getRewardTokenEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                        const res = yield (0, service_1.getRewardTokenEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                         reply
-                            .code(200)
-                            .send({ rewardEvents });
+                            .code(res.code)
+                            .type('application/json; charset=utf-8')
+                            .send('body' in res ? { body: res.body } : { error: res.error });
                     }
                     else
                         throw Error('Wrong auth token');
                 }
                 catch (error) {
+                    console.log(error.message);
+                    const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                     reply
-                        .code(500)
-                        .send({ rewardEvents: [] });
+                        .code(prettyError.code)
+                        .type('application/json; charset=utf-8')
+                        .send({ error: prettyError.error });
                 }
             }));
         app.post('/add/nft', {
@@ -149,19 +168,22 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.AddNFTRewardValidation.validateAsync(nftReward);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const createdNFTReward = yield (0, service_1.addNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, nftReward);
+                    const res = yield (0, service_1.addNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, nftReward);
                     reply
-                        .code(createdNFTReward ? 200 : 500)
-                        .send({ createdNFTReward });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ createdTokenReward: null });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.get('/get/nfts', {
@@ -171,18 +193,22 @@ function rewardsPlugin(app, opt) {
                 const token = (0, controller_1.getToken)(req);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const nftRewards = yield (0, service_1.getNFTRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    const res = yield (0, service_1.getNFTRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply
-                        .code(nftRewards.length ? 200 : 500)
-                        .send({ nftRewards });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ nftRewards: [] });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/delete/nfts', {
@@ -199,16 +225,20 @@ function rewardsPlugin(app, opt) {
                     const data = app.jwt.decode(token);
                     const res = yield (0, service_1.deleteNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, Delete);
                     reply
-                        .code(res ? 200 : 500)
-                        .send({ message: 'Something went wrong' });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ createdTokenReward: null });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/reward/nft', {
@@ -223,19 +253,22 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.RewardWithTokenValidation.validateAsync(reward);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const rewarded = yield (0, service_1.rewardWithNFT)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, reward);
+                    const res = yield (0, service_1.rewardWithNFT)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, reward);
                     reply
-                        .code(rewarded ? 200 : 500)
-                        .send({ rewarded });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ rewarded: null });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.get('/events/nfts', {
@@ -245,46 +278,58 @@ function rewardsPlugin(app, opt) {
                 const token = (0, controller_1.getToken)(req);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const rewardEvents = yield (0, service_1.getRewardNFTEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    const res = yield (0, service_1.getRewardNFTEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply
-                        .code(200)
-                        .send({ rewardEvents });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ rewardEvents: [] });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.get('/events/claimabletoken', (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const query = req.query;
-                const claimableToken = yield (0, service_1.getClaimableToken)(query.id, query.user_id);
+                const res = yield (0, service_1.getClaimableToken)(query.id, query.user_id);
                 reply
-                    .code(200)
-                    .send({ claimableToken });
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ claimableToken: null });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.get('/events/claimablenft', (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const query = req.query;
-                const claimableNFT = yield (0, service_1.getClaimableNFT)(query.id, query.user_id);
+                const res = yield (0, service_1.getClaimableNFT)(query.id, query.user_id);
                 reply
-                    .code(200)
-                    .send({ claimableNFT });
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ claimableNFT: null });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/update/token', {
@@ -299,19 +344,22 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.UpdateTokenRewardValidation.validateAsync(update);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const done = yield (0, service_1.updateTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, update);
+                    const res = yield (0, service_1.updateTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, update);
                     reply
-                        .code(done ? 200 : 500)
-                        .send({ done });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ done: false });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/update/nft', {
@@ -326,19 +374,22 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.UpdateNFTRewardValidation.validateAsync(update);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const done = yield (0, service_1.updateNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, update);
+                    const res = yield (0, service_1.updateNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, update);
                     reply
-                        .code(done ? 200 : 500)
-                        .send({ done });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ done: false });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/update/status/token', {
@@ -353,19 +404,22 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.StatusValidation.validateAsync(status);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const done = yield (0, service_1.setTokenRewardStatus)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, status);
+                    const res = yield (0, service_1.setTokenRewardStatus)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, status);
                     reply
-                        .code(done ? 200 : 500)
-                        .send({ done });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ done: false });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/update/status/nft', {
@@ -380,19 +434,22 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.StatusValidation.validateAsync(status);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const done = yield (0, service_1.setNFTRewardStatus)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, status);
+                    const res = yield (0, service_1.setNFTRewardStatus)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, status);
                     reply
-                        .code(done ? 200 : 500)
-                        .send({ done });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ done: false });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/delete/events/token', {
@@ -404,19 +461,22 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.DeleteValidation.validateAsync(tokenRewardEvent);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const done = yield (0, service_1.deleteTokenRewardEvent)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, tokenRewardEvent);
+                    const res = yield (0, service_1.deleteTokenRewardEvent)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, tokenRewardEvent);
                     reply
-                        .code(done ? 200 : 500)
-                        .send({ done });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ done: false });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/delete/events/nft', {
@@ -428,19 +488,22 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.DeleteValidation.validateAsync(nftRewardEvent);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const done = yield (0, service_1.deleteNFTRewardEvent)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, nftRewardEvent);
+                    const res = yield (0, service_1.deleteNFTRewardEvent)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, nftRewardEvent);
                     reply
-                        .code(done ? 200 : 500)
-                        .send({ done });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
                 reply
-                    .code(500)
-                    .send({ done: false });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
     });

@@ -1,15 +1,11 @@
-import { utils } from 'ethers'
 import Joi  from 'joi'
-import { checkAddress } from '../utils'
+import { checkAddress, checkChainID } from '../utils'
 
 export const AddNFT: unknown = {
     $id: 'AddNFT',
     type: 'object',
     properties: {
         address: {
-            type: 'string'
-        },
-        chainid: {
             type: 'string'
         },
         amount: {
@@ -31,9 +27,6 @@ export const AddNFTValidation: Joi.ObjectSchema = Joi.object({
         .allow('')
         .required()
         .external(checkAddress),
-        
-    chainid: Joi.string()
-        .required(),
 
     amount: Joi.number().allow(null),
 

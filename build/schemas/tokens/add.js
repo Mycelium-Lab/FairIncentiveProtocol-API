@@ -19,7 +19,6 @@ exports.AddToken = {
         symbol: {
             type: 'string'
         },
-        //TODO: чекать из списка
         chainid: {
             type: 'string'
         },
@@ -72,12 +71,14 @@ exports.AddTokenValidation = joi_1.default.object({
     symbol: joi_1.default.string()
         .required(),
     chainid: joi_1.default.string()
-        .required(),
+        .required()
+        .external(utils_1.checkChainID),
     supply_type: joi_1.default.number().min(0).max(2).required(),
-    //TODO: наверное тип bigint
-    //TODO: может быть не allow(null) если другой supply_type
-    max_supply: joi_1.default.string().allow(null),
-    initial_supply: joi_1.default.string().allow(null),
+    //only digits 
+    //not number type because can be too big (uint256)
+    max_supply: joi_1.default.string().pattern(/^\d+$/).allow(null),
+    //only digits 
+    initial_supply: joi_1.default.string().pattern(/^\d+$/).allow(null),
     pausable: joi_1.default.boolean().required(),
     burnable: joi_1.default.boolean().required(),
     blacklist: joi_1.default.boolean().required(),

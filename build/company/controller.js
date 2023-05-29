@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getToken = exports.companyPlugin = void 0;
 const service_1 = require("./service");
 const schemas_1 = require("../schemas");
+const errors_1 = require("../errors");
 function companyPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.get('/', {
@@ -21,19 +22,22 @@ function companyPlugin(app, opt) {
                 const token = getToken(req);
                 if (token) {
                     const data = app.jwt.decode(token);
-                    const company = yield (0, service_1.getCompany)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    const res = yield (0, service_1.getCompany)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply
-                        .code(200)
-                        .send(company);
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                //TODO: pretty company error
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyCompanyError)(error.message);
                 reply
-                    .code(500)
-                    .send({ message: error.message });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/changename', {
@@ -50,21 +54,20 @@ function companyPlugin(app, opt) {
                     const data = app.jwt.decode(token);
                     const res = yield (0, service_1.changeName)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateName.newName);
                     reply
-                        .code(res ? 200 : 500)
-                        .send({ message: res ? 'Done' : 'Something went wrong' });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
-            catch (err) {
-                //TODO: pretty company error
-                let error = err.message;
-                if (error && error.includes('"newName" length must be less than or equal to 256 characters long')) {
-                    error = `Company name must be less than or equal to 256 characters in length`;
-                }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyCompanyError)(error.message);
                 reply
-                    .code(500)
-                    .send({ error });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/changeemail', {
@@ -81,17 +84,20 @@ function companyPlugin(app, opt) {
                     const data = app.jwt.decode(token);
                     const res = yield (0, service_1.changeEmail)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateEmail.newEmail);
                     reply
-                        .code(res ? 200 : 500)
-                        .send({ message: res ? 'Done' : 'Something went wrong' });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                //TODO: pretty company error
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyCompanyError)(error.message);
                 reply
-                    .code(500)
-                    .send({ message: error.message });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/changephone', {
@@ -108,17 +114,20 @@ function companyPlugin(app, opt) {
                     const data = app.jwt.decode(token);
                     const res = yield (0, service_1.changePhone)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updatePhone.newPhone);
                     reply
-                        .code(res ? 200 : 500)
-                        .send({ message: res ? 'Done' : 'Something went wrong' });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                //TODO: pretty company error
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyCompanyError)(error.message);
                 reply
-                    .code(500)
-                    .send({ message: error.message });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/changewallet', {
@@ -135,17 +144,20 @@ function companyPlugin(app, opt) {
                     const data = app.jwt.decode(token);
                     const res = yield (0, service_1.changeWallet)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateWallet.newWallet);
                     reply
-                        .code(res ? 200 : 500)
-                        .send({ message: res ? 'Done' : 'Something went wrong' });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                //TODO: pretty company error
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyCompanyError)(error.message);
                 reply
-                    .code(500)
-                    .send({ message: error.message });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.post('/changepassword', {
@@ -162,17 +174,20 @@ function companyPlugin(app, opt) {
                     const data = app.jwt.decode(token);
                     const res = yield (0, service_1.changePassword)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updatePassword.newPassword);
                     reply
-                        .code(res ? 200 : 500)
-                        .send({ message: res ? 'Done' : 'Something went wrong' });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                //TODO: pretty company error
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyCompanyError)(error.message);
                 reply
-                    .code(500)
-                    .send({ message: error.message });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
     });

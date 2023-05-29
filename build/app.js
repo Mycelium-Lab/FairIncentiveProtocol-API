@@ -31,7 +31,10 @@ function build(opt = {}) {
         const app = (0, fastify_1.default)(opt);
         (0, schemas_1.addSchemas)(app);
         app.register(jwt_1.default, {
-            secret: config_1.config.SECRET_KEY
+            secret: config_1.config.SECRET_KEY,
+            sign: {
+                expiresIn: '1h'
+            }
         });
         app.register(jwt_2.jwtPlugin);
         app.register(controller_6.authPlugin, { prefix: '/auth' });
@@ -45,7 +48,27 @@ function build(opt = {}) {
             origin: "*",
             methods: ["GET", "POST"]
         });
-        app.get('/ping', (req, res) => { res.send('pong'); });
+        app.get('/ping', (req, res) => res.send('pong'));
+        app.setErrorHandler((error, request, reply) => {
+            if (error.statusCode === 400)
+                error.name = 'Bad Request';
+            error.message =
+                error.message.includes(' must')
+                    ?
+                        error.message.replace('body/', '<').replace(' must', '> must')
+                    :
+                        error.message;
+            const customError = {
+                error: {
+                    name: error.name || 'Internal Server Error',
+                    message: error.message || 'An error occurred',
+                },
+            };
+            reply
+                .code(error.statusCode || 500)
+                .send(customError)
+                .type('application/json; charset=utf-8');
+        });
         return app;
     });
 }

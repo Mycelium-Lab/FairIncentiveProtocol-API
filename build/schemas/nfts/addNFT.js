@@ -13,9 +13,6 @@ exports.AddNFT = {
         address: {
             type: 'string'
         },
-        chainid: {
-            type: 'string'
-        },
         amount: {
             type: ['null', 'number'], nullable: true
         },
@@ -34,8 +31,6 @@ exports.AddNFTValidation = joi_1.default.object({
         .allow('')
         .required()
         .external(utils_1.checkAddress),
-    chainid: joi_1.default.string()
-        .required(),
     amount: joi_1.default.number().allow(null),
     name: joi_1.default.string().required(),
     description: joi_1.default.string().allow(null)

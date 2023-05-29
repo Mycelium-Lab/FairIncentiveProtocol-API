@@ -17,6 +17,7 @@ const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../config/db"));
 const config_1 = require("../config/config");
 const sign_1 = require("../utils/sign");
+const constants_1 = require("../utils/constants");
 function addTokenReward(getCompany, tokenReward) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -24,11 +25,26 @@ function addTokenReward(getCompany, tokenReward) {
             const addedReward = yield (0, db_1.default)('rewards_erc20').insert(tokenReward).returning('*');
             const token = yield (0, db_1.default)('erc20_tokens').select('*').where({ address: tokenReward.address }).first();
             addedReward[0].symbol = token.symbol;
-            return addedReward[0];
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The token was successfully added',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: addedReward[0]
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return undefined;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -43,11 +59,26 @@ function getTokenRewards(getCompany) {
                 .leftJoin('reward_event_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
                 .groupBy('rewards_erc20.id', 'rewards_erc20.name', 'rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status')
                 .select(['rewards_erc20.id', 'rewards_erc20.name', 'rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status']);
-            return tokenRewards;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Tokens rewards',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: tokenRewards
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return [];
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -64,11 +95,26 @@ function deleteTokenReward(getCompany, Delete) {
             if (count[0].count !== '0')
                 throw Error('You have reward events on thihs');
             yield (0, db_1.default)('rewards_erc20').where({ id: Delete.id, company_id: getCompany.company_id }).delete();
-            return true;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The token reward was successfully deleted',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -95,7 +141,7 @@ function rewardWithToken(getCompany, reward) {
             const signer = new ethers_1.ethers.Wallet((network === null || network === void 0 ? void 0 : network.private_key) || '', provider);
             const user = yield (0, db_1.default)('users').where({ id: reward.user_id }).first();
             const signature = yield (0, sign_1.signTokenReward)(tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address);
-            yield (0, db_1.default)('reward_event_erc20').insert({
+            const rewardEvent = yield (0, db_1.default)('reward_event_erc20').insert({
                 status: 1,
                 reward_id: reward.reward_id,
                 user_id: reward.user_id,
@@ -103,12 +149,27 @@ function rewardWithToken(getCompany, reward) {
                 v: signature.v,
                 r: signature.r,
                 s: signature.s
-            });
-            return true;
+            }, '*');
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The token reward event was successfully added',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: rewardEvent[0]
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -129,12 +190,28 @@ function getRewardTokenEvents(getCompany) {
                 'rewards_erc20.address as token_address', 'erc20_tokens.symbol as token_symbol',
                 'rewards_erc20.amount as token_amount', 'reward_event_erc20.comment as event_comment'
             ]);
+            //TODO: можно ли избавиться от этого
             rewardEvents = rewardEvents.filter(v => v.user_id !== null);
-            return rewardEvents;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Token reward events',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: rewardEvents
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return [];
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -158,11 +235,26 @@ function addNFTReward(getCompany, nftReward) {
                 .first();
             addedReward[0].symbol = nftCollection.symbol;
             addedReward[0].nft_name = nftCollection.nft_name;
-            return addedReward[0];
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The NFT reward was successfully added',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: addedReward[0]
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return undefined;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -178,11 +270,26 @@ function getNFTRewards(getCompany) {
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
                 .groupBy('rewards_erc721.id', 'rewards_erc721.name', 'rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name', 'nfts.address', 'rewards_erc721.status')
                 .select(['rewards_erc721.id', 'rewards_erc721.name', 'rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name', 'nfts.address as address', 'rewards_erc721.status']);
-            return nftRewards;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'NFT rewards',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: nftRewards
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return [];
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -199,11 +306,26 @@ function deleteNFTReward(getCompany, Delete) {
             if (count[0].count !== '0')
                 throw Error('You have reward events on thihs');
             yield (0, db_1.default)('rewards_erc721').where({ id: Delete.id, company_id: getCompany.company_id }).delete();
-            return true;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The NFT reward was successfully deleted',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -215,7 +337,8 @@ function rewardWithNFT(getCompany, reward) {
                 .whereRaw('rewards_erc721.id = ?', [reward.reward_id])
                 .first()
                 .leftJoin('nfts', 'nfts.id', '=', 'rewards_erc721.nft_id')
-                .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'nfts.chainid as chainid']);
+                .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
+                .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'erc721_tokens.chainid as chainid']);
             if (nftReward.company_id !== getCompany.company_id)
                 throw Error('Not allowed company');
             if (nftReward.status === 1)
@@ -225,7 +348,7 @@ function rewardWithNFT(getCompany, reward) {
             const signer = new ethers_1.ethers.Wallet((network === null || network === void 0 ? void 0 : network.private_key) || '', provider);
             const user = yield (0, db_1.default)('users').where({ id: reward.user_id }).first();
             const signature = yield (0, sign_1.signNFTReward)(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '');
-            yield (0, db_1.default)('reward_event_erc721').insert({
+            const rewardEvent = yield (0, db_1.default)('reward_event_erc721').insert({
                 status: 1,
                 reward_id: reward.reward_id,
                 user_id: reward.user_id,
@@ -233,12 +356,27 @@ function rewardWithNFT(getCompany, reward) {
                 v: signature.v,
                 r: signature.r,
                 s: signature.s
-            });
-            return true;
+            }, '*');
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The NFT reward event was successfully added',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: rewardEvent[0]
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -261,12 +399,28 @@ function getRewardNFTEvents(getCompany) {
                 'reward_event_erc721.comment as event_comment', 'nfts.name as nft_name',
                 'nfts.id as nft_id'
             ]);
+            //TODO: как-то избавиться от этого
             rewardEvents = rewardEvents.filter(v => v.user_id !== null);
-            return rewardEvents;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'NFT reward events',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: rewardEvents
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return [];
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -288,11 +442,27 @@ function getClaimableToken(rewardEventID, user_id) {
                 'reward_event_erc20.v', 'reward_event_erc20.r', 'reward_event_erc20.s', 'rewards_erc20.status'
             ]);
             if (claimableToken.status == 1)
-                return null;
-            return claimableToken;
+                throw Error('Already taken');
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Claimable token',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: claimableToken
+                }
+            };
+            return res;
         }
         catch (error) {
-            return null;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -310,18 +480,33 @@ function getClaimableNFT(rewardEventID, user_id) {
                 .select([
                 'erc721_tokens.name as collection_name', 'erc721_tokens.address as collection_address',
                 'nfts.name as nft_name', 'nfts.image as nft_image',
-                'nfts.description as nft_description', 'nfts.chainid as chainid',
+                'nfts.description as nft_description', 'erc721_tokens.chainid as chainid',
                 'users.wallet as user_wallet',
                 'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r',
                 'erc721_tokens.beneficiary as beneficiary', 'rewards_erc721.status'
             ]);
             if (claimableNFT.status == 1)
-                return null;
-            return claimableNFT;
+                throw Error('Already taken');
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Claimable NFT',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: claimableNFT
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return null;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -335,11 +520,26 @@ function updateTokenReward(getCompany, tokenReward) {
                 tokenReward.address = undefined;
             }
             yield (0, db_1.default)('rewards_erc20').update(tokenReward).where({ company_id: getCompany.company_id, id: tokenReward.id });
-            return true;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Token reward has been successfully updated',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -354,11 +554,26 @@ function updateNFTReward(getCompany, nftReward) {
                 nftReward.nft_id = undefined;
             }
             yield (0, db_1.default)('rewards_erc721').update(nftReward).where({ company_id: getCompany.company_id, id: nftReward.id });
-            return true;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'NFT reward has been successfully updated',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -374,11 +589,26 @@ function deleteTokenRewardEvent(getCompany, deleteRewardEvent) {
             if (rewardCompany.id !== getCompany.company_id)
                 throw Error('Not this company token reward');
             yield (0, db_1.default)('reward_event_erc20').whereRaw('id = ? AND status = 1', [deleteRewardEvent.id]).delete();
-            return true;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The token reward event was successfully deleted',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -394,11 +624,26 @@ function deleteNFTRewardEvent(getCompany, deleteRewardEvent) {
             if (rewardCompany.id !== getCompany.company_id)
                 throw Error('Not this company token reward');
             yield (0, db_1.default)('reward_event_erc721').whereRaw('id = ? AND status = 1', [deleteRewardEvent.id]).delete();
-            return true;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The NFT reward event was successfully deleted',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -415,11 +660,26 @@ function setTokenRewardStatus(getCompany, status) {
             yield (0, db_1.default)('rewards_erc20')
                 .update({ status: status.status })
                 .where({ id: status.reward_id });
-            return true;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The token reward status was successfully updated',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }
@@ -436,11 +696,26 @@ function setNFTRewardStatus(getCompany, status) {
             yield (0, db_1.default)('rewards_erc721')
                 .update({ status: status.status })
                 .where({ id: status.reward_id });
-            return true;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'The BFT reward status was successfully updated',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
         }
         catch (error) {
-            console.log(error);
-            return false;
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
         }
     });
 }

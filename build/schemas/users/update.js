@@ -57,6 +57,12 @@ exports.UpdateUserValidation = joi_1.default.object({
     wallet: joi_1.default.string().allow(null).external(utils_1.checkAddress),
     notes: joi_1.default.string().allow(null),
     image: joi_1.default.string().allow(null),
-    properties: joi_1.default.array().allow(null),
-    stats: joi_1.default.array().allow(null)
+    properties: joi_1.default.array().items(joi_1.default.object({
+        name: joi_1.default.string().required(),
+        value: joi_1.default.string().required(),
+    })),
+    stats: joi_1.default.array().items(joi_1.default.object({
+        name: joi_1.default.string().required(),
+        value: joi_1.default.number().required(),
+    }))
 });

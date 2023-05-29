@@ -60,8 +60,18 @@ export const UpdateUserValidation: Joi.ObjectSchema = Joi.object({
 
     image: Joi.string().allow(null),
 
-    properties: Joi.array().allow(null),
+    properties: Joi.array().items(
+        Joi.object({
+          name: Joi.string().required(),
+          value: Joi.string().required(),
+        })
+      ),
 
-    stats: Joi.array().allow(null)
+    stats: Joi.array().items(
+        Joi.object({
+          name: Joi.string().required(),
+          value: Joi.number().required(),
+        })
+      )
 
 })

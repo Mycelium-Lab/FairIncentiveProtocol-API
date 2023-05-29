@@ -1,7 +1,7 @@
 import { ErrorResponse } from "../../entities";
 import { CODES } from "../../utils/constants";
 
-export function prettyAuthError(errorMessage: string): ErrorResponse {
+export function prettyCompanyError(errorMessage: string): ErrorResponse {
     //means that some field in json is wrong or not exist
     if (errorMessage.includes('\"')) {
         return {

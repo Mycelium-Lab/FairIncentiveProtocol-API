@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { ClaimNFT, ClaimToken, Delete, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
+import { ClaimNFT, ClaimToken, Delete, ErrorResponse, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, SuccessResponse, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
 import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteValidation, RewardWithTokenValidation, StatusValidation, UpdateNFTRewardValidation, UpdateTokenRewardValidation } from "../schemas";
 import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateNFTReward, updateTokenReward, deleteTokenRewardEvent, deleteNFTRewardEvent, getClaimableToken, setTokenRewardStatus, setNFTRewardStatus } from "./service";
+import { prettyRewardsError } from "../errors";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -20,19 +21,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await AddTokenRewardValidation.validateAsync(tokenReward)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const createdTokenReward = await addTokenReward(
+                    const res: ErrorResponse | SuccessResponse = await addTokenReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         tokenReward
                     )
                     reply
-                        .code(createdTokenReward ? 200 : 500)
-                        .send({createdTokenReward})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({createdTokenReward: null})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     ),
@@ -46,15 +50,19 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const tokenRewards: Array<TokenReward> = await getTokenRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await getTokenRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(tokenRewards.length ? 200 : 500)
-                        .send({tokenRewards})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({tokenRewards: []})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     ),
@@ -73,18 +81,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await DeleteValidation.validateAsync(Delete)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await deleteTokenReward(
+                    const res: ErrorResponse | SuccessResponse = await deleteTokenReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         Delete
                     )
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: 'Something went wrong'})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({createdTokenReward: null})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     ),
@@ -103,19 +115,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await RewardWithTokenValidation.validateAsync(reward)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const rewarded = await rewardWithToken(
+                    const res: ErrorResponse | SuccessResponse = await rewardWithToken(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         reward
                     )
                     reply
-                        .code(rewarded ? 200 : 500)
-                        .send({rewarded})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({rewarded: null})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     ),
@@ -129,15 +144,19 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const rewardEvents: Array<RewardTokenEvent> = await getRewardTokenEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await getRewardTokenEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(200)
-                        .send({rewardEvents})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({rewardEvents: []})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -156,19 +175,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await AddNFTRewardValidation.validateAsync(nftReward)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const createdNFTReward = await addNFTReward(
+                    const res: ErrorResponse | SuccessResponse = await addNFTReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         nftReward
                     )
                     reply
-                        .code(createdNFTReward ? 200 : 500)
-                        .send({createdNFTReward})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({createdTokenReward: null})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -182,15 +204,19 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const nftRewards: Array<NFTReward> = await getNFTRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await getNFTRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(nftRewards.length ? 200 : 500)
-                        .send({nftRewards})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({nftRewards: []})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -209,18 +235,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await DeleteValidation.validateAsync(Delete)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await deleteNFTReward(
+                    const res: ErrorResponse | SuccessResponse = await deleteNFTReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         Delete
                     )
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: 'Something went wrong'})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({createdTokenReward: null})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -239,19 +269,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await RewardWithTokenValidation.validateAsync(reward)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const rewarded = await rewardWithNFT(
+                    const res: ErrorResponse | SuccessResponse = await rewardWithNFT(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         reward
                     )
                     reply
-                        .code(rewarded ? 200 : 500)
-                        .send({rewarded})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({rewarded: null})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -265,15 +298,19 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const rewardEvents: Array<RewardNFTEvent> = await getRewardNFTEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await getRewardNFTEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(200)
-                        .send({rewardEvents})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({rewardEvents: []})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -282,14 +319,18 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const query = req.query as any
-                const claimableToken: ClaimToken | null = await getClaimableToken(query.id, query.user_id)
+                const res: ErrorResponse | SuccessResponse = await getClaimableToken(query.id, query.user_id)
                 reply
-                    .code(200)
-                    .send({claimableToken})
-            } catch (error) {
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({claimableToken: null})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -298,14 +339,18 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const query = req.query as any
-                const claimableNFT: ClaimNFT | null = await getClaimableNFT(query.id, query.user_id)
+                const res: ErrorResponse | SuccessResponse = await getClaimableNFT(query.id, query.user_id)
                 reply
-                    .code(200)
-                    .send({claimableNFT})
-            } catch (error) {
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({claimableNFT: null})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -324,19 +369,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await UpdateTokenRewardValidation.validateAsync(update)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const done: boolean = await updateTokenReward(
+                    const res: ErrorResponse | SuccessResponse = await updateTokenReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         update
                     )
                     reply
-                        .code(done ? 200 : 500)
-                        .send({done})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({done: false})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -355,19 +403,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await UpdateNFTRewardValidation.validateAsync(update)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const done: boolean = await updateNFTReward(
+                    const res: ErrorResponse | SuccessResponse = await updateNFTReward(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         update
                     )
                     reply
-                        .code(done ? 200 : 500)
-                        .send({done})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({done: false})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -386,19 +437,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await StatusValidation.validateAsync(status)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const done: boolean = await setTokenRewardStatus(
+                    const res: ErrorResponse | SuccessResponse = await setTokenRewardStatus(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         status
                     )
                     reply
-                        .code(done ? 200 : 500)
-                        .send({done})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({done: false})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -417,19 +471,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await StatusValidation.validateAsync(status)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const done: boolean = await setNFTRewardStatus(
+                    const res: ErrorResponse | SuccessResponse = await setNFTRewardStatus(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         status
                     )
                     reply
-                        .code(done ? 200 : 500)
-                        .send({done})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({done: false})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -445,19 +502,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await DeleteValidation.validateAsync(tokenRewardEvent)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const done: boolean = await deleteTokenRewardEvent(
+                    const res: ErrorResponse | SuccessResponse = await deleteTokenRewardEvent(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         tokenRewardEvent
                     )
                     reply
-                        .code(done ? 200 : 500)
-                        .send({done})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({done: false})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -473,19 +533,22 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await DeleteValidation.validateAsync(nftRewardEvent)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const done: boolean = await deleteNFTRewardEvent(
+                    const res: ErrorResponse | SuccessResponse = await deleteNFTRewardEvent(
                         {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                         nftRewardEvent
                     )
                     reply
-                        .code(done ? 200 : 500)
-                        .send({done})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (error) {
-                console.log(error)
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
                 reply
-                    .code(500)
-                    .send({done: false})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )

@@ -1,9 +1,10 @@
 import pg from "../config/db";
-import { AuthServiceReply, Company, GetCompany, PrettyError, ReplyCompany, SignUpCompany } from "../entities";
+import { AuthServiceReply, Company, ErrorResponse, GetCompany, PrettyError, ReplyCompany, SignUpCompany, SuccessResponse } from "../entities";
 import { prettyAuthError } from "../errors";
+import { CODES, SuccessResponseTypes } from "../utils/constants";
 import { hash } from "../utils/hash";
 
-export async function createCompany(company: SignUpCompany): Promise<AuthServiceReply> {
+export async function createCompany(company: SignUpCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const hashedPassword: string | null = await hash(company.password)
         if (hashedPassword) {
@@ -11,7 +12,7 @@ export async function createCompany(company: SignUpCompany): Promise<AuthService
         } else {
             throw Error('Something wrong with hashed password')
         }
-        await pg('companies')
+        const id = await pg('companies')
             .insert(
                 {
                     name: company.name,
@@ -20,30 +21,30 @@ export async function createCompany(company: SignUpCompany): Promise<AuthService
                     wallet: company.wallet,
                     phone: company.phone
                 }
-            )
-        return {
-            isError: false,
-            code: 200,
-            data: {},
-            res: {
-                message: "Company added to database"
+            , "id")
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The user was successfully added',
+                type: SuccessResponseTypes.string,
+                data: id[0].id
             }
         }
+        return res
     } catch (error: any) {
-        console.log(error)
-        const prettyError: PrettyError = prettyAuthError(error.message)
-        return {
-            isError: true,
-            code: prettyError.code,
-            data: {},
-            res: {
-                message: prettyError.message
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
             }
         }
+        return err
     }
 }
 
-export async function getCompany(getCompany: GetCompany): Promise<ReplyCompany> {
+export async function getCompany(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const selectedCompany: ReplyCompany = 
             await pg
@@ -51,70 +52,145 @@ export async function getCompany(getCompany: GetCompany): Promise<ReplyCompany> 
                 .where({id: getCompany.company_id})
                 .from('companies')
                 .first()
-        return selectedCompany
-    } catch (error) {
-        console.error(error)
-        return {name: '', wallet: ''}
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Users',
+                type: SuccessResponseTypes.object,
+                data: selectedCompany
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function changeName(company: GetCompany, newName: string): Promise<boolean> {
+export async function changeName(company: GetCompany, newName: string): Promise<ErrorResponse | SuccessResponse> {
     try {
         await pg('companies')
             .where({id: company.company_id})
             .update({
                 name: newName
             })
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Company name has been successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function changeEmail(company: GetCompany, newEmail: string): Promise<boolean> {
+export async function changeEmail(company: GetCompany, newEmail: string): Promise<ErrorResponse | SuccessResponse> {
     try {
         await pg('companies')
             .where({id: company.company_id})
             .update({
                 email: newEmail
             })
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Company email has been successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function changePhone(company: GetCompany, newPhone: string): Promise<boolean> {
+export async function changePhone(company: GetCompany, newPhone: string): Promise<ErrorResponse | SuccessResponse> {
     try {
         await pg('companies')
             .where({id: company.company_id})
             .update({
                 phone: newPhone
             })
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Company phone has been successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res    
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function changeWallet(company: GetCompany, newWallet: string): Promise<boolean> {
+export async function changeWallet(company: GetCompany, newWallet: string): Promise<ErrorResponse | SuccessResponse> {
     try {
         await pg('companies')
             .where({id: company.company_id})
             .update({
                 wallet: newWallet
             })
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Company wallet has been successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res   
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function changePassword(company: GetCompany, newPassword: string): Promise<boolean> {
+export async function changePassword(company: GetCompany, newPassword: string): Promise<ErrorResponse | SuccessResponse> {
     try {
         const hashedPassword = await hash(newPassword)
         await pg('companies')
@@ -122,10 +198,25 @@ export async function changePassword(company: GetCompany, newPassword: string): 
             .update({
                 password: hashedPassword
             })
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Company password has been successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res   
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 

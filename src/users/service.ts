@@ -1,47 +1,76 @@
 import pg from "../config/db";
-import { Company, DeleteUser, GetCompany, Property, Stat, UpdateUser, User } from "../entities";
+import { Company, DeleteUser, ErrorResponse, GetCompany, Property, Stat, SuccessResponse, UpdateUser, User } from "../entities";
+import { CODES, SuccessResponseTypes } from "../utils/constants";
 
-export async function addUser(user: User, getCompany: GetCompany): Promise<string | null> {
+export async function addUser(user: User, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
+        //Using a transaction, because we want to add properties and statistics that 
+        //relate to this user because we don't want to lose anything
         const trx = await pg.transaction()
-        const id: string | null = await trx('users')
+        const _user: User | string = await trx('users')
             .insert({
                 company_id: getCompany.company_id,
                 external_id: user.external_id,
                 email: user.email,
                 wallet: user.wallet,
                 notes: user.notes
-            }, 'id')
-            .then(async (ids) => {
+            }, '*')
+            .then(async (_user) => {
                 user.properties?.forEach(v => {
-                    v.user_id = ids[0].id
+                    v.user_id = _user[0].id
                     v.company_id = getCompany.company_id
                 })
                 user.stats?.forEach(v => {
-                    v.user_id = ids[0].id
+                    v.user_id = _user[0].id
                     v.company_id = getCompany.company_id
                 })
                 if (user.properties?.length) await trx('user_properties').insert(user.properties)
                 if (user.stats?.length) await trx('user_stats').insert(user.stats)        
-                return ids[0].id
+                return _user[0]
             })
-            .then(async (id) => {
+            .then(async (_user) => {
                 await trx.commit()
-                return id
+                return _user
             })
             .catch(async (err) => {
-                console.log(err)
                 await trx.rollback()
-                return null
+                return err.message
             })
-        return id
-    } catch (error) {
-        console.log(error)
-        return null
+        //If there is no error
+        if (!(_user instanceof String)) {
+            const res: SuccessResponse = {
+                code: CODES.OK.code,
+                body: {
+                    message: 'The user was successfully added',
+                    type: SuccessResponseTypes.object,
+                    data: _user
+                }
+            }
+            return res
+        } else {
+            const err: ErrorResponse = {
+                code: CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: CODES.INTERNAL_ERROR.name,
+                    message: _user.toString()
+                }
+            }
+            return err
+        }
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function getUsers(getCompany: GetCompany): Promise<Array<User>> {
+export async function getUsers(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const users: Array<User> = await pg('users')
             .select([
@@ -101,29 +130,59 @@ export async function getUsers(getCompany: GetCompany): Promise<Array<User>> {
             .groupBy([
                 'users.id', 'users.company_id', 'users.external_id', 'users.email', 'users.wallet', 'users.image', 'users.notes'
             ]);
-        return users
-    } catch (error) {
-        console.log(error)
-        return []
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Users',
+                type: SuccessResponseTypes.array,
+                data: users
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }    
 }
 
-export async function deleteUser(deleteUser: DeleteUser, getCompany: GetCompany): Promise<boolean> {
+export async function deleteUser(deleteUser: DeleteUser, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         await pg.raw('DELETE FROM users WHERE company_id=? AND id=?', [getCompany.company_id, deleteUser.id])
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The user was successfully deleted',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res    
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function updateUser(user: UpdateUser, getCompany: GetCompany): Promise<boolean> {
+export async function updateUser(user: UpdateUser, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         await pg('user_properties').where({user_id: user.id, company_id: getCompany.company_id}).delete()
         await pg('user_stats').where({user_id: user.id, company_id: getCompany.company_id}).delete()
         const trx = await pg.transaction()
-        const ok: boolean = await trx('users')
+        const updating: string = await trx('users')
             .where({id: user.id})
             .update({
                 external_id: user.external_id,
@@ -131,7 +190,7 @@ export async function updateUser(user: UpdateUser, getCompany: GetCompany): Prom
                 wallet: user.wallet,
                 notes: user.notes
             })
-            .then(async (ids) => {
+            .then(async () => {
                 user.properties?.forEach(v => {
                     v.user_id = user.id
                     v.company_id = getCompany.company_id
@@ -142,20 +201,44 @@ export async function updateUser(user: UpdateUser, getCompany: GetCompany): Prom
                 })
                 if (user.properties?.length) await trx('user_properties').insert(user.properties)
                 if (user.stats?.length) await trx('user_stats').insert(user.stats)        
-                return true
             })
             .then(async () => {
                 await trx.commit()
-                return true
+                return 'ok'
             })
             .catch(async (err) => {
-                console.log(err)
                 await trx.rollback()
-                return false
+                return err.message
             })
-        return ok
-    } catch (error) {
-        console.log(error)
-        return false
+        if (updating === 'ok') {
+            const res: SuccessResponse = {
+                code: CODES.OK.code,
+                body: {
+                    message: 'User has been successfully updated',
+                    type: SuccessResponseTypes.nullType,
+                    data: null
+                }
+            }
+            return res
+        } else {
+            const err: ErrorResponse = {
+                code: CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: CODES.INTERNAL_ERROR.name,
+                    message: updating
+                }
+            }
+            return err
+        }
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }

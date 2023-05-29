@@ -1,6 +1,5 @@
-import { utils } from 'ethers'
 import Joi, { number }  from 'joi'
-import { checkAddress } from '../utils'
+import { checkAddress, checkChainID } from '../utils'
 
 export const AddToken: unknown = {
     $id: 'AddToken',
@@ -15,7 +14,6 @@ export const AddToken: unknown = {
         symbol: {
             type: 'string'
         },
-        //TODO: чекать из списка
         chainid: {
             type: 'string'
         },
@@ -72,15 +70,17 @@ export const AddTokenValidation: Joi.ObjectSchema = Joi.object({
         .required(),
 
     chainid: Joi.string()
-        .required(),
+        .required()
+        .external(checkChainID),
 
     supply_type: Joi.number().min(0).max(2).required(),
 
-    //TODO: наверное тип bigint
-    //TODO: может быть не allow(null) если другой supply_type
-    max_supply: Joi.string().allow(null),
+    //only digits 
+    //not number type because can be too big (uint256)
+    max_supply: Joi.string().pattern(/^\d+$/).allow(null),
 
-    initial_supply: Joi.string().allow(null),
+    //only digits 
+    initial_supply: Joi.string().pattern(/^\d+$/).allow(null),
 
     pausable: Joi.boolean().required(),
 

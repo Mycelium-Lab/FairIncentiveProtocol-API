@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkCompany = void 0;
 const db_1 = __importDefault(require("../config/db"));
-const errors_1 = require("../errors");
+const constants_1 = require("../utils/constants");
 const hash_1 = require("../utils/hash");
 function checkCompany(company) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -32,25 +32,29 @@ function checkCompany(company) {
             const checkedPassword = yield (0, hash_1.compare)(company.password, selectedCompany.password);
             if (!checkedPassword)
                 throw Error('Wrong password');
-            return {
-                isError: false,
-                code: 200,
-                data: { company_id: selectedCompany.id, address: selectedCompany.wallet },
-                res: {
-                    message: "OK"
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Password is ok',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: {
+                        company_id: selectedCompany.id,
+                        address: selectedCompany.wallet
+                    }
                 }
             };
+            return res;
         }
         catch (error) {
-            const prettyError = (0, errors_1.prettyAuthError)(error.message);
-            return {
-                isError: true,
-                code: prettyError.code,
-                data: {},
-                res: {
-                    message: prettyError.message
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
                 }
             };
+            return err;
         }
     });
 }

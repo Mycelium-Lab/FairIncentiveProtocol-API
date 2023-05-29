@@ -154,7 +154,7 @@ CREATE TABLE erc721_tokens(
     logo_image      VARCHAR(255),
     featured_image  VARCHAR(255),
     banner_image    VARCHAR(255),
-    chainid        INT NOT NULL REFERENCES chains(id),
+    chainid         INT NOT NULL REFERENCES chains(id),
     address         VARCHAR(42) NOT NULL UNIQUE,
     beneficiary     VARCHAR(42),
     royalty_percent INT DEFAULT 0,
@@ -172,7 +172,6 @@ CREATE TABLE erc721_tokens(
 CREATE TABLE nfts(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     address         VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address),
-    chainid        INT NOT NULL REFERENCES chains(id),
     image           TEXT NOT NULL,
     name            VARCHAR(255) NOT NULL,
     description     TEXT,
@@ -305,9 +304,9 @@ CREATE TABLE reward_event_erc20 (
     status          INT NOT NULL REFERENCES reward_event_statuses(id),
     reward_id       UUID NOT NULL REFERENCES rewards_erc20(id) ON DELETE CASCADE,
     user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    v               VARCHAR(255) NOT NULL,
-    r               VARCHAR(255) NOT NULL,
-    s               VARCHAR(255) NOT NULL,
+    v               VARCHAR(2) NOT NULL,
+    r               VARCHAR(66) NOT NULL,
+    s               VARCHAR(66) NOT NULL,
     comment         TEXT
 );
 
@@ -317,8 +316,8 @@ CREATE TABLE reward_event_erc721(
     status          INT NOT NULL REFERENCES reward_event_statuses(id),
     reward_id       UUID NOT NULL REFERENCES rewards_erc721(id) ON DELETE CASCADE,
     user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    v               VARCHAR(255) NOT NULL,
-    r               VARCHAR(255) NOT NULL,
-    s               VARCHAR(255) NOT NULL,
+    v               VARCHAR(2) NOT NULL,
+    r               VARCHAR(66) NOT NULL,
+    s               VARCHAR(66) NOT NULL,
     comment         TEXT
 );      

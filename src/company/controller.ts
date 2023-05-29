@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
-import { JWTPayload, ReplyCompany, UpdateEmail, UpdateName, UpdatePassword, UpdatePhone, UpdateWallet } from "../entities";
+import { ErrorResponse, JWTPayload, ReplyCompany, SuccessResponse, UpdateEmail, UpdateName, UpdatePassword, UpdatePhone, UpdateWallet } from "../entities";
 import { changeEmail, changeName, changePassword, changePhone, changeWallet, getCompany } from "./service";
 import { ChangeCompanyEmailValidation, ChangeCompanyNameValidation, ChangeCompanyPasswordValidation, ChangeCompanyPhoneValidation, ChangeCompanyWalletValidation } from "../schemas";
+import { prettyCompanyError } from "../errors";
 
 export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
@@ -14,16 +15,19 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const company: ReplyCompany = await getCompany({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await getCompany({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(200)
-                        .send(company)
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                //TODO: pretty company error
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyCompanyError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -42,20 +46,19 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyNameValidation.validateAsync(updateName)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changeName({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateName.newName)
+                    const res: ErrorResponse | SuccessResponse = await changeName({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateName.newName)
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
-            } catch (err: any) {
-                //TODO: pretty company error
-                let error = err.message
-                if (error && error.includes('"newName" length must be less than or equal to 256 characters long')) {
-                    error = `Company name must be less than or equal to 256 characters in length`
-                }
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyCompanyError(error.message)
                 reply
-                    .code(500)
-                    .send({error})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -74,16 +77,19 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyEmailValidation.validateAsync(updateEmail)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changeEmail({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateEmail.newEmail)
+                    const res: ErrorResponse | SuccessResponse = await changeEmail({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateEmail.newEmail)
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                //TODO: pretty company error
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyCompanyError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -102,16 +108,19 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyPhoneValidation.validateAsync(updatePhone)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changePhone({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updatePhone.newPhone)
+                    const res: ErrorResponse | SuccessResponse = await changePhone({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updatePhone.newPhone)
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                //TODO: pretty company error
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyCompanyError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -130,16 +139,19 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyWalletValidation.validateAsync(updateWallet)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changeWallet({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateWallet.newWallet)
+                    const res: ErrorResponse | SuccessResponse = await changeWallet({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateWallet.newWallet)
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                //TODO: pretty company error
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyCompanyError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -158,16 +170,19 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyPasswordValidation.validateAsync(updatePassword)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await changePassword({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updatePassword.newPassword)
+                    const res: ErrorResponse | SuccessResponse = await changePassword({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updatePassword.newPassword)
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                //TODO: pretty company error
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyCompanyError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )

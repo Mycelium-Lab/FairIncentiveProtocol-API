@@ -1,7 +1,8 @@
 import pg from "../config/db";
-import { Company, GetCompany, Token } from "../entities";
+import { Company, ErrorResponse, GetCompany, SuccessResponse, Token } from "../entities";
+import { CODES, SuccessResponseTypes } from "../utils/constants";
 
-export async function addToken(token: Token, getCompany: GetCompany): Promise<Token | null> {
+export async function addToken(token: Token, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const newToken: Array<Token> = await pg('erc20_tokens')
             .insert({
@@ -22,23 +23,53 @@ export async function addToken(token: Token, getCompany: GetCompany): Promise<To
                 image: token.image
             })
             .returning('*')
-        return newToken[0]
-    } catch (error) {
-        console.log(error)
-        return null
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The token was successfully added',
+                type: SuccessResponseTypes.object,
+                data: newToken[0]
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function getTokens(getCompany: GetCompany): Promise<Array<Token>> {
+export async function getTokens(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const tokens: Array<Token> = await pg('erc20_tokens')
             .select('*')
             .where({
                 company_id: getCompany.company_id
             })
-        return tokens
-    } catch (error) {
-        console.log(error)
-        return []
-    }
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Tokens',
+                type: SuccessResponseTypes.array,
+                data: tokens
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
+    }    
 }

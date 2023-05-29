@@ -1,6 +1,5 @@
-import { utils } from 'ethers'
 import Joi  from 'joi'
-import { checkAddress } from '../utils'
+import { checkAddress, checkChainID } from '../utils'
 
 export const AddNFTCollection: unknown = {
     $id: 'AddNFTCollection',
@@ -54,7 +53,8 @@ export const AddNFTCollectionValidation: Joi.ObjectSchema = Joi.object({
     description: Joi.string().allow(null).max(1000),
 
     chainid: Joi.string()
-        .required(),
+        .required()
+        .external(checkChainID),
     
     beneficiary: Joi.string().allow(null).external(checkAddress),
 

@@ -13,6 +13,7 @@ exports.tokensPlugin = void 0;
 const controller_1 = require("../company/controller");
 const schemas_1 = require("../schemas");
 const service_1 = require("./service");
+const errors_1 = require("../errors");
 function tokensPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.post('/add', {
@@ -29,18 +30,20 @@ function tokensPlugin(app, opt) {
                     const data = app.jwt.decode(token);
                     const res = yield (0, service_1.addToken)(Token, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply
-                        .code(res ? 200 : 500)
-                        .send({ token: res });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                console.log(error);
-                //TODO: pretty tokens error
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyTokensError)(error.message);
                 reply
-                    .code(500)
-                    .send({ message: error.message });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
         app.get('/', {
@@ -52,17 +55,20 @@ function tokensPlugin(app, opt) {
                     const data = app.jwt.decode(token);
                     const res = yield (0, service_1.getTokens)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply
-                        .code(200)
-                        .send({ tokens: res });
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 else
                     throw Error('Wrong auth token');
             }
             catch (error) {
-                //TODO: pretty tokens error
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyTokensError)(error.message);
                 reply
-                    .code(500)
-                    .send({ message: error.message });
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
             }
         }));
     });

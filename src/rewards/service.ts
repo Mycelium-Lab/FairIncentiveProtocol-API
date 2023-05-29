@@ -1,24 +1,40 @@
 import { ethers } from "ethers";
 import pg from "../config/db";
-import { ClaimNFT, ClaimToken, Delete, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
+import { ClaimNFT, ClaimToken, Delete, ErrorResponse, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, SuccessResponse, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
 import { config } from "../config/config";
 import { signNFTReward, signTokenReward } from "../utils/sign";
 import { Company } from "../entities";
+import { CODES, SuccessResponseTypes } from "../utils/constants";
 
-export async function addTokenReward(getCompany: GetCompany, tokenReward: TokenReward): Promise<TokenReward | undefined> {
+export async function addTokenReward(getCompany: GetCompany, tokenReward: TokenReward): Promise<ErrorResponse | SuccessResponse> {
     try {
         tokenReward.company_id = getCompany.company_id
         const addedReward: Array<TokenReward> = await pg('rewards_erc20').insert(tokenReward).returning('*')
         const token: Token = await pg('erc20_tokens').select('*').where({address: tokenReward.address}).first()
         addedReward[0].symbol = token.symbol
-        return addedReward[0]
-    } catch (error) {
-        console.log(error)
-        return undefined
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The token was successfully added',
+                type: SuccessResponseTypes.object,
+                data: addedReward[0]
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function getTokenRewards(getCompany: GetCompany): Promise<Array<TokenReward>> {
+export async function getTokenRewards(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const tokenRewards: Array<TokenReward> = 
             await pg('rewards_erc20')
@@ -28,14 +44,29 @@ export async function getTokenRewards(getCompany: GetCompany): Promise<Array<Tok
                 .leftJoin('reward_event_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
                 .groupBy('rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status')
                 .select(['rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status'])
-        return tokenRewards
-    } catch (error) {
-        console.log(error)
-        return []
-    }
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Tokens rewards',
+                type: SuccessResponseTypes.array,
+                data: tokenRewards
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
+    }   
 }
 
-export async function deleteTokenReward(getCompany: GetCompany, Delete: Delete): Promise<boolean> {
+export async function deleteTokenReward(getCompany: GetCompany, Delete: Delete): Promise<ErrorResponse | SuccessResponse> {
     try {
         const count = await pg('rewards_erc20')
             .count('reward_event_erc20.reward_id')
@@ -45,14 +76,29 @@ export async function deleteTokenReward(getCompany: GetCompany, Delete: Delete):
             .select([])
         if (count[0].count !== '0') throw Error('You have reward events on thihs')
         await pg('rewards_erc20').where({id: Delete.id, company_id: getCompany.company_id}).delete()
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The token reward was successfully deleted',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res    
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function rewardWithToken(getCompany: GetCompany, reward: RewardWithToken): Promise<boolean> {
+export async function rewardWithToken(getCompany: GetCompany, reward: RewardWithToken): Promise<ErrorResponse | SuccessResponse> {
     try {
         const tokenReward: TokenReward = 
             await pg('rewards_erc20')
@@ -72,7 +118,7 @@ export async function rewardWithToken(getCompany: GetCompany, reward: RewardWith
         const signer = new ethers.Wallet(network?.private_key || '', provider)
         const user: User = await pg('users').where({id: reward.user_id}).first()
         const signature = await signTokenReward(tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address)
-        await pg('reward_event_erc20').insert({
+        const rewardEvent = await pg('reward_event_erc20').insert({
             status: 1,
             reward_id: reward.reward_id,
             user_id: reward.user_id,
@@ -80,15 +126,30 @@ export async function rewardWithToken(getCompany: GetCompany, reward: RewardWith
             v: signature.v,
             r: signature.r,
             s: signature.s
-        })
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        }, '*')
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The token reward event was successfully added',
+                type: SuccessResponseTypes.object,
+                data: rewardEvent[0]
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function getRewardTokenEvents(getCompany: GetCompany): Promise<Array<RewardTokenEvent>> {
+export async function getRewardTokenEvents(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         let rewardEvents: Array<RewardTokenEvent> = await pg('rewards_erc20')
             .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id])
@@ -103,15 +164,31 @@ export async function getRewardTokenEvents(getCompany: GetCompany): Promise<Arra
                 'rewards_erc20.address as token_address', 'erc20_tokens.symbol as token_symbol',
                 'rewards_erc20.amount as token_amount', 'reward_event_erc20.comment as event_comment'
             ])
+        //TODO: можно ли избавиться от этого
         rewardEvents = rewardEvents.filter(v => v.user_id !== null)
-        return rewardEvents
-    } catch (error) {
-        console.log(error)
-        return []
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Token reward events',
+                type: SuccessResponseTypes.array,
+                data: rewardEvents
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function addNFTReward(getCompany: GetCompany, nftReward: NFTReward): Promise<NFTReward | undefined> {
+export async function addNFTReward(getCompany: GetCompany, nftReward: NFTReward): Promise<ErrorResponse | SuccessResponse> {
     try {
         nftReward.company_id = getCompany.company_id
         const company: GetCompany = 
@@ -130,14 +207,29 @@ export async function addNFTReward(getCompany: GetCompany, nftReward: NFTReward)
                 .first()
         addedReward[0].symbol = nftCollection.symbol
         addedReward[0].nft_name = nftCollection.nft_name
-        return addedReward[0]
-    } catch (error) {
-        console.log(error)
-        return undefined
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The NFT reward was successfully added',
+                type: SuccessResponseTypes.object,
+                data: addedReward[0]
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function getNFTRewards(getCompany: GetCompany): Promise<Array<NFTReward>> {
+export async function getNFTRewards(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const nftRewards: Array<NFTReward> = 
             await pg('rewards_erc721')
@@ -148,14 +240,29 @@ export async function getNFTRewards(getCompany: GetCompany): Promise<Array<NFTRe
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
                 .groupBy('rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol','nfts.name', 'nfts.address', 'rewards_erc721.status')
                 .select(['rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name', 'nfts.address as address', 'rewards_erc721.status'])
-        return nftRewards
-    } catch (error) {
-        console.log(error)
-        return []
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'NFT rewards',
+                type: SuccessResponseTypes.array,
+                data: nftRewards
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function deleteNFTReward(getCompany: GetCompany, Delete: Delete): Promise<boolean> {
+export async function deleteNFTReward(getCompany: GetCompany, Delete: Delete): Promise<ErrorResponse | SuccessResponse> {
     try {
         const count = await pg('rewards_erc721')
             .count('reward_event_erc721.reward_id')
@@ -165,21 +272,37 @@ export async function deleteNFTReward(getCompany: GetCompany, Delete: Delete): P
             .select([])
         if (count[0].count !== '0') throw Error('You have reward events on thihs')
         await pg('rewards_erc721').where({id: Delete.id, company_id: getCompany.company_id}).delete()
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The NFT reward was successfully deleted',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res  
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithToken): Promise<boolean> {
+export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithToken): Promise<ErrorResponse | SuccessResponse> {
     try {
         const nftReward: NFTReward = 
             await pg('rewards_erc721')
                 .whereRaw('rewards_erc721.id = ?', [reward.reward_id])
                 .first()
                 .leftJoin('nfts','nfts.id','=','rewards_erc721.nft_id')
-                .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'nfts.chainid as chainid'])
+                .leftJoin('erc721_tokens','erc721_tokens.address','=','nfts.address')
+                .select(['*', 'nfts.name as nft_name', 'nfts.id as nft_id', 'erc721_tokens.chainid as chainid'])
         if (nftReward.company_id !== getCompany.company_id) throw Error('Not allowed company')
         if (nftReward.status === 1) throw Error('Not working')
         const network = config.networks.find(n => n.chainid == nftReward.chainid)
@@ -187,7 +310,7 @@ export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithTo
         const signer = new ethers.Wallet(network?.private_key || '', provider)
         const user: User = await pg('users').where({id: reward.user_id}).first()
         const signature = await signNFTReward(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '')
-        await pg('reward_event_erc721').insert({
+        const rewardEvent = await pg('reward_event_erc721').insert({
             status: 1,//Accrued
             reward_id: reward.reward_id,
             user_id: reward.user_id,
@@ -195,15 +318,30 @@ export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithTo
             v: signature.v,
             r: signature.r,
             s: signature.s
-        })
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        }, '*')
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The NFT reward event was successfully added',
+                type: SuccessResponseTypes.object,
+                data: rewardEvent[0]
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function getRewardNFTEvents(getCompany: GetCompany): Promise<Array<RewardNFTEvent>> {
+export async function getRewardNFTEvents(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         let rewardEvents: Array<RewardNFTEvent> = await pg('rewards_erc721')
             .whereRaw('rewards_erc721.company_id = ?', [getCompany.company_id])
@@ -220,15 +358,31 @@ export async function getRewardNFTEvents(getCompany: GetCompany): Promise<Array<
                 'reward_event_erc721.comment as event_comment', 'nfts.name as nft_name',
                 'nfts.id as nft_id'
             ])
+        //TODO: как-то избавиться от этого
         rewardEvents = rewardEvents.filter(v => v.user_id !== null)
-        return rewardEvents
-    } catch (error) {
-        console.log(error)
-        return []
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'NFT reward events',
+                type: SuccessResponseTypes.array,
+                data: rewardEvents
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function getClaimableToken(rewardEventID: string, user_id: string): Promise<ClaimToken | null> {
+export async function getClaimableToken(rewardEventID: string, user_id: string): Promise<ErrorResponse | SuccessResponse> {
     try {
         const claimableToken: ClaimToken =
             await pg('reward_event_erc20')
@@ -244,14 +398,30 @@ export async function getClaimableToken(rewardEventID: string, user_id: string):
                     'erc20_tokens.chainid', 'users.id as user_id', 'users.wallet as user_wallet',
                     'reward_event_erc20.v','reward_event_erc20.r','reward_event_erc20.s', 'rewards_erc20.status'
                 ])
-        if (claimableToken.status == 1) return null
-        return claimableToken
-    } catch (error) {
-        return null
+        if (claimableToken.status == 1) throw Error('Already taken')
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Claimable token',
+                type: SuccessResponseTypes.object,
+                data: claimableToken
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function getClaimableNFT(rewardEventID: string, user_id: string): Promise<ClaimNFT | null> {
+export async function getClaimableNFT(rewardEventID: string, user_id: string): Promise<ErrorResponse | SuccessResponse> {
     try {
         const claimableNFT: ClaimNFT =
             await pg('reward_event_erc721')
@@ -264,20 +434,35 @@ export async function getClaimableNFT(rewardEventID: string, user_id: string): P
                 .select([
                     'erc721_tokens.name as collection_name', 'erc721_tokens.address as collection_address',
                     'nfts.name as nft_name', 'nfts.image as nft_image',
-                    'nfts.description as nft_description', 'nfts.chainid as chainid',
+                    'nfts.description as nft_description', 'erc721_tokens.chainid as chainid',
                     'users.wallet as user_wallet',
                     'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r',
                     'erc721_tokens.beneficiary as beneficiary', 'rewards_erc721.status'
                 ])
-        if (claimableNFT.status == 1) return null
-        return claimableNFT
-    } catch (error) {
-        console.log(error)
-        return null
+        if (claimableNFT.status == 1) throw Error('Already taken')
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Claimable NFT',
+                type: SuccessResponseTypes.object,
+                data: claimableNFT
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function updateTokenReward(getCompany: GetCompany, tokenReward: UpdateTokenReward): Promise<boolean> {
+export async function updateTokenReward(getCompany: GetCompany, tokenReward: UpdateTokenReward): Promise<ErrorResponse | SuccessResponse> {
     try {
         const rewardEvent: any = await pg('reward_event_erc20').count('id').where({reward_id: tokenReward.id}).first()
         //if some reward event exist with this reward then can't update token
@@ -285,14 +470,29 @@ export async function updateTokenReward(getCompany: GetCompany, tokenReward: Upd
             tokenReward.address = undefined
         }
         await pg('rewards_erc20').update(tokenReward).where({company_id: getCompany.company_id, id: tokenReward.id})
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Token reward has been successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function updateNFTReward(getCompany: GetCompany, nftReward: UpdateNFTReward): Promise<boolean> {
+export async function updateNFTReward(getCompany: GetCompany, nftReward: UpdateNFTReward): Promise<ErrorResponse | SuccessResponse> {
     try {
         //check if nft_id is in that collection
         const rewardEvent: any = await pg('reward_event_erc721').count('id').where({reward_id: nftReward.id}).first()
@@ -301,14 +501,29 @@ export async function updateNFTReward(getCompany: GetCompany, nftReward: UpdateN
             nftReward.nft_id = undefined
         }
         await pg('rewards_erc721').update(nftReward).where({company_id: getCompany.company_id, id: nftReward.id})
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'NFT reward has been successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewardEvent: Delete): Promise<boolean> {
+export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewardEvent: Delete): Promise<ErrorResponse | SuccessResponse> {
     try {
         const rewardCompany: Company = 
             await pg('reward_event_erc20')
@@ -318,14 +533,29 @@ export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewar
             .select(['rewards_erc20.company_id as id'])
         if (rewardCompany.id !== getCompany.company_id) throw Error('Not this company token reward')
         await pg('reward_event_erc20').whereRaw('id = ? AND status = 1', [deleteRewardEvent.id]).delete()
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The token reward event was successfully deleted',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res 
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function deleteNFTRewardEvent(getCompany: GetCompany, deleteRewardEvent: Delete): Promise<boolean> {
+export async function deleteNFTRewardEvent(getCompany: GetCompany, deleteRewardEvent: Delete): Promise<ErrorResponse | SuccessResponse> {
     try {
         const rewardCompany: Company = 
             await pg('reward_event_erc721')
@@ -335,14 +565,29 @@ export async function deleteNFTRewardEvent(getCompany: GetCompany, deleteRewardE
             .select(['rewards_erc721.company_id as id'])
         if (rewardCompany.id !== getCompany.company_id) throw Error('Not this company token reward')
         await pg('reward_event_erc721').whereRaw('id = ? AND status = 1', [deleteRewardEvent.id]).delete()
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The NFT reward event was successfully deleted',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res 
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function setTokenRewardStatus(getCompany: GetCompany, status: Status): Promise<boolean> {
+export async function setTokenRewardStatus(getCompany: GetCompany, status: Status): Promise<ErrorResponse | SuccessResponse> {
     try {
         const rewardCompany: Company = 
             await pg('rewards_erc20')
@@ -353,14 +598,29 @@ export async function setTokenRewardStatus(getCompany: GetCompany, status: Statu
         await pg('rewards_erc20')
             .update({status: status.status})
             .where({id: status.reward_id})
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The token reward status was successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res 
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }
 
-export async function setNFTRewardStatus(getCompany: GetCompany, status: Status): Promise<boolean> {
+export async function setNFTRewardStatus(getCompany: GetCompany, status: Status): Promise<ErrorResponse | SuccessResponse> {
     try {
         const rewardCompany: Company = 
             await pg('rewards_erc721')
@@ -371,9 +631,24 @@ export async function setNFTRewardStatus(getCompany: GetCompany, status: Status)
         await pg('rewards_erc721')
             .update({status: status.status})
             .where({id: status.reward_id})
-        return true
-    } catch (error) {
-        console.log(error)
-        return false
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'The BFT reward status was successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res 
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
     }
 }

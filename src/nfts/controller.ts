@@ -1,8 +1,10 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { AddNFT, AddNFTCollection, Delete, JWTPayload, NFTCollection } from "../entities";
+import { AddNFT, AddNFTCollection, Delete, ErrorResponse, JWTPayload, NFTCollection, SuccessResponse } from "../entities";
 import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, DeleteValidation } from "../schemas";
 import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs } from "./service";
+import { CODES, CODES_RANGES } from "../utils/constants";
+import { prettyNFTError } from "../errors";
 
 export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -20,17 +22,19 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 await AddNFTCollectionValidation.validateAsync(nft)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: NFTCollection | null = await addNFTCollection(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await addNFTCollection(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(res ? 200 : 500)
-                        .send({collection: res})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                console.log(error)
-                //TODO: pretty tokens error
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -44,16 +48,19 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 const token = getToken(req)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await getNFTCollections({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await getNFTCollections({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(200)
-                        .send({nftCollections: res})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                //TODO: pretty tokens error
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -72,17 +79,18 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 await AddNFTValidation.validateAsync(nft)
                 if (token) {
                     const data: JWTPayload | null = app.jwt.decode(token)
-                    const res = await addNFT(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                    const res: ErrorResponse | SuccessResponse = await addNFT(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 console.log(error)
-                //TODO: pretty tokens error
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -98,14 +106,16 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const res = await getNFTs({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(200)
-                        .send({nfts: res})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
-                //TODO: pretty tokens error
+                console.log(error)
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .send({error: prettyError.error})
             }
         }
     )
@@ -126,15 +136,16 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                     const data: JWTPayload | null = app.jwt.decode(token)
                     const res = await deleteNFT(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                     reply
-                        .code(res ? 200 : 500)
-                        .send({message: res ? 'Done' : 'Something went wrong'})
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? {body: res.body} : {error: res.error})
                 } else throw Error('Wrong auth token') 
             } catch (error: any) {
                 console.log(error)
-                //TODO: pretty tokens error
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
                 reply
-                    .code(500)
-                    .send({message: error.message})
+                    .code(prettyError.code)
+                    .send({error: prettyError.error})
             }
         }
     )

@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.changePassword = exports.changeWallet = exports.changePhone = exports.changeEmail = exports.changeName = exports.getCompany = exports.createCompany = void 0;
 const db_1 = __importDefault(require("../config/db"));
+const errors_1 = require("../errors");
 const constants_1 = require("../utils/constants");
 const hash_1 = require("../utils/hash");
 function createCompany(company) {
@@ -37,7 +38,7 @@ function createCompany(company) {
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
-                    message: 'The user was successfully added',
+                    message: 'The company was successfully added',
                     type: constants_1.SuccessResponseTypes.string,
                     data: id[0].id
                 }
@@ -46,13 +47,8 @@ function createCompany(company) {
         }
         catch (error) {
             console.log(error.message);
-            const err = {
-                code: constants_1.CODES.INTERNAL_ERROR.code,
-                error: {
-                    name: constants_1.CODES.INTERNAL_ERROR.name,
-                    message: error.message
-                }
-            };
+            const err = (0, errors_1.prettyCompanyError)(error.message);
+            console.log(err);
             return err;
         }
     });

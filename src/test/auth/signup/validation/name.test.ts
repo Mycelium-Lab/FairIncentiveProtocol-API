@@ -1,7 +1,8 @@
 import tap from 'tap'
-import { build } from '../../../app'
-import { config } from '../../../config/config'
+import { build } from '../../../../app'
+import { config } from '../../../../config/config'
 import { FastifyInstance } from 'fastify'
+import { ErrorResponse } from '../../../../entities'
 
 let fastify: FastifyInstance
 
@@ -14,7 +15,7 @@ tap.beforeEach(async () => {
     await fastify.listen()
 })
 
-tap.test('Сompany name is incorrect - less than 3 symbols', async t => {
+tap.test('Auth:Signup:Validation - Сompany name is incorrect(err: less than 3 symbols)', async t => {
   t.plan(3)
   let body: object = {
       "name": "",
@@ -36,11 +37,12 @@ tap.test('Сompany name is incorrect - less than 3 symbols', async t => {
 
   t.equal(response.status, 400)
   t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-  t.same(await response.json(), { message: "\"name\" is not allowed to be empty" })
+  const res: ErrorResponse = await response.json()
+  t.same(res.error.message, "<name> is not allowed to be empty")
 })
 
 
-tap.test('Сompany name is incorrect - more than 256 symbols', async t => {
+tap.test('Auth:Signup:Validation - Сompany name is incorrect(err: more than 256 symbols)', async t => {
     const randomNameLength300 = Array.from({length: 300}, () => String.fromCharCode(Math.floor(Math.random() * (126 - 32 + 1)) + 32)).join('')
     t.plan(3)
     let body: object = {
@@ -63,11 +65,12 @@ tap.test('Сompany name is incorrect - more than 256 symbols', async t => {
   
     t.equal(response.status, 400)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    t.same(await response.json(), { message: "\"name\" length must be less than or equal to 256 characters long" })
+    const res: ErrorResponse = await response.json()
+    t.same(res.error.message, "<name> length must be less than or equal to 256 characters long")
 })
 
 
-tap.test('Сompany name is incorrect - empty', async t => {
+tap.test('Auth:Signup:Validation - Сompany name is incorrect(err: empty)', async t => {
     t.plan(3)
     let body: object = {
         "email": "123@gal.com",
@@ -88,5 +91,6 @@ tap.test('Сompany name is incorrect - empty', async t => {
       
     t.equal(response.status, 400)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    t.same(await response.json(), { message: "\"name\" is required" })
+    const res: ErrorResponse = await response.json()
+    t.same(res.error.message, "<name> is required")
 })

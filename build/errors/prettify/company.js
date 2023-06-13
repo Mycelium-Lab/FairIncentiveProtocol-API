@@ -3,6 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.prettyCompanyError = void 0;
 const constants_1 = require("../../utils/constants");
 function prettyCompanyError(errorMessage) {
+    if (errorMessage.includes('duplicate key value violates unique constraint "companies_email_key"')) {
+        return {
+            code: constants_1.CODES.BAD_REQUEST.code,
+            error: {
+                name: constants_1.CODES.BAD_REQUEST.name,
+                message: 'This <email> already exist in database'
+            }
+        };
+    }
     //means that some field in json is wrong or not exist
     if (errorMessage.includes('\"')) {
         return {

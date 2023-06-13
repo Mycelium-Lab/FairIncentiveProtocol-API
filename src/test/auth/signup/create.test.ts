@@ -1,8 +1,9 @@
 import tap from 'tap'
-import { build } from '../../app'
-import { config } from '../../config/config'
+import { build } from '../../../app'
+import { config } from '../../../config/config'
 import { FastifyInstance } from 'fastify'
-import pg from '../../config/db'
+import pg from '../../../config/db'
+import { ErrorResponse, SuccessResponse } from '../../../entities'
 
 let fastify: FastifyInstance
 
@@ -10,12 +11,17 @@ let headers: Headers = new Headers();
 headers.append("Content-Type", "application/json");
 let raw: string
 
+tap.before(async () => {
+    await pg.raw('DELETE FROM companies')
+    await pg.destroy()
+})
+
 tap.beforeEach(async () => {
     fastify = await build()  
     await fastify.listen()
 })
 
-tap.test('Should signup', async t => {
+tap.test('Auth:Signup - Should create company', async t => {
     t.plan(3)
     let body: object = {
         "name": 'ООО Утка',
@@ -37,7 +43,8 @@ tap.test('Should signup', async t => {
   
     t.equal(response.status, 200)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    t.same(await response.json(), { message: "Company added to database" })
+    const res: SuccessResponse = await response.json()
+    t.same(res.body.message, "The company was successfully added")
 })
 
 

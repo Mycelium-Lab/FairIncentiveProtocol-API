@@ -1,6 +1,6 @@
 import pg from "../config/db";
 import { AuthServiceReply, Company, ErrorResponse, GetCompany, PrettyError, ReplyCompany, SignUpCompany, SuccessResponse } from "../entities";
-import { prettyAuthError } from "../errors";
+import { prettyAuthError, prettyCompanyError } from "../errors";
 import { CODES, SuccessResponseTypes } from "../utils/constants";
 import { hash } from "../utils/hash";
 
@@ -25,7 +25,7 @@ export async function createCompany(company: SignUpCompany): Promise<ErrorRespon
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {
-                message: 'The user was successfully added',
+                message: 'The company was successfully added',
                 type: SuccessResponseTypes.string,
                 data: id[0].id
             }
@@ -33,13 +33,8 @@ export async function createCompany(company: SignUpCompany): Promise<ErrorRespon
         return res
     } catch (error: any) {
         console.log(error.message)
-        const err: ErrorResponse = {
-            code: CODES.INTERNAL_ERROR.code,
-            error: {
-                name: CODES.INTERNAL_ERROR.name,
-                message: error.message
-            }
-        }
+        const err = prettyCompanyError(error.message)
+        console.log(err)
         return err
     }
 }

@@ -1,7 +1,8 @@
 import tap from 'tap'
-import { build } from '../../../app'
-import { config } from '../../../config/config'
+import { build } from '../../../../app'
+import { config } from '../../../../config/config'
 import { FastifyInstance } from 'fastify'
+import { ErrorResponse } from '../../../../entities'
 
 let fastify: FastifyInstance
 
@@ -14,7 +15,7 @@ tap.beforeEach(async () => {
     await fastify.listen()
 })
 
-tap.test('Email is incorrect (email) - not this format', async t => {
+tap.test('Auth:Signup:Validation - Email is incorrect (email)(err: not this format)', async t => {
     t.plan(3)
     let body: object = {
         "name": 'ООО Утка',
@@ -36,11 +37,12 @@ tap.test('Email is incorrect (email) - not this format', async t => {
   
     t.equal(response.status, 400)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    t.same(await response.json(), { message: "\"email\" must be a valid email" })
+    const res: ErrorResponse = await response.json()
+    t.same(res.error.message, "<email> must be a valid email")
 })
 
 
-tap.test('Email is incorrect (email) - empty', async t => {
+tap.test('Auth:Signup:Validation - Email is incorrect (email)(err: empty)', async t => {
     t.plan(3)
     let body: object = {
         "name": 'ООО Утка',
@@ -61,5 +63,6 @@ tap.test('Email is incorrect (email) - empty', async t => {
       
     t.equal(response.status, 400)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    t.same(await response.json(), { message: "\"email\" is required" })
+    const res: ErrorResponse = await response.json()
+    t.same(res.error.message, "<email> is required")
 })

@@ -4,5 +4,7 @@ export interface Company {
     email?: string,
     password: string,
     wallet: string,
-    phone?: string
+    phone?: string,
+    repname?: string,
+    country?: string
 }

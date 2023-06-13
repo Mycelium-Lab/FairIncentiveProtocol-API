@@ -23,6 +23,14 @@ INSERT INTO permissions (title) VALUES('create_user');
 INSERT INTO permissions (title) VALUES('create_key');
 INSERT INTO permissions (title) VALUES('billing');
 
+CREATE TABLE countries (
+  code VARCHAR(2) PRIMARY KEY,
+  name VARCHAR(100) NOT NULL
+);
+
+INSERT INTO countries (code, name) VALUES('RU', 'Russian Federation');
+INSERT INTO countries (code, name) VALUES('US', 'United States of America');
+
 CREATE TABLE companies(
     id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name        VARCHAR(256) NOT NULL,
@@ -30,7 +38,9 @@ CREATE TABLE companies(
     password    VARCHAR(256) NOT NULL,
     wallet      VARCHAR(42) NOT NULL UNIQUE,
     phone       VARCHAR(18) UNIQUE,
-    role_id     INT NOT NULL DEFAULT 0
+    role_id     INT NOT NULL DEFAULT 0,
+    country     VARCHAR(2) NOT NULL REFERENCES countries(code),
+    repname     VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE employees(

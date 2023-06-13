@@ -19,7 +19,9 @@ export async function createCompany(company: SignUpCompany): Promise<ErrorRespon
                     email: company.email,
                     password: company.password,
                     wallet: company.wallet,
-                    phone: company.phone
+                    phone: company.phone,
+                    repname: company.repname,
+                    country: company.country
                 }
             , "id")
         const res: SuccessResponse = {

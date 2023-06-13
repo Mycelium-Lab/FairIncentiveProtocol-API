@@ -3,12 +3,19 @@ import { build } from '../../../../app'
 import { config } from '../../../../config/config'
 import { FastifyInstance } from 'fastify'
 import { ErrorResponse } from '../../../../entities'
+import pg from '../../../../config/db'
+import { CODES } from '../../../../utils/constants'
 
 let fastify: FastifyInstance
 
 let headers: Headers = new Headers();
 headers.append("Content-Type", "application/json");
 let raw: string
+
+tap.before(async () => {
+    await pg.raw('DELETE FROM companies')
+    await pg.destroy()
+})
 
 tap.beforeEach(async () => {
     fastify = await build()  
@@ -35,7 +42,7 @@ tap.test('Auth:Signup:Validation - Email is incorrect (email)(err: not this form
     )
     t.teardown(() => fastify.close())
   
-    t.equal(response.status, 400)
+    t.equal(response.status, CODES.BAD_REQUEST.code)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
     const res: ErrorResponse = await response.json()
     t.same(res.error.message, "<email> must be a valid email")
@@ -61,7 +68,7 @@ tap.test('Auth:Signup:Validation - Email is incorrect (email)(err: empty)', asyn
     )
     t.teardown(() => fastify.close())
       
-    t.equal(response.status, 400)
+    t.equal(response.status, CODES.BAD_REQUEST.code)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
     const res: ErrorResponse = await response.json()
     t.same(res.error.message, "<email> is required")

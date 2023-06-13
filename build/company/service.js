@@ -33,7 +33,9 @@ function createCompany(company) {
                 email: company.email,
                 password: company.password,
                 wallet: company.wallet,
-                phone: company.phone
+                phone: company.phone,
+                repname: company.repname,
+                country: company.country
             }, "id");
             const res = {
                 code: constants_1.CODES.OK.code,

@@ -1,10 +1,10 @@
 import tap from 'tap'
-import { build } from '../../../app'
-import { config } from '../../../config/config'
+import { build } from '../../../../app'
+import { config } from '../../../../config/config'
 import { FastifyInstance } from 'fastify'
-import pg from '../../../config/db'
-import { ErrorResponse, SuccessResponse } from '../../../entities'
-import { CODES } from '../../../utils/constants'
+import pg from '../../../../config/db'
+import { ErrorResponse, SuccessResponse } from '../../../../entities'
+import { CODES } from '../../../../utils/constants'
 
 let fastify: FastifyInstance
 
@@ -22,7 +22,7 @@ tap.beforeEach(async () => {
     await fastify.listen()
 })
 
-tap.test('Auth:Signup - Should create company', async t => {
+tap.test('Auth:Signup:Validation - Country code is incorrect', async t => {
     t.plan(3)
     let body: object = {
         "name": 'ООО Утка',
@@ -30,7 +30,7 @@ tap.test('Auth:Signup - Should create company', async t => {
         "password": "1234s5678",
         "repeat_password": "1234s5678",
         "wallet": "0x0000000000000000000000000000000000000001",
-        "country": "US",
+        "country": "SOMECODE",
         "repname": "somename"
     }
     raw = JSON.stringify(body)
@@ -44,11 +44,10 @@ tap.test('Auth:Signup - Should create company', async t => {
     )
     t.teardown(() => fastify.close())
   
-    t.equal(response.status, CODES.OK.code)
+    t.equal(response.status, CODES.BAD_REQUEST.code)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
-    const res: SuccessResponse = await response.json()
-    t.same(res.body.message, "The company was successfully added")
+    const res: ErrorResponse = await response.json()
+    t.same(res.error.message, "Country code is incorrect <country>")
 })
 
-//TODO: GETTER
 

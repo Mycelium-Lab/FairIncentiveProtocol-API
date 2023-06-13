@@ -1,7 +1,7 @@
 import * as joi  from 'joi'
 import JoiPhoneNumber from 'joi-phone-number'
 import { joiPasswordExtendCore } from 'joi-password'
-import { checkAddress } from '../utils'
+import { checkAddress, checkCountry } from '../utils'
 
 let Joi: any = joi.extend(JoiPhoneNumber, joiPasswordExtendCore)
 
@@ -26,6 +26,9 @@ export const SignUp: unknown = {
         },
         country: {
             type: 'string',
+        },
+        repname: {
+            type: 'string'
         },
         phone: {
             type: 'string'
@@ -57,6 +60,12 @@ export const SignUpValidation: joi.ObjectSchema = Joi.object({
     wallet: Joi.string()
         .allow('')
         .external(checkAddress)
-        .required()
+        .required(),
 
+    country: Joi.string()
+        .external(checkCountry)
+        .required(),
+    
+    repname: Joi.string()
+        .required()
 })

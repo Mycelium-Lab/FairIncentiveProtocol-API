@@ -5,7 +5,8 @@ export interface SignUpCompany {
     repeat_password: string,
     wallet: string,
     country?: string,
-    phone?: string
+    phone?: string,
+    repname: string
 }
 
 export interface SignInCompany {

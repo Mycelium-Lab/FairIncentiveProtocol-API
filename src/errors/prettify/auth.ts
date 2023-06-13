@@ -12,6 +12,15 @@ export function prettyAuthError(errorMessage: string): ErrorResponse {
             }
         }
     } 
+    if (errorMessage.includes('Country code is incorrect (country)')) {
+        return {
+            code: CODES.BAD_REQUEST.code,
+            error: {
+                name: CODES.BAD_REQUEST.name,
+                message: errorMessage.replace('(', "<").replace(')', ">")
+            }
+        }
+    }
     return {
         code: CODES.INTERNAL_ERROR.code,
         error: {

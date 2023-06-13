@@ -3,12 +3,19 @@ import { build } from '../../../../app'
 import { config } from '../../../../config/config'
 import { FastifyInstance } from 'fastify'
 import { ErrorResponse } from '../../../../entities'
+import pg from '../../../../config/db'
+import { CODES } from '../../../../utils/constants'
 
 let fastify: FastifyInstance
 
 let headers: Headers = new Headers();
 headers.append("Content-Type", "application/json");
 let raw: string
+
+tap.before(async () => {
+    await pg.raw('DELETE FROM companies')
+    await pg.destroy()
+})
 
 tap.beforeEach(async () => {
     fastify = await build()  
@@ -35,7 +42,7 @@ tap.test('Auth:Signup:Validation - Сompany name is incorrect(err: less than 3 s
   )
   t.teardown(() => fastify.close())
 
-  t.equal(response.status, 400)
+  t.equal(response.status, CODES.BAD_REQUEST.code)
   t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
   const res: ErrorResponse = await response.json()
   t.same(res.error.message, "<name> is not allowed to be empty")
@@ -63,7 +70,7 @@ tap.test('Auth:Signup:Validation - Сompany name is incorrect(err: more than 256
     )
     t.teardown(() => fastify.close())
   
-    t.equal(response.status, 400)
+    t.equal(response.status, CODES.BAD_REQUEST.code)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
     const res: ErrorResponse = await response.json()
     t.same(res.error.message, "<name> length must be less than or equal to 256 characters long")
@@ -89,7 +96,7 @@ tap.test('Auth:Signup:Validation - Сompany name is incorrect(err: empty)', asyn
     )
     t.teardown(() => fastify.close())
       
-    t.equal(response.status, 400)
+    t.equal(response.status, CODES.BAD_REQUEST.code)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
     const res: ErrorResponse = await response.json()
     t.same(res.error.message, "<name> is required")

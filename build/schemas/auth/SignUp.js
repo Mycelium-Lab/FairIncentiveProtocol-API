@@ -54,6 +54,9 @@ exports.SignUp = {
         country: {
             type: 'string',
         },
+        repname: {
+            type: 'string'
+        },
         phone: {
             type: 'string'
         }
@@ -78,5 +81,10 @@ exports.SignUpValidation = Joi.object({
     wallet: Joi.string()
         .allow('')
         .external(utils_1.checkAddress)
+        .required(),
+    country: Joi.string()
+        .external(utils_1.checkCountry)
+        .required(),
+    repname: Joi.string()
         .required()
 });

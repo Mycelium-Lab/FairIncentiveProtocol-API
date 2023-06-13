@@ -13,6 +13,15 @@ function prettyAuthError(errorMessage) {
             }
         };
     }
+    if (errorMessage.includes('Country code is incorrect (country)')) {
+        return {
+            code: constants_1.CODES.BAD_REQUEST.code,
+            error: {
+                name: constants_1.CODES.BAD_REQUEST.name,
+                message: errorMessage.replace('(', "<").replace(')', ">")
+            }
+        };
+    }
     return {
         code: constants_1.CODES.INTERNAL_ERROR.code,
         error: {

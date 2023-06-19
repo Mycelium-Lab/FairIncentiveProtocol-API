@@ -19,12 +19,12 @@ const hash_1 = require("../utils/hash");
 function checkCompany(company) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (!company.email && !company.phone)
-                throw Error('Either email or phone number must be filled in');
+            if (!company.email)
+                throw Error('Email must be filled in');
             const selectedCompany = yield db_1.default
                 .select('*')
                 //if user choose email for signin in or phone
-                .where(company.email ? { email: company.email } : { phone: company.phone })
+                .where({ email: company.email })
                 .first()
                 .from('companies');
             if (selectedCompany == undefined)

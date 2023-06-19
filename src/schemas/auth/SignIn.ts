@@ -12,9 +12,6 @@ export const SignIn: unknown = {
         },
         password: {
             type: 'string'
-        },
-        phone: {
-            type: 'string'
         }
     }
 }
@@ -22,16 +19,10 @@ export const SignIn: unknown = {
 export const SignInValidation: joi.ObjectSchema = Joi.object({
     email: Joi.string()
         .email()
-        .required()
-        .error(new Error('Email is incorrect (email)')),
+        .required(),
 
     password: Joi.string()
         .min(8)
         .alphanum()
         .required()
-        .error(new Error('Password is incorrect (password)')),
-
-    phone: Joi.string()
-        .phoneNumber()
-        .error(new Error('Phone is incorrect (phone)'))
 })

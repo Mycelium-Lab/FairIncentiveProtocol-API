@@ -29,7 +29,8 @@ tap.test('Auth:Signup:Validation - Email is incorrect (email)(err: not this form
         "email": "123",
         "password": "1234s5678",
         "repeat_password": "1234s5678",
-        "wallet": "0x0000000000000000000000000000000000000001"
+        "wallet": "0x0000000000000000000000000000000000000001",
+        "phone": "+79999999999"
     }
     raw = JSON.stringify(body)
     const response = await fetch(
@@ -55,7 +56,8 @@ tap.test('Auth:Signup:Validation - Email is incorrect (email)(err: empty)', asyn
         "name": 'ООО Утка',
         "password": "1234s5678",
         "repeat_password": "1234s5678",
-        "wallet": "0x0000000000000000000000000000000000000001"
+        "wallet": "0x0000000000000000000000000000000000000001",
+        "phone": "+79999999999"
     }
     raw = JSON.stringify(body)
     const response = await fetch(

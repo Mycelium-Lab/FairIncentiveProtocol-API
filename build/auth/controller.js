@@ -50,7 +50,7 @@ function authPlugin(app, opt) {
                     const res = yield (0, service_1.checkCompany)(body);
                     //create token if OK
                     if ('body' in res) {
-                        const payload = { email: body.email, phone: body.phone, company_id: res.body.data.company_id, company: true, address: res.body.data.address };
+                        const payload = { email: body.email, company_id: res.body.data.company_id, company: true, address: res.body.data.address };
                         res.body.data.token = app.jwt.sign(payload);
                     }
                     reply

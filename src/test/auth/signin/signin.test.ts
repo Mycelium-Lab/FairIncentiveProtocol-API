@@ -8,34 +8,34 @@ import { CODES } from '../../../utils/constants'
 
 let fastify: FastifyInstance
 
+const company = {
+    email: "qwe@qwe.com",
+    password: "1234s5678"
+}
+
 let headers: Headers = new Headers();
 headers.append("Content-Type", "application/json");
 let raw: string
+let token: string
 
 tap.before(async () => {
     await pg.raw('DELETE FROM companies')
     await pg.destroy()
-})
-
-tap.beforeEach(async () => {
     fastify = await build()  
     await fastify.listen()
-})
-
-tap.test('Auth:Signup - Should create company', async t => {
-    t.plan(3)
+    //CREATE COMPANY
     let body: object = {
         "name": 'ООО Утка',
-        "email": "qwe@gmail.com",
-        "password": "1234s5678",
-        "repeat_password": "1234s5678",
+        "email": company.email,
+        "password": company.password,
+        "repeat_password": company.password,
         "wallet": "0x0000000000000000000000000000000000000001",
         "country": "US",
         "repname": "somename",
         "phone": "+79999999999"
     }
     raw = JSON.stringify(body)
-    const response = await fetch(
+    await fetch(
       `http://localhost:${config.PORT}/auth/signup`,
       {
           method: 'post',
@@ -43,12 +43,26 @@ tap.test('Auth:Signup - Should create company', async t => {
           body: raw
       }
     )
+    const response = await fetch(`http://localhost:${config.PORT}/auth/signin`, {method: 'post', headers, body: JSON.stringify(company)})
+    const res: SuccessResponse = await response.json()
+    token = res.body.data.token
+    await fastify.close()
+})
+
+tap.beforeEach(async () => {
+    fastify = await build()  
+    await fastify.listen()
+})
+
+tap.test('Auth:Signin - Should get company from JWT token', async t => {
+    t.plan(4)
     t.teardown(() => fastify.close())
-  
+    let signinHeaders = new Headers()
+    signinHeaders.append('Authorization', `Bearer ${token}`)
+    const response = await fetch(`http://localhost:${config.PORT}/company`, { headers: signinHeaders })
     t.equal(response.status, CODES.OK.code)
     t.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
     const res: SuccessResponse = await response.json()
-    t.same(res.body.message, "The company was successfully added")
+    t.same(res.body.message, "Company")
+    t.same(res.body.data.email, company.email)
 })
-
-

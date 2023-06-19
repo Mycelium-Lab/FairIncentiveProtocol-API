@@ -29,7 +29,8 @@ tap.test('Auth:Signup:Validation - Сompany name is incorrect(err: less than 3 s
       "email": "123@gal.com",
       "password": "1234s5678",
       "repeat_password": "1234s5678",
-      "wallet": "0x0000000000000000000000000000000000000001"
+      "wallet": "0x0000000000000000000000000000000000000001",
+      "phone": "+79999999999"
   }
   raw = JSON.stringify(body)
   const response = await fetch(
@@ -57,7 +58,8 @@ tap.test('Auth:Signup:Validation - Сompany name is incorrect(err: more than 256
         "email": "123@gal.com",
         "password": "1234s5678",
         "repeat_password": "1234s5678",
-        "wallet": "0x0000000000000000000000000000000000000001"
+        "wallet": "0x0000000000000000000000000000000000000001",
+        "phone": "+79999999999"
     }
     raw = JSON.stringify(body)
     const response = await fetch(
@@ -83,7 +85,8 @@ tap.test('Auth:Signup:Validation - Сompany name is incorrect(err: empty)', asyn
         "email": "123@gal.com",
         "password": "1234s5678",
         "repeat_password": "1234s5678",
-        "wallet": "0x0000000000000000000000000000000000000001"
+        "wallet": "0x0000000000000000000000000000000000000001",
+        "phone": "+79999999999"
     }
     raw = JSON.stringify(body)
     const response = await fetch(

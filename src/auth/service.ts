@@ -6,12 +6,12 @@ import { compare, hash } from "../utils/hash";
 
 export async function checkCompany(company: SignInCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
-        if (!company.email && !company.phone) throw Error('Either email or phone number must be filled in')
+        if (!company.email) throw Error('Email must be filled in')
         const selectedCompany: Company = 
             await pg
                 .select('*')
                 //if user choose email for signin in or phone
-                .where(company.email ? {email: company.email} : {phone: company.phone})
+                .where({email: company.email})
                 .first()
                 .from('companies')
         if (selectedCompany == undefined) throw Error('Not exist')

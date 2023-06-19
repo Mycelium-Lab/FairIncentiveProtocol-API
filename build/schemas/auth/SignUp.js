@@ -77,7 +77,8 @@ exports.SignUpValidation = Joi.object({
         .required(),
     repeat_password: Joi.ref('password'),
     phone: Joi.string()
-        .phoneNumber(),
+        .phoneNumber()
+        .required(),
     wallet: Joi.string()
         .allow('')
         .external(utils_1.checkAddress)

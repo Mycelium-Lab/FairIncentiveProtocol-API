@@ -67,7 +67,7 @@ function getCompany(getCompany) {
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
-                    message: 'Users',
+                    message: 'Company',
                     type: constants_1.SuccessResponseTypes.object,
                     data: selectedCompany
                 }

@@ -11,6 +11,5 @@ export interface SignUpCompany {
 
 export interface SignInCompany {
     email?: string,
-    phone?: string,
     password: string
 }

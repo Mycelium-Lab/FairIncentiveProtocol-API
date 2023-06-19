@@ -52,7 +52,7 @@ export async function getCompany(getCompany: GetCompany): Promise<ErrorResponse 
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {
-                message: 'Users',
+                message: 'Company',
                 type: SuccessResponseTypes.object,
                 data: selectedCompany
             }

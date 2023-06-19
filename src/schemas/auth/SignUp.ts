@@ -55,7 +55,8 @@ export const SignUpValidation: joi.ObjectSchema = Joi.object({
     repeat_password: Joi.ref('password'),
 
     phone: Joi.string()
-        .phoneNumber(),
+        .phoneNumber()
+        .required(),
 
     wallet: Joi.string()
         .allow('')

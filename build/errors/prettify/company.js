@@ -8,7 +8,16 @@ function prettyCompanyError(errorMessage) {
             code: constants_1.CODES.BAD_REQUEST.code,
             error: {
                 name: constants_1.CODES.BAD_REQUEST.name,
-                message: 'This <email> already exist in database'
+                message: 'This <email> already exist'
+            }
+        };
+    }
+    if (errorMessage.includes('duplicate key value violates unique constraint "companies_phone_key"')) {
+        return {
+            code: constants_1.CODES.BAD_REQUEST.code,
+            error: {
+                name: constants_1.CODES.BAD_REQUEST.name,
+                message: 'This <phone> already exist'
             }
         };
     }

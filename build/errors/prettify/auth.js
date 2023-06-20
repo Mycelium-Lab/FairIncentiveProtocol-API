@@ -3,6 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.prettyAuthError = void 0;
 const constants_1 = require("../../utils/constants");
 function prettyAuthError(errorMessage) {
+    if (errorMessage.includes('""phone""')) {
+        return {
+            code: constants_1.CODES.BAD_REQUEST.code,
+            error: {
+                name: constants_1.CODES.BAD_REQUEST.name,
+                message: "<phone> did not seem to be a phone number"
+            }
+        };
+    }
     if (errorMessage.includes('Not exist')) {
         return {
             code: constants_1.CODES.NOT_FOUND.code,

@@ -3,12 +3,13 @@ import { build } from "../../../../src/app"
 import { ErrorResponse, SignUpCompany } from "../../../../src/entities"
 import { config } from "../../../../src/config/config"
 import { CODES } from "../../../../src/utils/constants"
-import { company, createBasicCompany, randomBasicCompany } from "../../utils/utils"
+import { company, createBasicCompany, generateRandomEmail, generateRandomString, randomBasicCompany } from "../../utils/utils"
 import pg from "../../../../src/config/db"
 
-let wrongEmailCompany = Object.assign(company)
-wrongEmailCompany.name = "somename"
-wrongEmailCompany.email = "qwe"
+let wrongPhoneCompany = Object.assign(company)
+wrongPhoneCompany.name = generateRandomString(10)
+wrongPhoneCompany.email = generateRandomEmail()
+wrongPhoneCompany.phone = "qweqweqwe"
 
 let fastify: FastifyInstance
 let headers: Headers = new Headers();
@@ -27,9 +28,9 @@ afterAll(async () => {
     await pg.destroy()
 })
 
-describe("Auth:Signup:Validation:Email", () => {
-    test("Should get validation error (err: email is incorrect)", async () => {
-        const raw = JSON.stringify(wrongEmailCompany)
+describe("Auth:Signup:Validation:Phone", () => {
+    test("Should get validation error (err: phone is incorrect)", async () => {
+        const raw = JSON.stringify(wrongPhoneCompany)
         const response = await fetch(
             `http://localhost:${config.PORT}/auth/signup`,
             {
@@ -41,12 +42,12 @@ describe("Auth:Signup:Validation:Email", () => {
         expect(response.status).toEqual(CODES.BAD_REQUEST.code)
         expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
         const res: ErrorResponse = await response.json()
-        expect(res.error.message).toEqual("<email> must be a valid email")
+        expect(res.error.message).toEqual("<phone> did not seem to be a phone number")
     })
     test("Should get validation error (err: email is empty)", async () => {
         //delete email from body to check reaction
-        delete wrongEmailCompany.email
-        const raw = JSON.stringify(wrongEmailCompany)
+        delete wrongPhoneCompany.phone
+        const raw = JSON.stringify(wrongPhoneCompany)
         const response = await fetch(
             `http://localhost:${config.PORT}/auth/signup`,
             {
@@ -58,10 +59,12 @@ describe("Auth:Signup:Validation:Email", () => {
         expect(response.status).toEqual(CODES.BAD_REQUEST.code)
         expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
         const res: ErrorResponse = await response.json()
-        expect(res.error.message).toEqual("<email> is required")
+        expect(res.error.message).toEqual("<phone> is required")
     })
-    test("Should get validation error (err: email already exist)", async () => {
+    test("Should get validation error (err: phone already exist)", async () => {
         await createBasicCompany(_company)
+        //change email to get another error
+        _company.email = generateRandomEmail()
         const raw = JSON.stringify(_company)
         const response = await fetch(
             `http://localhost:${config.PORT}/auth/signup`,
@@ -74,6 +77,6 @@ describe("Auth:Signup:Validation:Email", () => {
         expect(response.status).toEqual(CODES.BAD_REQUEST.code)
         expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
         const res: ErrorResponse = await response.json()
-        expect(res.error.message).toEqual("This <email> already exist")
+        expect(res.error.message).toEqual("This <phone> already exist")
     })
 })

@@ -7,7 +7,16 @@ export function prettyCompanyError(errorMessage: string): ErrorResponse {
             code: CODES.BAD_REQUEST.code,
             error: {
                 name: CODES.BAD_REQUEST.name,
-                message: 'This <email> already exist in database'
+                message: 'This <email> already exist'
+            }
+        }
+    }
+    if (errorMessage.includes('duplicate key value violates unique constraint "companies_phone_key"')) {
+        return {
+            code: CODES.BAD_REQUEST.code,
+            error: {
+                name: CODES.BAD_REQUEST.name,
+                message: 'This <phone> already exist'
             }
         }
     }

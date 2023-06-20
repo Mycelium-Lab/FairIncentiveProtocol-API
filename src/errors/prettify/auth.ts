@@ -2,6 +2,15 @@ import { ErrorResponse } from "../../entities";
 import { CODES } from "../../utils/constants";
 
 export function prettyAuthError(errorMessage: string): ErrorResponse {
+    if (errorMessage.includes('""phone""')) {
+        return {
+            code: CODES.BAD_REQUEST.code,
+            error: {
+                name: CODES.BAD_REQUEST.name,
+                message: "<phone> did not seem to be a phone number"
+            }
+        }
+    }
     if (errorMessage.includes('Not exist')) {
         return {
             code: CODES.NOT_FOUND.code,

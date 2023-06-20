@@ -39,6 +39,22 @@ describe("Auth:Signup:Validation:Country", () => {
         const res: ErrorResponse = await response.json()
         expect(res.error.message).toEqual("Country code is incorrect <country>")
     })
+    test("Should get validation error (err: country code must be string)", async () => {
+        wrongCodeCompany.country = {}
+        const raw = JSON.stringify(wrongCodeCompany)
+        const response = await fetch(
+            `http://localhost:${config.PORT}/auth/signup`,
+            {
+                method: 'post',
+                headers: headers,
+                body: raw
+            }
+        )
+        expect(response.status).toEqual(CODES.BAD_REQUEST.code)
+        expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
+        const res: ErrorResponse = await response.json()
+        expect(res.error.message).toEqual("<country> must be string")
+    })
     test("Should get validation error (err: country code is empty)", async () => {
         delete wrongCodeCompany.country
         const raw = JSON.stringify(wrongCodeCompany)

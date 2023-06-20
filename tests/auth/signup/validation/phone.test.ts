@@ -44,7 +44,23 @@ describe("Auth:Signup:Validation:Phone", () => {
         const res: ErrorResponse = await response.json()
         expect(res.error.message).toEqual("<phone> did not seem to be a phone number")
     })
-    test("Should get validation error (err: email is empty)", async () => {
+    test("Should get validation error (err: phone must be string)", async () => {
+        wrongPhoneCompany.phone = {}
+        const raw = JSON.stringify(wrongPhoneCompany)
+        const response = await fetch(
+            `http://localhost:${config.PORT}/auth/signup`,
+            {
+                method: 'post',
+                headers: headers,
+                body: raw
+            }
+        )
+        expect(response.status).toEqual(CODES.BAD_REQUEST.code)
+        expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
+        const res: ErrorResponse = await response.json()
+        expect(res.error.message).toEqual("<phone> must be string")
+    })
+    test("Should get validation error (err: phone is empty)", async () => {
         //delete email from body to check reaction
         delete wrongPhoneCompany.phone
         const raw = JSON.stringify(wrongPhoneCompany)

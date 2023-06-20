@@ -25,7 +25,7 @@ afterAll(async () => {
 })
 
 describe("Auth:Signup:Validation:RepeatPassword", () => {
-    test("Should get validation error (err: password is incorrect)", async () => {
+    test("Should get validation error (err: repeat_password is incorrect)", async () => {
         _company.repeat_password = "somediffpassword"
         const raw = JSON.stringify(_company)
         const response = await sendRequest(raw, headers)
@@ -34,7 +34,16 @@ describe("Auth:Signup:Validation:RepeatPassword", () => {
         const res: ErrorResponse = await response.json()
         expect(res.error.message).toEqual("<repeat_password> must be [ref:password]")
     })
-    test("Should get validation error (err: password is empty)", async () => {
+    test("Should get validation error (err: repeat_password must be string)", async () => {
+        _company.repeat_password = {}
+        const raw = JSON.stringify(_company)
+        const response = await sendRequest(raw, headers)
+        expect(response.status).toEqual(CODES.BAD_REQUEST.code)
+        expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
+        const res: ErrorResponse = await response.json()
+        expect(res.error.message).toEqual("<repeat_password> must be string")
+    })
+    test("Should get validation error (err: repeat_password is empty)", async () => {
         //delete password from body to check reaction
         delete _company.repeat_password
         const raw = JSON.stringify(_company)

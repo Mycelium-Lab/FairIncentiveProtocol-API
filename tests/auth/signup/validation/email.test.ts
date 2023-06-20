@@ -43,6 +43,22 @@ describe("Auth:Signup:Validation:Email", () => {
         const res: ErrorResponse = await response.json()
         expect(res.error.message).toEqual("<email> must be a valid email")
     })
+    test("Should get validation error (err: email must be string)", async () => {
+        wrongEmailCompany.email = {}
+        const raw = JSON.stringify(wrongEmailCompany)
+        const response = await fetch(
+            `http://localhost:${config.PORT}/auth/signup`,
+            {
+                method: 'post',
+                headers: headers,
+                body: raw
+            }
+        )
+        expect(response.status).toEqual(CODES.BAD_REQUEST.code)
+        expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
+        const res: ErrorResponse = await response.json()
+        expect(res.error.message).toEqual("<email> must be string")
+    })
     test("Should get validation error (err: email is empty)", async () => {
         //delete email from body to check reaction
         delete wrongEmailCompany.email

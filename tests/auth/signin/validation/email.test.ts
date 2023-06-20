@@ -21,7 +21,7 @@ afterAll(async () => {
 })
 
 describe("Auth:Signin:Validation:Email", () => {
-    test("Should get validation error (err: this company not exist)", async () => {
+    test("Should get error (err: this company not exist)", async () => {
         const raw = JSON.stringify(signinCompanyWrongEmail)
         const response = await fetch(
             `http://localhost:${config.PORT}/auth/signin`,
@@ -35,6 +35,22 @@ describe("Auth:Signin:Validation:Email", () => {
         expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
         const res: ErrorResponse = await response.json()
         expect(res.error.message).toEqual("Company not exist with this <email>")
+    })
+    test("Should get validation error (err: email must be string)", async () => {
+        signinCompanyWrongEmail.email = {}
+        const raw = JSON.stringify(signinCompanyWrongEmail)
+        const response = await fetch(
+            `http://localhost:${config.PORT}/auth/signin`,
+            {
+                method: 'post',
+                headers: headers,
+                body: raw
+            }
+        )
+        expect(response.status).toEqual(CODES.BAD_REQUEST.code)
+        expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
+        const res: ErrorResponse = await response.json()
+        expect(res.error.message).toEqual("<email> must be string")
     })
     test("Should get validation error (err: email is required)", async () => {
         delete signinCompanyWrongEmail.email

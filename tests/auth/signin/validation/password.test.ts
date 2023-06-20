@@ -41,6 +41,22 @@ describe("Auth:Signin:Validation:Password", () => {
         const res: ErrorResponse = await response.json()
         expect(res.error.message).toEqual("Wrong <password>")
     })
+    test("Should get validation error (err: password must be string)", async () => {
+        _company.password = {}
+        const raw = JSON.stringify({email: _company.email, password: _company.password})
+        const response = await fetch(
+            `http://localhost:${config.PORT}/auth/signin`,
+            {
+                method: 'post',
+                headers: headers,
+                body: raw
+            }
+        )
+        expect(response.status).toEqual(CODES.BAD_REQUEST.code)
+        expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
+        const res: ErrorResponse = await response.json()
+        expect(res.error.message).toEqual("<password> must be string")
+    })
     test("Should get validation error (err: password is empty)", async () => {
         //delete password from body to check reaction
         delete _company.password

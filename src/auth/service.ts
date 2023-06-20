@@ -21,7 +21,7 @@ export async function checkCompany(company: SignInCompany): Promise<ErrorRespons
             code: CODES.OK.code,
             body: {
                 message: 'Password is ok',
-                type: SuccessResponseTypes.nullType,
+                type: SuccessResponseTypes.object,
                 data: {
                     company_id: selectedCompany.id,
                     address: selectedCompany.wallet
@@ -31,13 +31,7 @@ export async function checkCompany(company: SignInCompany): Promise<ErrorRespons
         return res
     } catch (error: any) {
         console.log(error.message)
-        const err: ErrorResponse = {
-            code: CODES.INTERNAL_ERROR.code,
-            error: {
-                name: CODES.INTERNAL_ERROR.name,
-                message: error.message
-            }
-        }
+        const err: ErrorResponse = prettyAuthError(error.message)
         return err
     }
 }

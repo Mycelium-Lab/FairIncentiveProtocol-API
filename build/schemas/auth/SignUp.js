@@ -48,9 +48,6 @@ exports.SignUp = {
         repeat_password: {
             type: 'string'
         },
-        wallet: {
-            type: 'string'
-        },
         country: {
             type: 'string',
         },
@@ -64,7 +61,7 @@ exports.SignUp = {
 };
 exports.SignUpValidation = Joi.object({
     name: Joi.string()
-        .min(3)
+        .min(1)
         .max(256)
         .required(),
     email: Joi.string()
@@ -78,10 +75,6 @@ exports.SignUpValidation = Joi.object({
     repeat_password: Joi.ref('password'),
     phone: Joi.string()
         .phoneNumber()
-        .required(),
-    wallet: Joi.string()
-        .allow('')
-        .external(utils_1.checkAddress)
         .required(),
     country: Joi.string()
         .external(utils_1.checkCountry)

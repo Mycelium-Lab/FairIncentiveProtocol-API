@@ -2,6 +2,15 @@ import { ErrorResponse } from "../../entities";
 import { CODES } from "../../utils/constants";
 
 export function prettyAuthError(errorMessage: string): ErrorResponse {
+    if (errorMessage.includes('Not exist')) {
+        return {
+            code: CODES.NOT_FOUND.code,
+            error: {
+                name: CODES.NOT_FOUND.name,
+                message: "This company not exist"
+            }
+        }
+    }
     //means that some field in json is wrong or not exist
     if (errorMessage.includes('\"')) {
         return {

@@ -1,7 +1,8 @@
 import * as joi  from 'joi'
 import JoiPhoneNumber from 'joi-phone-number'
+import { joiPasswordExtendCore } from 'joi-password'
 
-const Joi: any = joi.extend(JoiPhoneNumber)
+const Joi: any = joi.extend(JoiPhoneNumber, joiPasswordExtendCore)
 
 export const SignIn: unknown = {
     $id: 'SignInCompany',
@@ -23,6 +24,7 @@ export const SignInValidation: joi.ObjectSchema = Joi.object({
 
     password: Joi.string()
         .min(8)
-        .alphanum()
+        .noWhiteSpaces()
+        .onlyLatinCharacters()
         .required()
 })

@@ -36,7 +36,7 @@ CREATE TABLE companies(
     name        VARCHAR(256) NOT NULL,
     email       VARCHAR(256) NOT NULL UNIQUE,
     password    VARCHAR(256) NOT NULL,
-    wallet      VARCHAR(42) NOT NULL UNIQUE,
+    wallet      VARCHAR(42) UNIQUE,
     phone       VARCHAR(18) UNIQUE,
     role_id     INT NOT NULL DEFAULT 0,
     country     VARCHAR(2) NOT NULL REFERENCES countries(code),

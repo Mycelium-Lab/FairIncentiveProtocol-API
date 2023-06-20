@@ -21,9 +21,6 @@ export const SignUp: unknown = {
         repeat_password: {
             type: 'string'
         },
-        wallet: {
-            type: 'string'
-        },
         country: {
             type: 'string',
         },
@@ -38,7 +35,7 @@ export const SignUp: unknown = {
 
 export const SignUpValidation: joi.ObjectSchema = Joi.object({
     name: Joi.string()
-        .min(3)
+        .min(1)
         .max(256)
         .required(),
 
@@ -56,11 +53,6 @@ export const SignUpValidation: joi.ObjectSchema = Joi.object({
 
     phone: Joi.string()
         .phoneNumber()
-        .required(),
-
-    wallet: Joi.string()
-        .allow('')
-        .external(checkAddress)
         .required(),
 
     country: Joi.string()

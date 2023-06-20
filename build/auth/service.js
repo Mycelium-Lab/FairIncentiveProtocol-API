@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkCompany = void 0;
 const db_1 = __importDefault(require("../config/db"));
+const errors_1 = require("../errors");
 const constants_1 = require("../utils/constants");
 const hash_1 = require("../utils/hash");
 function checkCompany(company) {
@@ -36,7 +37,7 @@ function checkCompany(company) {
                 code: constants_1.CODES.OK.code,
                 body: {
                     message: 'Password is ok',
-                    type: constants_1.SuccessResponseTypes.nullType,
+                    type: constants_1.SuccessResponseTypes.object,
                     data: {
                         company_id: selectedCompany.id,
                         address: selectedCompany.wallet
@@ -47,13 +48,7 @@ function checkCompany(company) {
         }
         catch (error) {
             console.log(error.message);
-            const err = {
-                code: constants_1.CODES.INTERNAL_ERROR.code,
-                error: {
-                    name: constants_1.CODES.INTERNAL_ERROR.name,
-                    message: error.message
-                }
-            };
+            const err = (0, errors_1.prettyAuthError)(error.message);
             return err;
         }
     });

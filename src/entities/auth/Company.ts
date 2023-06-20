@@ -3,7 +3,6 @@ export interface SignUpCompany {
     email: string,
     password: string,
     repeat_password: string,
-    wallet: string,
     country?: string,
     phone?: string,
     repname: string

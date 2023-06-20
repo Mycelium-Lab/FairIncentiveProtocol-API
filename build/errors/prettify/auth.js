@@ -3,6 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.prettyAuthError = void 0;
 const constants_1 = require("../../utils/constants");
 function prettyAuthError(errorMessage) {
+    if (errorMessage.includes('Not exist')) {
+        return {
+            code: constants_1.CODES.NOT_FOUND.code,
+            error: {
+                name: constants_1.CODES.NOT_FOUND.name,
+                message: "This company not exist"
+            }
+        };
+    }
     //means that some field in json is wrong or not exist
     if (errorMessage.includes('\"')) {
         return {

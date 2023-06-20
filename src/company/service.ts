@@ -18,7 +18,6 @@ export async function createCompany(company: SignUpCompany): Promise<ErrorRespon
                     name: company.name,
                     email: company.email,
                     password: company.password,
-                    wallet: company.wallet,
                     phone: company.phone,
                     repname: company.repname,
                     country: company.country

@@ -29,7 +29,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SignInValidation = exports.SignIn = void 0;
 const joi = __importStar(require("joi"));
 const joi_phone_number_1 = __importDefault(require("joi-phone-number"));
-const Joi = joi.extend(joi_phone_number_1.default);
+const joi_password_1 = require("joi-password");
+const Joi = joi.extend(joi_phone_number_1.default, joi_password_1.joiPasswordExtendCore);
 exports.SignIn = {
     $id: 'SignInCompany',
     type: 'object',
@@ -48,6 +49,7 @@ exports.SignInValidation = Joi.object({
         .required(),
     password: Joi.string()
         .min(8)
-        .alphanum()
+        .noWhiteSpaces()
+        .onlyLatinCharacters()
         .required()
 });

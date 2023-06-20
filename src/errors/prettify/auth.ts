@@ -7,7 +7,16 @@ export function prettyAuthError(errorMessage: string): ErrorResponse {
             code: CODES.NOT_FOUND.code,
             error: {
                 name: CODES.NOT_FOUND.name,
-                message: "This company not exist"
+                message: "Company not exist with this <email>"
+            }
+        }
+    }
+    if (errorMessage.includes("Wrong password")) {
+        return {
+            code: CODES.BAD_REQUEST.code,
+            error: {
+                name: CODES.BAD_REQUEST.name,
+                message: "Wrong <password>"
             }
         }
     }

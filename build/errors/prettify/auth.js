@@ -8,7 +8,16 @@ function prettyAuthError(errorMessage) {
             code: constants_1.CODES.NOT_FOUND.code,
             error: {
                 name: constants_1.CODES.NOT_FOUND.name,
-                message: "This company not exist"
+                message: "Company not exist with this <email>"
+            }
+        };
+    }
+    if (errorMessage.includes("Wrong password")) {
+        return {
+            code: constants_1.CODES.BAD_REQUEST.code,
+            error: {
+                name: constants_1.CODES.BAD_REQUEST.name,
+                message: "Wrong <password>"
             }
         };
     }

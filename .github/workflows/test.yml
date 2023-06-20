@@ -1,4 +1,4 @@
-name: Run Tests
+name: Integration Tests
 
 on:
   push:
@@ -13,13 +13,53 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
+      - name: Set up Node.js 18
         uses: actions/setup-node@v2
         with:
           node-version: 18
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Start PostgreSQL Database
+        uses: docker-compose-action@v2
+        with:
+          compose-files: docker-compose.yml
+          run: up -d
+
+      - name: Wait for Database
+        run: |
+          timeout 30s bash -c 'until pg_isready -h localhost -U user -d fairprotocoltest; do sleep 1; done'
+
+      - name: Create Database Tables
+        run: psql -h localhost -U user -d fairprotocoltest -f db.sql
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Start Application
+        run: npm run start &
+        env:
+          STATUS: test
+          PORT: 3000
+          SALT_ROUNDS: 13
+          SECRET_KEY: somekey
+          DB_USER: user
+          DB_PASSWORD: password
+          DB_HOST: localhost
+          DB_NAME: fairprotocoltest
+          TEST_DB_USER: user
+          TEST_DB_PASSWORD: password
+          TEST_DB_HOST: localhost
+          TEST_DB_NAME: fairprotocoltest
+          PRIVATE_KEY: somekey
+
+      - name: Wait for Application
+        run: |
+          timeout 30s bash -c 'until curl -s -o /dev/null http://localhost:3000/; do sleep 1; done'
 
       - name: Run Tests
-        run: npm test
+        run: npm run test
+
+      - name: Stop Application and Database
+        run: npm run stop

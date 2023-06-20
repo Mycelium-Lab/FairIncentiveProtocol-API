@@ -24,38 +24,35 @@ afterAll(async () => {
     await pg.destroy()
 })
 
-describe("Auth:Signin:Validation:Password", () => {
+describe("Auth:Signup:Validation:RepeatPassword", () => {
     test("Should get validation error (err: password is incorrect)", async () => {
-        _company.password = "someotherpassword"
-        const raw = JSON.stringify({email: _company.email, password: _company.password})
-        const response = await fetch(
-            `http://localhost:${config.PORT}/auth/signin`,
-            {
-                method: 'post',
-                headers: headers,
-                body: raw
-            }
-        )
+        _company.repeat_password = "somediffpassword"
+        const raw = JSON.stringify(_company)
+        const response = await sendRequest(raw, headers)
         expect(response.status).toEqual(CODES.BAD_REQUEST.code)
         expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
         const res: ErrorResponse = await response.json()
-        expect(res.error.message).toEqual("Wrong <password>")
+        expect(res.error.message).toEqual("<repeat_password> must be [ref:password]")
     })
     test("Should get validation error (err: password is empty)", async () => {
         //delete password from body to check reaction
-        delete _company.password
+        delete _company.repeat_password
         const raw = JSON.stringify(_company)
-        const response = await fetch(
-            `http://localhost:${config.PORT}/auth/signin`,
-            {
-                method: 'post',
-                headers: headers,
-                body: raw
-            }
-        )
+        const response = await sendRequest(raw, headers)
         expect(response.status).toEqual(CODES.BAD_REQUEST.code)
         expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
         const res: ErrorResponse = await response.json()
-        expect(res.error.message).toEqual("<password> is required")
+        expect(res.error.message).toEqual("<repeat_password> is required")
     })
 })
+
+const sendRequest = (raw: string, headers: Headers): Promise<Response> => {
+    return fetch(
+        `http://localhost:${config.PORT}/auth/signup`,
+        {
+            method: 'post',
+            headers: headers,
+            body: raw
+        }
+    )
+}

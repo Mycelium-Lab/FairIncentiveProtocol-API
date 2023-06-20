@@ -17,6 +17,7 @@ export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         try {
             const body: SignUpCompany = req.body as SignUpCompany
             await SignUpValidation.validateAsync(body)
+            console.log('done')
             const res: ErrorResponse | SuccessResponse = await createCompany(body)
             reply
                 .code(res.code)

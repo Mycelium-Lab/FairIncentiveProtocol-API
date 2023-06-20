@@ -24,6 +24,7 @@ function authPlugin(app, opt) {
             try {
                 const body = req.body;
                 yield schemas_1.SignUpValidation.validateAsync(body);
+                console.log('done');
                 const res = yield (0, service_2.createCompany)(body);
                 reply
                     .code(res.code)

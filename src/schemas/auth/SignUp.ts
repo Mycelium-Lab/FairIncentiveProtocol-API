@@ -49,7 +49,9 @@ export const SignUpValidation: joi.ObjectSchema = Joi.object({
         .onlyLatinCharacters()
         .required(),
 
-    repeat_password: Joi.ref('password'),
+    repeat_password: Joi.string()
+        .valid(Joi.ref('password'))
+        .required(),
 
     phone: Joi.string()
         .phoneNumber()

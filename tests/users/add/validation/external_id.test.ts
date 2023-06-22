@@ -23,7 +23,7 @@ afterAll(async () => {
     await fastify.close()
 })
 
-describe('Users:Add:Validation', () => {
+describe('Users:Add:Validation:ExternalId', () => {
     test('Should get validation error (err: external_id exceedes 256 symbol)', async () => {
         const randomLongExternalId = generateRandomString(257)
         const res = await sendRequest(randomLongExternalId)

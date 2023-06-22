@@ -1,5 +1,5 @@
 import { config } from "../../../src/config/config";
-import { SignInCompany, SignUpCompany } from "../../../src/entities";
+import { SignInCompany, SignUpCompany, SuccessResponse } from "../../../src/entities";
 
 //TODO: RANDOM DATA
 export const company: SignUpCompany = {
@@ -41,6 +41,21 @@ export async function createBasicCompany(_company: SignUpCompany) {
             body: JSON.stringify(_company)
         }
     )
+}
+
+export async function signinBasicCompany(_company: SignInCompany): Promise<string> {
+    let headers: Headers = new Headers()
+    headers.append("Content-Type", "application/json");
+    const response = await fetch(
+        `http://localhost:${config.PORT}/auth/signin`,
+        {
+            method: 'post',
+            headers: headers,
+            body: JSON.stringify(_company)
+        }
+    )
+    const res: SuccessResponse = await response.json()
+    return res.body.data.token
 }
 
 export function generateRandomEmail() {

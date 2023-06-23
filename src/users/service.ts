@@ -183,7 +183,7 @@ export async function updateUser(user: UpdateUser, getCompany: GetCompany): Prom
         await pg('user_stats').where({user_id: user.id, company_id: getCompany.company_id}).delete()
         const trx = await pg.transaction()
         const updating: string = await trx('users')
-            .where({id: user.id})
+            .where({id: user.id, company_id: getCompany.company_id})
             .update({
                 external_id: user.external_id,
                 email: user.email,

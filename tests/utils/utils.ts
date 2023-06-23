@@ -1,5 +1,6 @@
-import { config } from "../../../src/config/config";
-import { SignInCompany, SignUpCompany, SuccessResponse } from "../../../src/entities";
+import { config } from "../../src/config/config"
+import { SignInCompany, SignUpCompany, SuccessResponse } from "../../src/entities"
+import { Wallet } from 'ethers'
 
 //TODO: RANDOM DATA
 export const company: SignUpCompany = {
@@ -101,3 +102,9 @@ export function generateRandomString(length: number) {
     return randomString;
   }
   
+export function generateRandomWalletAddress(): string {
+    const randomPrivateKey = Wallet.createRandom().privateKey
+    const wallet = new Wallet(randomPrivateKey)
+    const address = wallet.address
+    return address
+}

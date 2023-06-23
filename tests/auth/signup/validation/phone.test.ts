@@ -3,7 +3,7 @@ import { build } from "../../../../src/app"
 import { ErrorResponse, SignUpCompany } from "../../../../src/entities"
 import { config } from "../../../../src/config/config"
 import { CODES } from "../../../../src/utils/constants"
-import { company, createBasicCompany, generateRandomEmail, generateRandomString, randomBasicCompany } from "../../utils/utils"
+import { company, createBasicCompany, generateRandomEmail, generateRandomString, randomBasicCompany } from "../../../utils/utils"
 import pg from "../../../../src/config/db"
 
 let wrongPhoneCompany = Object.assign(company)

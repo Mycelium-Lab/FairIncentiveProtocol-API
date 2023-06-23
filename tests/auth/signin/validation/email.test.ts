@@ -3,7 +3,7 @@ import { build } from "../../../../src/app"
 import { ErrorResponse } from "../../../../src/entities"
 import { config } from "../../../../src/config/config"
 import { CODES } from "../../../../src/utils/constants"
-import { signinCompany } from "../../utils/utils"
+import { signinCompany } from "../../../utils/utils"
 
 let fastify: FastifyInstance
 let headers: Headers = new Headers();

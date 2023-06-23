@@ -4,7 +4,7 @@ import { build } from "../../../src/app"
 import { SignUpCompany } from "../../../src/entities"
 import { config } from "../../../src/config/config"
 import { CODES } from "../../../src/utils/constants"
-import { randomBasicCompany } from "../utils/utils"
+import { randomBasicCompany } from "../../utils/utils"
 
 let fastify: FastifyInstance
 let headers: Headers = new Headers()

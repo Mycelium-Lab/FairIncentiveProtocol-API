@@ -3,7 +3,7 @@ import { build } from "../../../../src/app"
 import { ErrorResponse } from "../../../../src/entities"
 import { config } from "../../../../src/config/config"
 import { CODES } from "../../../../src/utils/constants"
-import { company, generateRandomEmail } from "../../utils/utils"
+import { company, generateRandomEmail } from "../../../utils/utils"
 
 let wrongCodeCompany = Object.assign(company)
 wrongCodeCompany.name = "somename"

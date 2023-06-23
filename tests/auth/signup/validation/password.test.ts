@@ -3,7 +3,7 @@ import { build } from "../../../../src/app"
 import { ErrorResponse } from "../../../../src/entities"
 import { config } from "../../../../src/config/config"
 import { CODES } from "../../../../src/utils/constants"
-import { createBasicCompany, randomBasicCompany } from "../../utils/utils"
+import { createBasicCompany, randomBasicCompany } from "../../../utils/utils"
 import pg from "../../../../src/config/db"
 
 let fastify: FastifyInstance

@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { build } from '../../../../src/app'
 import { config } from '../../../../src/config/config'
 import { CODES } from '../../../../src/utils/constants';
-import { createBasicCompany, generateRandomString, randomBasicCompany, signinBasicCompany } from '../../../auth/utils/utils';
+import { createBasicCompany, generateRandomString, randomBasicCompany, signinBasicCompany } from '../../../utils/utils';
 import { ErrorResponse } from '../../../../src/entities';
 
 let fastify: FastifyInstance

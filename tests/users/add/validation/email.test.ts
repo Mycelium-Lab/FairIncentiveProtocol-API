@@ -43,6 +43,10 @@ describe('Users:Add:Validation:Email', () => {
         const res = await sendRequest({external_id: 'somename', email: randomWrongEmail})
         expect(res.error.message).toEqual("<email> is not allowed to be empty")
     });
+    test('Should get validation error (err: email is required)', async () => {
+        const res = await sendRequest({external_id: 'somename'})
+        expect(res.error.message).toEqual("<email> is required")
+    });
 })
 
 async function sendRequest(user: any): Promise<ErrorResponse> {

@@ -43,6 +43,18 @@ describe('Users:Add:Validation:ExternalId', () => {
         const res = await sendRequest(randomWrongExternalId)
         expect(res.error.message).toEqual("<external_id> is not allowed to be empty")
     });
+    test('Should get validation error (err: external_id is required)', async () => {
+        const response = await fetch(`http://localhost:${config.PORT}/users/add`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({})
+        })
+        expect(response.status).toEqual(CODES.BAD_REQUEST.code)
+        expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
+        const res: ErrorResponse = await response.json() 
+        expect(res.error.name).toEqual(CODES.BAD_REQUEST.name)        
+        expect(res.error.message).toEqual("<external_id> is required")
+    });
 })
 
 async function sendRequest(external_id: any): Promise<ErrorResponse> {

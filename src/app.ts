@@ -40,6 +40,7 @@ export async function build(opt: AppOptions = {}) {
     app.get('/ping', (req, res) => res.send('pong'))
     app.setErrorHandler((error, request, reply) => {
         if (error.statusCode === 400) error.name = 'Bad Request'
+        if (error.statusCode === 401) error.name = 'Unauthorized'
         error.message = 
             error.message.includes(' must') 
             ? 

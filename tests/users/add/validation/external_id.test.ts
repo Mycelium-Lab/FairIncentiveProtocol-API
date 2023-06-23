@@ -3,16 +3,18 @@ import { build } from '../../../../src/app'
 import { config } from '../../../../src/config/config'
 import { CODES } from '../../../../src/utils/constants';
 import { createBasicCompany, generateRandomString, randomBasicCompany, signinBasicCompany } from '../../../utils/utils';
-import { ErrorResponse } from '../../../../src/entities';
+import { ErrorResponse, SignUpCompany } from '../../../../src/entities';
+import pg from '../../../../src/config/db';
 
 let fastify: FastifyInstance
 let jwtToken: string
 let headers = new Headers()
+let company: SignUpCompany
 
 beforeAll(async () => {
     fastify = await build()
     await fastify.listen()
-    const company = await randomBasicCompany()
+    company = await randomBasicCompany()
     await createBasicCompany(company)
     jwtToken = await signinBasicCompany({email: company.email, password: company.password})
     headers.append('Authorization', `Bearer ${jwtToken}`)
@@ -21,6 +23,8 @@ beforeAll(async () => {
 
 afterAll(async () => {
     await fastify.close()
+    await pg.raw("DELETE FROM companies WHERE email=?", [company.email])
+    await pg.destroy()
 })
 
 describe('Users:Add:Validation:ExternalId', () => {

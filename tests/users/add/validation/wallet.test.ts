@@ -66,7 +66,6 @@ async function sendRequest(user: any): Promise<ErrorResponse> {
         body: JSON.stringify(user)
     })    
     const res: ErrorResponse = await response.json() 
-    console.log(res)
     expect(response.status).toEqual(CODES.BAD_REQUEST.code)
     expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
     expect(res.error.name).toEqual(CODES.BAD_REQUEST.name)

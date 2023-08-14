@@ -161,6 +161,7 @@ function getNFTs(getCompany) {
                 .whereRaw('erc721_tokens.company_id = ?', [getCompany.company_id])
                 .select([
                 'erc721_tokens.address as collection_address',
+                'erc721_tokens.name as collection_name',
                 db_1.default.raw(`
                     ARRAY(
                         SELECT JSON_BUILD_OBJECT(

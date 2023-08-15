@@ -26,7 +26,7 @@
     "ethers": "^5.7.2",
     "fastify": "^4.15.0",
     "fastify-autoload": "^3.13.0",
-    "fastify-plugin": "^4.5.0",
+    "fastify-plugin": "^4.5.1",
     "joi": "^17.9.2",
     "joi-password": "^4.1.1",
     "joi-phone-number": "^5.1.1",

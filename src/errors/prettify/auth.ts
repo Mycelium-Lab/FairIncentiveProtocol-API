@@ -2,6 +2,15 @@ import { ErrorResponse } from "../../entities";
 import { CODES } from "../../utils/constants";
 
 export function prettyAuthError(errorMessage: string): ErrorResponse {
+    if (errorMessage.includes("Wrong auth token")) {
+        return {
+            code: CODES.UNAUTHORIZED.code,
+            error: {
+                name: CODES.UNAUTHORIZED.name,
+                message: "Wrong auth token"
+            }
+        }
+    }
     if (errorMessage.includes('""phone""')) {
         return {
             code: CODES.BAD_REQUEST.code,

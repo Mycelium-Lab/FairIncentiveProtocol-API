@@ -8,19 +8,16 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     app.get(
         '/', 
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const token = getToken(req)
-                if (token) {
-                    const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: ErrorResponse | SuccessResponse = await getCompany({email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? {body: res.body} : {error: res.error})
-                } else throw Error('Wrong auth token') 
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await getCompany({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
             } catch (error: any) {
                 console.log(error.message)
                 const prettyError: ErrorResponse = prettyCompanyError(error.message)

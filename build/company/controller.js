@@ -16,20 +16,15 @@ const errors_1 = require("../errors");
 function companyPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.get('/', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            preHandler: app.authenticate
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = getToken(req);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.getCompany)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.getCompany)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);

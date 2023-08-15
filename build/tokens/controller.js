@@ -10,32 +10,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tokensPlugin = void 0;
-const controller_1 = require("../company/controller");
 const schemas_1 = require("../schemas");
 const service_1 = require("./service");
 const errors_1 = require("../errors");
 function tokensPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.post('/add', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            preHandler: app.authenticate,
             schema: {
                 body: { $ref: 'AddToken' }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = (0, controller_1.getToken)(req);
                 const Token = req.body;
                 yield schemas_1.AddTokenValidation.validateAsync(Token);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.addToken)(Token, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.addToken)(Token, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);
@@ -50,17 +44,12 @@ function tokensPlugin(app, opt) {
             onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = (0, controller_1.getToken)(req);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.getTokens)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.getTokens)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);

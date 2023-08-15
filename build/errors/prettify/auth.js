@@ -3,6 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.prettyAuthError = void 0;
 const constants_1 = require("../../utils/constants");
 function prettyAuthError(errorMessage) {
+    if (errorMessage.includes("Wrong auth token")) {
+        return {
+            code: constants_1.CODES.UNAUTHORIZED.code,
+            error: {
+                name: constants_1.CODES.UNAUTHORIZED.name,
+                message: "Wrong auth token"
+            }
+        };
+    }
     if (errorMessage.includes('""phone""')) {
         return {
             code: constants_1.CODES.BAD_REQUEST.code,

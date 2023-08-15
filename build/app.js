@@ -24,8 +24,8 @@ const controller_3 = require("./users/controller");
 const controller_4 = require("./nfts/controller");
 const controller_5 = require("./rewards/controller");
 const controller_6 = require("./auth/controller");
-const jwt_2 = require("./auth/jwt");
 const controller_7 = require("./public/controller");
+const errors_1 = require("./errors");
 function build(opt = {}) {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, fastify_1.default)(opt);
@@ -36,7 +36,29 @@ function build(opt = {}) {
                 expiresIn: '1h'
             }
         });
-        app.register(jwt_2.jwtPlugin);
+        app.decorate("authenticate", function (request, reply) {
+            var _a;
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    yield request.jwtVerify();
+                    const token = (_a = request.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+                    if (token) {
+                        const data = app.jwt.decode(token);
+                        request.routeConfig.jwtData = data;
+                    }
+                    else {
+                        throw new Error('Wrong auth token');
+                    }
+                }
+                catch (err) {
+                    const prettyError = (0, errors_1.prettyAuthError)(err.message);
+                    reply
+                        .code(prettyError.code)
+                        .type('application/json; charset=utf-8')
+                        .send({ error: prettyError.error });
+                }
+            });
+        });
         app.register(controller_6.authPlugin, { prefix: '/auth' });
         app.register(controller_1.companyPlugin, { prefix: '/company' });
         app.register(controller_2.tokensPlugin, { prefix: '/tokens' });

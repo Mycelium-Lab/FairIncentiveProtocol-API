@@ -16,20 +16,15 @@ const errors_1 = require("../errors");
 function companyPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.get('/', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            preHandler: app.authenticate
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = getToken(req);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.getCompany)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.getCompany)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);
@@ -41,25 +36,20 @@ function companyPlugin(app, opt) {
             }
         }));
         app.post('/changename', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            preHandler: app.authenticate,
             schema: {
                 body: { $ref: 'ChangeCompanyName' }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = getToken(req);
                 const updateName = req.body;
                 yield schemas_1.ChangeCompanyNameValidation.validateAsync(updateName);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changeName)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateName.newName);
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.changeName)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateName.newName);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);
@@ -71,25 +61,20 @@ function companyPlugin(app, opt) {
             }
         }));
         app.post('/changeemail', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            preHandler: app.authenticate,
             schema: {
                 body: { $ref: 'ChangeCompanyEmail' }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = getToken(req);
                 const updateEmail = req.body;
                 yield schemas_1.ChangeCompanyEmailValidation.validateAsync(updateEmail);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changeEmail)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateEmail.newEmail);
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.changeEmail)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateEmail.newEmail);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);
@@ -101,25 +86,20 @@ function companyPlugin(app, opt) {
             }
         }));
         app.post('/changephone', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            preHandler: app.authenticate,
             schema: {
                 body: { $ref: 'ChangeCompanyPhone' }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = getToken(req);
                 const updatePhone = req.body;
                 yield schemas_1.ChangeCompanyPhoneValidation.validateAsync(updatePhone);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changePhone)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updatePhone.newPhone);
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.changePhone)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updatePhone.newPhone);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);
@@ -131,25 +111,20 @@ function companyPlugin(app, opt) {
             }
         }));
         app.post('/changewallet', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            preHandler: app.authenticate,
             schema: {
                 body: { $ref: 'ChangeCompanyWallet' }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = getToken(req);
                 const updateWallet = req.body;
                 yield schemas_1.ChangeCompanyWalletValidation.validateAsync(updateWallet);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changeWallet)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateWallet.newWallet);
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.changeWallet)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateWallet.newWallet);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);
@@ -161,25 +136,20 @@ function companyPlugin(app, opt) {
             }
         }));
         app.post('/changepassword', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            preHandler: app.authenticate,
             schema: {
                 body: { $ref: 'ChangeCompanyPassword' }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = getToken(req);
                 const updatePassword = req.body;
                 yield schemas_1.ChangeCompanyPasswordValidation.validateAsync(updatePassword);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.changePassword)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updatePassword.newPassword);
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.changePassword)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updatePassword.newPassword);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);

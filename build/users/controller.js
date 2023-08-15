@@ -11,13 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersPlugin = void 0;
 const schemas_1 = require("../schemas");
-const controller_1 = require("../company/controller");
 const service_1 = require("./service");
 const errors_1 = require("../errors");
 function usersPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.post('/add', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            preHandler: app.authenticate,
             schema: {
                 body: { $ref: 'AddUser' }
             }
@@ -25,17 +24,12 @@ function usersPlugin(app, opt) {
             try {
                 const user = req.body;
                 yield schemas_1.AddUserValidation.validateAsync(user);
-                const token = (0, controller_1.getToken)(req);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);
@@ -47,20 +41,15 @@ function usersPlugin(app, opt) {
             }
         })),
             app.get('/', {
-                onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+                preHandler: app.authenticate,
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
-                    const token = (0, controller_1.getToken)(req);
-                    if (token) {
-                        const data = app.jwt.decode(token);
-                        const res = yield (0, service_1.getUsers)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                        reply
-                            .code(res.code)
-                            .type('application/json; charset=utf-8')
-                            .send('body' in res ? { body: res.body } : { error: res.error });
-                    }
-                    else
-                        throw Error('Wrong auth token');
+                    const data = req.routeConfig.jwtData;
+                    const res = yield (0, service_1.getUsers)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    reply
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 catch (error) {
                     console.log(error.message);
@@ -72,7 +61,7 @@ function usersPlugin(app, opt) {
                 }
             })),
             app.post('/delete', {
-                onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+                preHandler: app.authenticate,
                 schema: {
                     body: { $ref: 'Delete' }
                 }
@@ -80,17 +69,12 @@ function usersPlugin(app, opt) {
                 try {
                     const user = req.body;
                     yield schemas_1.DeleteValidation.validateAsync(user);
-                    const token = (0, controller_1.getToken)(req);
-                    if (token) {
-                        const data = app.jwt.decode(token);
-                        const res = yield (0, service_1.deleteUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                        reply
-                            .code(res.code)
-                            .type('application/json; charset=utf-8')
-                            .send('body' in res ? { body: res.body } : { error: res.error });
-                    }
-                    else
-                        throw Error('Wrong auth token');
+                    const data = req.routeConfig.jwtData;
+                    const res = yield (0, service_1.deleteUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    reply
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
                 }
                 catch (error) {
                     console.log(error.message);
@@ -102,7 +86,7 @@ function usersPlugin(app, opt) {
                 }
             }));
         app.post('/update', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })],
+            preHandler: app.authenticate,
             schema: {
                 body: { $ref: 'UpdateUser' }
             }
@@ -110,17 +94,12 @@ function usersPlugin(app, opt) {
             try {
                 const user = req.body;
                 yield schemas_1.UpdateUserValidation.validateAsync(user);
-                const token = (0, controller_1.getToken)(req);
-                if (token) {
-                    const data = app.jwt.decode(token);
-                    const res = yield (0, service_1.updateUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                else
-                    throw Error('Wrong auth token');
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.updateUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);

@@ -1,4 +1,4 @@
-import Fastify, { FastifyInstance, FastifyServerOptions } from 'fastify'
+import Fastify, { FastifyInstance, FastifyReply, FastifyServerOptions } from 'fastify'
 import fastifyJwt from '@fastify/jwt'
 import cors from '@fastify/cors'
 import { config } from './config/config'
@@ -9,9 +9,10 @@ import { usersPlugin } from './users/controller'
 import { nftsPlugin } from './nfts/controller'
 import { rewardsPlugin } from './rewards/controller'
 import { authPlugin } from './auth/controller'
-import { jwtPlugin } from './auth/jwt'
 import { publicPlugin } from './public/controller'
-import { CODES_RANGES } from './utils/constants'
+import { ErrorResponse, JWTPayload } from './entities'
+import { CODES } from './utils/constants'
+import { prettyAuthError } from './errors'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -25,7 +26,24 @@ export async function build(opt: AppOptions = {}) {
             expiresIn: '1h'
         }
     })
-    app.register(jwtPlugin)
+    app.decorate("authenticate", async function(request: any, reply: FastifyReply): Promise<void> {
+      try {
+        await request.jwtVerify()
+        const token = request.headers.authorization?.split(' ')[1] 
+        if (token) {
+            const data: JWTPayload | null = app.jwt.decode(token)
+            request.routeConfig.jwtData = data
+        } else {
+            throw new Error('Wrong auth token')
+        }
+      } catch (err: any) {
+        const prettyError: ErrorResponse = prettyAuthError(err.message) 
+        reply
+          .code(prettyError.code)
+          .type('application/json; charset=utf-8')
+          .send({error: prettyError.error})
+      }
+    })
     app.register(authPlugin, { prefix: '/auth' })
     app.register(companyPlugin, { prefix: '/company' })
     app.register(tokensPlugin, { prefix: '/tokens' })

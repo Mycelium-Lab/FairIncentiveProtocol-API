@@ -9,24 +9,21 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
     app.post(
         '/add',
         {
-            onRequest: [async (req) => await req.jwtVerify()],
+            preHandler: app.authenticate,
             schema: { 
                 body: { $ref: 'AddToken' }
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const token = getToken(req)
                 const Token: Token = req.body as Token
                 await AddTokenValidation.validateAsync(Token)
-                if (token) {
-                    const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: ErrorResponse | SuccessResponse = await addToken(Token, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? {body: res.body} : {error: res.error})
-                } else throw Error('Wrong auth token') 
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await addToken(Token, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
             } catch (error: any) {
                 console.log(error.message)
                 const prettyError: ErrorResponse = prettyTokensError(error.message)
@@ -44,15 +41,12 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const token = getToken(req)
-                if (token) {
-                    const data: JWTPayload | null = app.jwt.decode(token)
-                    const res: ErrorResponse | SuccessResponse = await getTokens({email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? {body: res.body} : {error: res.error})
-                } else throw Error('Wrong auth token') 
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await getTokens({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
             } catch (error: any) {
                 console.log(error.message)
                 const prettyError: ErrorResponse = prettyTokensError(error.message)

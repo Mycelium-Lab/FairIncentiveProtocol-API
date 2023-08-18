@@ -51,7 +51,7 @@ function authPlugin(app, opt) {
                     //create token if OK
                     if ('body' in res) {
                         const payload = { email: body.email, company_id: res.body.data.company_id, company: true, address: res.body.data.address };
-                        res.body.data.token = app.jwt.sign(payload);
+                        res.body.data.token = app.jwt.sign(payload, { expiresIn: '1h' });
                     }
                     reply
                         .code(res.code)

@@ -31,10 +31,7 @@ function build(opt = {}) {
         const app = (0, fastify_1.default)(opt);
         (0, schemas_1.addSchemas)(app);
         app.register(jwt_1.default, {
-            secret: config_1.config.SECRET_KEY,
-            sign: {
-                expiresIn: '1h'
-            }
+            secret: config_1.config.SECRET_KEY
         });
         app.decorate("authenticate", function (request, reply) {
             var _a;

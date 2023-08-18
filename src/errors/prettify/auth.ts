@@ -2,6 +2,24 @@ import { ErrorResponse } from "../../entities";
 import { CODES } from "../../utils/constants";
 
 export function prettyAuthError(errorMessage: string): ErrorResponse {
+    if (errorMessage.includes("Authorization token is invalid: The token signature is invalid.")) {
+        return {
+            code: CODES.UNAUTHORIZED.code,
+            error: {
+                name: CODES.UNAUTHORIZED.name,
+                message: "Authorization token is invalid: The token signature is invalid."
+            }
+        }
+    }
+    if (errorMessage.includes("No Authorization was found in request.headers")) {
+        return {
+            code: CODES.UNAUTHORIZED.code,
+            error: {
+                name: CODES.UNAUTHORIZED.name,
+                message: "No Authorization was found in request.headers"
+            }
+        }
+    }
     if (errorMessage.includes("Wrong auth token")) {
         return {
             code: CODES.UNAUTHORIZED.code,

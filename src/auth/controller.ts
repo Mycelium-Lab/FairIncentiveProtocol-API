@@ -46,7 +46,7 @@ export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions
             //create token if OK
             if ('body' in res ) {
                 const payload: JWTPayload = {email: body.email, company_id: res.body.data.company_id, company: true, address: res.body.data.address}
-                res.body.data.token = app.jwt.sign(payload)
+                res.body.data.token = app.jwt.sign(payload, { expiresIn: '1h' })
             }
             reply
                 .code(res.code)

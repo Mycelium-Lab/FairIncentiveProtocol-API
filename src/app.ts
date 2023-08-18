@@ -21,10 +21,7 @@ export async function build(opt: AppOptions = {}) {
     
     addSchemas(app)
     app.register(fastifyJwt, { 
-        secret: config.SECRET_KEY,
-        sign: {
-            expiresIn: '1h'
-        }
+        secret: config.SECRET_KEY
     })
     app.decorate("authenticate", async function(request: any, reply: FastifyReply): Promise<void> {
       try {

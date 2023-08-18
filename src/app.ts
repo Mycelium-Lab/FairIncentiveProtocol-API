@@ -13,6 +13,7 @@ import { publicPlugin } from './public/controller'
 import { ErrorResponse, JWTPayload } from './entities'
 import { CODES } from './utils/constants'
 import { prettyAuthError } from './errors'
+import { apiKeysPlugin } from './api_keys/controller'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -47,6 +48,7 @@ export async function build(opt: AppOptions = {}) {
     app.register(usersPlugin, { prefix: '/users' })
     app.register(nftsPlugin, { prefix: '/nfts' })
     app.register(rewardsPlugin, { prefix: '/rewards' })
+    app.register(apiKeysPlugin, { prefix: '/api_keys' })
     app.register(publicPlugin, { prefix: '/claim' })
     app.register(cors, {
         origin: "*",

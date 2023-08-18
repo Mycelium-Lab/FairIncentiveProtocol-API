@@ -270,7 +270,7 @@ CREATE TABLE payments(
 
 CREATE TABLE api_keys(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-    key             VARCHAR(255) NOT NULL
+    key             TEXT NOT NULL
 );
 
 CREATE TABLE reward_statuses(

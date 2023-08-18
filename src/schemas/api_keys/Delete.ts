@@ -1,7 +1,7 @@
 import Joi  from 'joi'
 
 export const DeleteApiKey: unknown = {
-    $id: 'Delete',
+    $id: 'DeleteApiKey',
     type: 'object',
     properties: {
         key: {
@@ -12,6 +12,5 @@ export const DeleteApiKey: unknown = {
 
 export const DeleteApiKeyValidation: Joi.ObjectSchema = Joi.object({
     key: Joi.string()
-        .uuid()
         .required()
 })

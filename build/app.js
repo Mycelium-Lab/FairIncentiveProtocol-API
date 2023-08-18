@@ -26,6 +26,7 @@ const controller_5 = require("./rewards/controller");
 const controller_6 = require("./auth/controller");
 const controller_7 = require("./public/controller");
 const errors_1 = require("./errors");
+const controller_8 = require("./api_keys/controller");
 function build(opt = {}) {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, fastify_1.default)(opt);
@@ -62,6 +63,7 @@ function build(opt = {}) {
         app.register(controller_3.usersPlugin, { prefix: '/users' });
         app.register(controller_4.nftsPlugin, { prefix: '/nfts' });
         app.register(controller_5.rewardsPlugin, { prefix: '/rewards' });
+        app.register(controller_8.apiKeysPlugin, { prefix: '/api_keys' });
         app.register(controller_7.publicPlugin, { prefix: '/claim' });
         app.register(cors_1.default, {
             origin: "*",

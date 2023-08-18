@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteApiKeyValidation = exports.DeleteApiKey = void 0;
 const joi_1 = __importDefault(require("joi"));
 exports.DeleteApiKey = {
-    $id: 'Delete',
+    $id: 'DeleteApiKey',
     type: 'object',
     properties: {
         key: {
@@ -16,6 +16,5 @@ exports.DeleteApiKey = {
 };
 exports.DeleteApiKeyValidation = joi_1.default.object({
     key: joi_1.default.string()
-        .uuid()
         .required()
 });

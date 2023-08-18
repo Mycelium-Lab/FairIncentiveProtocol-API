@@ -38,7 +38,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
     app.get(
         '/collections',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate,
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -88,7 +88,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
     app.get(
         '/nfts',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate,
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {

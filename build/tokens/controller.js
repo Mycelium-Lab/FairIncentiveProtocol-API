@@ -41,7 +41,7 @@ function tokensPlugin(app, opt) {
             }
         }));
         app.get('/', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            preHandler: app.authenticate,
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.routeConfig.jwtData;

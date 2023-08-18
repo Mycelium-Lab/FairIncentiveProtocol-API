@@ -41,7 +41,7 @@ function nftsPlugin(app, opt) {
             }
         }));
         app.get('/collections', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            preHandler: app.authenticate,
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.routeConfig.jwtData;
@@ -85,7 +85,7 @@ function nftsPlugin(app, opt) {
             }
         }));
         app.get('/nfts', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            preHandler: app.authenticate,
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.routeConfig.jwtData;

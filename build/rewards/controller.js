@@ -41,7 +41,7 @@ function rewardsPlugin(app, opt) {
             }
         })),
             app.get('/get/token', {
-                onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+                preHandler: app.authenticate,
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const data = req.routeConfig.jwtData;
@@ -111,7 +111,7 @@ function rewardsPlugin(app, opt) {
                 }
             })),
             app.get('/events/tokens', {
-                onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+                preHandler: app.authenticate,
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const data = req.routeConfig.jwtData;
@@ -156,7 +156,7 @@ function rewardsPlugin(app, opt) {
             }
         }));
         app.get('/get/nfts', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            preHandler: app.authenticate,
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.routeConfig.jwtData;
@@ -226,7 +226,7 @@ function rewardsPlugin(app, opt) {
             }
         }));
         app.get('/events/nfts', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            preHandler: app.authenticate,
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.routeConfig.jwtData;
@@ -382,7 +382,7 @@ function rewardsPlugin(app, opt) {
             }
         }));
         app.post('/delete/events/token', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            preHandler: app.authenticate,
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const tokenRewardEvent = req.body;
@@ -404,7 +404,7 @@ function rewardsPlugin(app, opt) {
             }
         }));
         app.post('/delete/events/nft', {
-            onRequest: [(req) => __awaiter(this, void 0, void 0, function* () { return yield req.jwtVerify(); })]
+            preHandler: app.authenticate,
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const nftRewardEvent = req.body;

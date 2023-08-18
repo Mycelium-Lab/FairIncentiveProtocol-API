@@ -40,7 +40,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     app.get(
         '/get/token',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate,
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -125,7 +125,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     app.get(
         '/events/tokens',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate,
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -179,7 +179,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     app.get(
         '/get/nfts',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate,
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -264,7 +264,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     app.get(
         '/events/nfts',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate,
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -451,7 +451,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     app.post(
         '/delete/events/token',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate,
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -479,7 +479,7 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
     app.post(
         '/delete/events/nft',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate,
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {

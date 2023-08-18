@@ -37,7 +37,7 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
     app.get(
         '/',
         {
-            onRequest: [async (req) => await req.jwtVerify()]
+            preHandler: app.authenticate,
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {

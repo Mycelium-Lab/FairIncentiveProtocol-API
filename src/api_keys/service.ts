@@ -57,3 +57,33 @@ export async function deleteApiKey(company: GetCompany, key: string): Promise<Er
         return prettyError
     }
 }
+
+export async function checkApiKey(key: string): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const dbRes = await pg('api_keys').select('*').where({key})
+        let res: SuccessResponse | ErrorResponse
+        if (dbRes.length) {
+            res = {
+                code: CODES.OK.code,
+                body: {
+                    message: 'Api key is ok',
+                    type: SuccessResponseTypes.nullType,
+                    data: null
+                }
+            }    
+        } else {
+            res = {
+                code: CODES.UNAUTHORIZED.code,
+                error: {
+                    name: CODES.UNAUTHORIZED.name,
+                    message: CODES.UNAUTHORIZED.name
+                }
+            }  
+        }
+        return res   
+    } catch (error: any) {
+        console.log(error.message)
+        const prettyError: ErrorResponse = prettyApiKeysError(error.message)
+        return prettyError
+    }
+}

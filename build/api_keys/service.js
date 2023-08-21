@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteApiKey = exports.createApiKey = exports.getApiKeys = void 0;
+exports.checkApiKey = exports.deleteApiKey = exports.createApiKey = exports.getApiKeys = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const errors_1 = require("../errors");
 const constants_1 = require("../utils/constants");
@@ -80,3 +80,37 @@ function deleteApiKey(company, key) {
     });
 }
 exports.deleteApiKey = deleteApiKey;
+function checkApiKey(key) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const dbRes = yield (0, db_1.default)('api_keys').select('*').where({ key });
+            let res;
+            if (dbRes.length) {
+                res = {
+                    code: constants_1.CODES.OK.code,
+                    body: {
+                        message: 'Api key is ok',
+                        type: constants_1.SuccessResponseTypes.nullType,
+                        data: null
+                    }
+                };
+            }
+            else {
+                res = {
+                    code: constants_1.CODES.UNAUTHORIZED.code,
+                    error: {
+                        name: constants_1.CODES.UNAUTHORIZED.name,
+                        message: constants_1.CODES.UNAUTHORIZED.name
+                    }
+                };
+            }
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const prettyError = (0, errors_1.prettyApiKeysError)(error.message);
+            return prettyError;
+        }
+    });
+}
+exports.checkApiKey = checkApiKey;

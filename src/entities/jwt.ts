@@ -3,5 +3,6 @@ export interface JWTPayload {
     phone?: string,
     company_id?: string,
     address?: string,
+    randomNumber?: number,
     company: boolean 
 }

@@ -2,6 +2,15 @@ import { ErrorResponse } from "../../entities";
 import { CODES } from "../../utils/constants";
 
 export function prettyAuthError(errorMessage: string): ErrorResponse {
+    if (errorMessage === "Wrong auth token, maybe it's deprecated or deleted") {
+        return {
+            code: CODES.UNAUTHORIZED.code,
+            error: {
+                name: CODES.UNAUTHORIZED.name,
+                message: "Wrong auth token, maybe it's deprecated or deleted"
+            }
+        }
+    }
     if (errorMessage.includes("Authorization token is invalid: The token signature is invalid.")) {
         return {
             code: CODES.UNAUTHORIZED.code,

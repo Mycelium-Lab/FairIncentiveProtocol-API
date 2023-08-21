@@ -272,6 +272,7 @@ CREATE TABLE api_keys(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     key             TEXT NOT NULL
 );
+CREATE INDEX idx_api_keys_key ON api_keys(key);
 
 CREATE TABLE reward_statuses(
     id              INT PRIMARY KEY UNIQUE,

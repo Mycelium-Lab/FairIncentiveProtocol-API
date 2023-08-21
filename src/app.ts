@@ -14,6 +14,7 @@ import { ErrorResponse, JWTPayload } from './entities'
 import { CODES } from './utils/constants'
 import { prettyAuthError } from './errors'
 import { apiKeysPlugin } from './api_keys/controller'
+import { checkApiKey } from './api_keys/service'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -30,6 +31,10 @@ export async function build(opt: AppOptions = {}) {
         const token = request.headers.authorization?.split(' ')[1] 
         if (token) {
             const data: JWTPayload | null = app.jwt.decode(token)
+            if (data?.randomNumber) {
+              const check = await checkApiKey(token)
+              if (check.code !== CODES.OK.code) throw Error("Wrong auth token, maybe it's deprecated or deleted") 
+            }
             request.routeConfig.jwtData = data
         } else {
             throw new Error('Wrong auth token')

@@ -76,5 +76,14 @@ describe('ApiKeys', () => {
         expect(response.status).toEqual(CODES.OK.code)
         expect(response.headers.get('content-type')).toEqual('application/json; charset=utf-8')
     })
-    //TODO: нельзя воспользоваться ключом вновь
+    test('Should make call with api_key (err: api key deleted)', async () => {
+        headers.set("Authorization", `Bearer ${api_key}`)
+        const response = await fetch(`http://localhost:${config.PORT}/company`, {
+            method: "GET",
+            headers
+        })
+        expect(response.status).toEqual(CODES.UNAUTHORIZED.code)
+        const res: ErrorResponse = await response.json() 
+        expect(res.error.message).toEqual("Wrong auth token, maybe it's deprecated or deleted")
+    })
 })

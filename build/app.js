@@ -25,8 +25,10 @@ const controller_4 = require("./nfts/controller");
 const controller_5 = require("./rewards/controller");
 const controller_6 = require("./auth/controller");
 const controller_7 = require("./public/controller");
+const constants_1 = require("./utils/constants");
 const errors_1 = require("./errors");
 const controller_8 = require("./api_keys/controller");
+const service_1 = require("./api_keys/service");
 function build(opt = {}) {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, fastify_1.default)(opt);
@@ -42,6 +44,11 @@ function build(opt = {}) {
                     const token = (_a = request.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
                     if (token) {
                         const data = app.jwt.decode(token);
+                        if (data === null || data === void 0 ? void 0 : data.randomNumber) {
+                            const check = yield (0, service_1.checkApiKey)(token);
+                            if (check.code !== constants_1.CODES.OK.code)
+                                throw Error("Wrong auth token, maybe it's deprecated or deleted");
+                        }
                         request.routeConfig.jwtData = data;
                     }
                     else {

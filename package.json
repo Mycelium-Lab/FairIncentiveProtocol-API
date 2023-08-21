@@ -20,6 +20,8 @@
     "@fastify/cors": "^8.2.1",
     "@fastify/jwt": "^6.7.1",
     "@fastify/static": "^6.10.1",
+    "@fastify/swagger": "^8.9.0",
+    "@fastify/swagger-ui": "^1.9.3",
     "bcrypt": "^5.1.0",
     "country-list": "^2.3.0",
     "dotenv": "^16.0.3",

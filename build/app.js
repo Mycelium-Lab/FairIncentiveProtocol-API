@@ -16,6 +16,8 @@ exports.build = void 0;
 const fastify_1 = __importDefault(require("fastify"));
 const jwt_1 = __importDefault(require("@fastify/jwt"));
 const cors_1 = __importDefault(require("@fastify/cors"));
+const swagger_1 = __importDefault(require("@fastify/swagger"));
+const swagger_ui_1 = __importDefault(require("@fastify/swagger-ui"));
 const config_1 = require("./config/config");
 const schemas_1 = require("./schemas");
 const controller_1 = require("./company/controller");
@@ -35,6 +37,21 @@ function build(opt = {}) {
         (0, schemas_1.addSchemas)(app);
         app.register(jwt_1.default, {
             secret: config_1.config.SECRET_KEY
+        });
+        app.register(swagger_1.default, {
+            swagger: {
+                info: {
+                    title: 'Fair Protocol API',
+                    description: 'Fair Protocol API',
+                    version: '0.1.0'
+                },
+                externalDocs: {
+                    url: 'https://swagger.io',
+                    description: 'Find more info here'
+                },
+                host: 'localhost',
+                schemes: ['http'],
+            }
         });
         app.decorate("authenticate", function (request, reply) {
             var _a;
@@ -63,6 +80,9 @@ function build(opt = {}) {
                         .send({ error: prettyError.error });
                 }
             });
+        });
+        app.register(swagger_ui_1.default, {
+            routePrefix: '/docs'
         });
         app.register(controller_6.authPlugin, { prefix: '/auth' });
         app.register(controller_1.companyPlugin, { prefix: '/company' });

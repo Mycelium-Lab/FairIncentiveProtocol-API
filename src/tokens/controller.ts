@@ -4,12 +4,17 @@ import { ErrorResponse, JWTPayload, SuccessResponse, Token } from "../entities";
 import { AddTokenValidation } from "../schemas";
 import { addToken, getTokens } from "./service";
 import { prettyTokensError } from "../errors";
+import { authorizationTokenDescription, tokenAddResponseDescription, tokenResponseDescription } from "../response_description";
 
 export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
         '/',
         {
             preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                response: tokenResponseDescription
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -34,7 +39,9 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'AddToken' }
+                body: { $ref: 'AddToken' },
+                headers: authorizationTokenDescription,
+                response: tokenAddResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {

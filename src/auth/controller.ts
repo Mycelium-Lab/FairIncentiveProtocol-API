@@ -4,13 +4,16 @@ import { SignInValidation, SignUpValidation } from "../schemas";
 import { checkCompany } from "./service";
 import { createCompany } from "../company/service";
 import { prettyAuthError } from "../errors";
+import { CODES, SuccessResponseTypes } from "../utils/constants";
+import { signupResponseDecription } from "../response_description";
 
 export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
         '/signup', 
         {
             schema: { 
-                body: { $ref: 'SignUpCompany' } 
+                body: { $ref: 'SignUpCompany' },
+                response: signupResponseDecription
             }
         }, 
         async (req: FastifyRequest, reply: FastifyReply) => {

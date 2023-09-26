@@ -1,5 +1,3 @@
-import { RewardTokenEvent, Token, TokenReward, User } from "./index"
-
 export interface ErrorResponse {
     code: number,
     error: Err

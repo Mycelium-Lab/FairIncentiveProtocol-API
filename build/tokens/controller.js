@@ -15,17 +15,12 @@ const service_1 = require("./service");
 const errors_1 = require("../errors");
 function tokensPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
-        app.post('/add', {
+        app.get('/', {
             preHandler: app.authenticate,
-            schema: {
-                body: { $ref: 'AddToken' }
-            }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const Token = req.body;
-                yield schemas_1.AddTokenValidation.validateAsync(Token);
                 const data = req.routeConfig.jwtData;
-                const res = yield (0, service_1.addToken)(Token, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                const res = yield (0, service_1.getTokens)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -40,12 +35,17 @@ function tokensPlugin(app, opt) {
                     .send({ error: prettyError.error });
             }
         }));
-        app.get('/', {
+        app.post('/add', {
             preHandler: app.authenticate,
+            schema: {
+                body: { $ref: 'AddToken' }
+            }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
+                const Token = req.body;
+                yield schemas_1.AddTokenValidation.validateAsync(Token);
                 const data = req.routeConfig.jwtData;
-                const res = yield (0, service_1.getTokens)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                const res = yield (0, service_1.addToken)(Token, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

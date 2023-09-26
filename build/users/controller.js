@@ -15,17 +15,12 @@ const service_1 = require("./service");
 const errors_1 = require("../errors");
 function usersPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
-        app.post('/add', {
+        app.get('/', {
             preHandler: app.authenticate,
-            schema: {
-                body: { $ref: 'AddUser' }
-            }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = req.body;
-                yield schemas_1.AddUserValidation.validateAsync(user);
                 const data = req.routeConfig.jwtData;
-                const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                const res = yield (0, service_1.getUsers)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -40,12 +35,17 @@ function usersPlugin(app, opt) {
                     .send({ error: prettyError.error });
             }
         })),
-            app.get('/', {
+            app.post('/add', {
                 preHandler: app.authenticate,
+                schema: {
+                    body: { $ref: 'AddUser' }
+                }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
+                    const user = req.body;
+                    yield schemas_1.AddUserValidation.validateAsync(user);
                     const data = req.routeConfig.jwtData;
-                    const res = yield (0, service_1.getUsers)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply
                         .code(res.code)
                         .type('application/json; charset=utf-8')

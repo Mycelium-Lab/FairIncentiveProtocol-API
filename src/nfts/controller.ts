@@ -7,6 +7,51 @@ import { CODES, CODES_RANGES } from "../utils/constants";
 import { prettyNFTError } from "../errors";
 
 export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
+    app.get(
+        '/collections',
+        {
+            preHandler: app.authenticate,
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await getNFTCollections({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/nfts',
+        {
+            preHandler: app.authenticate,
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res = await getNFTs({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error)
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .send({error: prettyError.error})
+            }
+        }
+    ),
     app.post(
         '/add/collection',
         {
@@ -35,29 +80,6 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
             }
         }
     )
-    app.get(
-        '/collections',
-        {
-            preHandler: app.authenticate,
-        },
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await getNFTCollections({email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error.message)
-                const prettyError: ErrorResponse = prettyNFTError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({error: prettyError.error})
-            }
-        }
-    )
     app.post(
         '/add/nft',
         {
@@ -72,28 +94,6 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 await AddNFTValidation.validateAsync(nft)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await addNFT(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error)
-                const prettyError: ErrorResponse = prettyNFTError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .send({error: prettyError.error})
-            }
-        }
-    )
-    app.get(
-        '/nfts',
-        {
-            preHandler: app.authenticate,
-        },
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res = await getNFTs({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

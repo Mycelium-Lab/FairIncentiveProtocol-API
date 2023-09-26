@@ -6,20 +6,15 @@ import { addToken, getTokens } from "./service";
 import { prettyTokensError } from "../errors";
 
 export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
-    app.post(
-        '/add',
+    app.get(
+        '/',
         {
             preHandler: app.authenticate,
-            schema: { 
-                body: { $ref: 'AddToken' }
-            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const Token: Token = req.body as Token
-                await AddTokenValidation.validateAsync(Token)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await addToken(Token, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                const res: ErrorResponse | SuccessResponse = await getTokens({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -34,15 +29,20 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
             }
         }
     )
-    app.get(
-        '/',
+    app.post(
+        '/add',
         {
             preHandler: app.authenticate,
+            schema: { 
+                body: { $ref: 'AddToken' }
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
+                const Token: Token = req.body as Token
+                await AddTokenValidation.validateAsync(Token)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await getTokens({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                const res: ErrorResponse | SuccessResponse = await addToken(Token, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

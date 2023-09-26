@@ -6,6 +6,138 @@ import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getCl
 import { prettyRewardsError } from "../errors";
 
 export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
+    app.get(
+        '/get/token',
+        {
+            preHandler: app.authenticate,
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await getTokenRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    ),
+    app.get(
+        '/get/nfts',
+        {
+            preHandler: app.authenticate,
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await getNFTRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/events/nfts',
+        {
+            preHandler: app.authenticate,
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await getRewardNFTEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/events/claimabletoken',
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const query = req.query as any
+                const res: ErrorResponse | SuccessResponse = await getClaimableToken(query.id, query.user_id)
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/events/claimablenft',
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const query = req.query as any
+                const res: ErrorResponse | SuccessResponse = await getClaimableNFT(query.id, query.user_id)
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/events/tokens',
+        {
+            preHandler: app.authenticate,
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await getRewardTokenEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
     app.post(
         '/add/token',
         {
@@ -23,29 +155,6 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                     tokenReward
                 )
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error.message)
-                const prettyError: ErrorResponse = prettyRewardsError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({error: prettyError.error})
-            }
-        }
-    ),
-    app.get(
-        '/get/token',
-        {
-            preHandler: app.authenticate,
-        },
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await getTokenRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -122,29 +231,6 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
             }
         }
     ),
-    app.get(
-        '/events/tokens',
-        {
-            preHandler: app.authenticate,
-        },
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await getRewardTokenEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error.message)
-                const prettyError: ErrorResponse = prettyRewardsError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({error: prettyError.error})
-            }
-        }
-    )
     app.post(
         '/add/nft',
         {
@@ -162,29 +248,6 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                     nftReward
                 )
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error.message)
-                const prettyError: ErrorResponse = prettyRewardsError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({error: prettyError.error})
-            }
-        }
-    )
-    app.get(
-        '/get/nfts',
-        {
-            preHandler: app.authenticate,
-        },
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await getNFTRewards({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -247,69 +310,6 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                     {email: data?.email, phone: data?.phone, company_id: data?.company_id},
                     reward
                 )
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error.message)
-                const prettyError: ErrorResponse = prettyRewardsError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({error: prettyError.error})
-            }
-        }
-    )
-    app.get(
-        '/events/nfts',
-        {
-            preHandler: app.authenticate,
-        },
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await getRewardNFTEvents({email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error.message)
-                const prettyError: ErrorResponse = prettyRewardsError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({error: prettyError.error})
-            }
-        }
-    )
-    app.get(
-        '/events/claimabletoken',
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const query = req.query as any
-                const res: ErrorResponse | SuccessResponse = await getClaimableToken(query.id, query.user_id)
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error.message)
-                const prettyError: ErrorResponse = prettyRewardsError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({error: prettyError.error})
-            }
-        }
-    )
-    app.get(
-        '/events/claimablenft',
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const query = req.query as any
-                const res: ErrorResponse | SuccessResponse = await getClaimableNFT(query.id, query.user_id)
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

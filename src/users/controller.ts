@@ -6,20 +6,15 @@ import { addUser, deleteUser, getUsers, updateUser } from "./service";
 import { prettyUsersError } from "../errors";
 
 export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
-    app.post(
-        '/add',
+    app.get(
+        '/',
         {
             preHandler: app.authenticate,
-            schema: { 
-                body: { $ref: 'AddUser' } 
-            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const user: User = req.body as User
-                await AddUserValidation.validateAsync(user)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await addUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                const res: ErrorResponse | SuccessResponse = await getUsers({email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -34,15 +29,20 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
             }
         }
     ),
-    app.get(
-        '/',
+    app.post(
+        '/add',
         {
             preHandler: app.authenticate,
+            schema: { 
+                body: { $ref: 'AddUser' } 
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
+                const user: User = req.body as User
+                await AddUserValidation.validateAsync(user)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await getUsers({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                const res: ErrorResponse | SuccessResponse = await addUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

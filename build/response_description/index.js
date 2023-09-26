@@ -1,6 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signinResponseDescription = exports.signupResponseDecription = void 0;
+exports.changeWalletResponseDescription = exports.changePhoneResponseDescription = exports.changePasswordResponseDescription = exports.changeEmailResponseDescription = exports.changeNameResponseDescription = exports.companyResponseDescription = exports.errorCodesDescription = exports.authorizationTokenDescription = exports.signinResponseDescription = exports.signupResponseDecription = void 0;
 var auth_1 = require("./auth");
 Object.defineProperty(exports, "signupResponseDecription", { enumerable: true, get: function () { return auth_1.signupResponseDecription; } });
 Object.defineProperty(exports, "signinResponseDescription", { enumerable: true, get: function () { return auth_1.signinResponseDescription; } });
+var common_1 = require("./common");
+Object.defineProperty(exports, "authorizationTokenDescription", { enumerable: true, get: function () { return common_1.authorizationTokenDescription; } });
+Object.defineProperty(exports, "errorCodesDescription", { enumerable: true, get: function () { return common_1.errorCodesDescription; } });
+var company_1 = require("./company");
+Object.defineProperty(exports, "companyResponseDescription", { enumerable: true, get: function () { return company_1.companyResponseDescription; } });
+Object.defineProperty(exports, "changeNameResponseDescription", { enumerable: true, get: function () { return company_1.changeNameResponseDescription; } });
+Object.defineProperty(exports, "changeEmailResponseDescription", { enumerable: true, get: function () { return company_1.changeEmailResponseDescription; } });
+Object.defineProperty(exports, "changePasswordResponseDescription", { enumerable: true, get: function () { return company_1.changePasswordResponseDescription; } });
+Object.defineProperty(exports, "changePhoneResponseDescription", { enumerable: true, get: function () { return company_1.changePhoneResponseDescription; } });
+Object.defineProperty(exports, "changeWalletResponseDescription", { enumerable: true, get: function () { return company_1.changeWalletResponseDescription; } });

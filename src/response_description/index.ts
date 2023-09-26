@@ -1,1 +1,1 @@
-export { signupResponseDecription } from './auth'
+export { signupResponseDecription, signinResponseDescription } from './auth'

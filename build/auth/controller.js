@@ -43,7 +43,8 @@ function authPlugin(app, opt) {
         })),
             app.post('/signin', {
                 schema: {
-                    body: { $ref: 'SignInCompany' }
+                    body: { $ref: 'SignInCompany' },
+                    response: response_description_1.signinResponseDescription
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {

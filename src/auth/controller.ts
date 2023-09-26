@@ -5,7 +5,7 @@ import { checkCompany } from "./service";
 import { createCompany } from "../company/service";
 import { prettyAuthError } from "../errors";
 import { CODES, SuccessResponseTypes } from "../utils/constants";
-import { signupResponseDecription } from "../response_description";
+import { signinResponseDescription, signupResponseDecription } from "../response_description";
 
 export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.post(
@@ -38,7 +38,8 @@ export async function authPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         '/signin', 
         {
             schema: { 
-                body: { $ref: 'SignInCompany' } 
+                body: { $ref: 'SignInCompany' },
+                response: signinResponseDescription
             }
         }, 
         async (req: FastifyRequest, reply: FastifyReply) => {

@@ -13,10 +13,15 @@ exports.usersPlugin = void 0;
 const schemas_1 = require("../schemas");
 const service_1 = require("./service");
 const errors_1 = require("../errors");
+const response_description_1 = require("../response_description");
 function usersPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.get('/', {
             preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.usersResponseDescription
+            }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.routeConfig.jwtData;
@@ -38,7 +43,9 @@ function usersPlugin(app, opt) {
             app.post('/add', {
                 preHandler: app.authenticate,
                 schema: {
-                    body: { $ref: 'AddUser' }
+                    body: { $ref: 'AddUser' },
+                    headers: response_description_1.authorizationTokenDescription,
+                    response: response_description_1.userAddResponseDescription
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
@@ -63,7 +70,9 @@ function usersPlugin(app, opt) {
             app.post('/delete', {
                 preHandler: app.authenticate,
                 schema: {
-                    body: { $ref: 'Delete' }
+                    body: { $ref: 'Delete' },
+                    headers: response_description_1.authorizationTokenDescription,
+                    response: response_description_1.userDeleteResponseDescription
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
@@ -88,7 +97,9 @@ function usersPlugin(app, opt) {
         app.post('/update', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'UpdateUser' }
+                body: { $ref: 'UpdateUser' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.userUpdateResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {

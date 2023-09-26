@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tokenAddResponseDescription = exports.tokenResponseDescription = exports.changeWalletResponseDescription = exports.changePhoneResponseDescription = exports.changePasswordResponseDescription = exports.changeEmailResponseDescription = exports.changeNameResponseDescription = exports.companyResponseDescription = exports.errorCodesDescription = exports.authorizationTokenDescription = exports.signinResponseDescription = exports.signupResponseDecription = void 0;
+exports.userUpdateResponseDescription = exports.userDeleteResponseDescription = exports.userAddResponseDescription = exports.usersResponseDescription = exports.tokenAddResponseDescription = exports.tokenResponseDescription = exports.changeWalletResponseDescription = exports.changePhoneResponseDescription = exports.changePasswordResponseDescription = exports.changeEmailResponseDescription = exports.changeNameResponseDescription = exports.companyResponseDescription = exports.errorCodesDescription = exports.authorizationTokenDescription = exports.signinResponseDescription = exports.signupResponseDecription = void 0;
 var auth_1 = require("./auth");
 Object.defineProperty(exports, "signupResponseDecription", { enumerable: true, get: function () { return auth_1.signupResponseDecription; } });
 Object.defineProperty(exports, "signinResponseDescription", { enumerable: true, get: function () { return auth_1.signinResponseDescription; } });
@@ -17,3 +17,8 @@ Object.defineProperty(exports, "changeWalletResponseDescription", { enumerable: 
 var token_1 = require("./token");
 Object.defineProperty(exports, "tokenResponseDescription", { enumerable: true, get: function () { return token_1.tokenResponseDescription; } });
 Object.defineProperty(exports, "tokenAddResponseDescription", { enumerable: true, get: function () { return token_1.tokenAddResponseDescription; } });
+var users_1 = require("./users");
+Object.defineProperty(exports, "usersResponseDescription", { enumerable: true, get: function () { return users_1.usersResponseDescription; } });
+Object.defineProperty(exports, "userAddResponseDescription", { enumerable: true, get: function () { return users_1.userAddResponseDescription; } });
+Object.defineProperty(exports, "userDeleteResponseDescription", { enumerable: true, get: function () { return users_1.userDeleteResponseDescription; } });
+Object.defineProperty(exports, "userUpdateResponseDescription", { enumerable: true, get: function () { return users_1.userUpdateResponseDescription; } });

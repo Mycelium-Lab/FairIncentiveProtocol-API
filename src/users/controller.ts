@@ -4,12 +4,17 @@ import { AddUserValidation, DeleteValidation, UpdateUserValidation } from "../sc
 import { getToken } from "../company/controller";
 import { addUser, deleteUser, getUsers, updateUser } from "./service";
 import { prettyUsersError } from "../errors";
+import { authorizationTokenDescription, userAddResponseDescription, userDeleteResponseDescription, userUpdateResponseDescription, usersResponseDescription } from "../response_description";
 
 export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
         '/',
         {
             preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                response: usersResponseDescription
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -34,7 +39,9 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'AddUser' } 
+                body: { $ref: 'AddUser' },
+                headers: authorizationTokenDescription,
+                response: userAddResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -62,7 +69,9 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'Delete' } 
+                body: { $ref: 'Delete' },
+                headers: authorizationTokenDescription,
+                response: userDeleteResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -90,7 +99,9 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'UpdateUser' } 
+                body: { $ref: 'UpdateUser' },
+                headers: authorizationTokenDescription,
+                response: userUpdateResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {

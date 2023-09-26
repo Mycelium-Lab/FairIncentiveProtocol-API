@@ -160,7 +160,7 @@ CREATE TABLE erc721_tokens(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     symbol          VARCHAR(255) NOT NULL,
-    description     TEXT,
+    description     VARCHAR(1000),
     logo_image      VARCHAR(255),
     featured_image  VARCHAR(255),
     banner_image    VARCHAR(255),
@@ -184,7 +184,7 @@ CREATE TABLE nfts(
     address         VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address),
     image           TEXT NOT NULL,
     name            VARCHAR(255) NOT NULL,
-    description     TEXT,
+    description     VARCHAR(1000),
     amount          INT
 );
 
@@ -217,7 +217,7 @@ CREATE TABLE tokens_log(
     chainid        INT NOT NULL REFERENCES chains(id),
     admin_id        UUID DEFAULT NULL,
     user_id         UUID,
-    description     TEXT NOT NULL,
+    description     VARCHAR(1000) NOT NULL,
     token_type      INT NOT NULL REFERENCES token_types(id)
 );
 
@@ -225,7 +225,7 @@ CREATE TABLE roles_log(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     admin_id        UUID DEFAULT NULL,
     role_id         UUID NOT NULL,
-    description     TEXT NOT NULL
+    description     VARCHAR(1000) NOT NULL
 );
 
 CREATE TABLE currency_types(
@@ -286,7 +286,7 @@ CREATE TABLE rewards_erc20(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
-    description     TEXT,
+    description     VARCHAR(1000),
     address         VARCHAR(42) NOT NULL REFERENCES erc20_tokens(address),
     amount          NUMERIC(78,0) NOT NULL,
     status          INT NOT NULL REFERENCES reward_statuses(id) DEFAULT 0
@@ -296,7 +296,7 @@ CREATE TABLE rewards_erc721(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
-    description     TEXT,
+    description     VARCHAR(1000),
     nft_id          UUID NOT NULL REFERENCES nfts(id),
     status          INT NOT NULL REFERENCES reward_statuses(id) DEFAULT 0
 );

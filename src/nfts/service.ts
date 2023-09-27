@@ -79,7 +79,7 @@ export async function getNFTCollections(getCompany: GetCompany): Promise<ErrorRe
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {
-                message: 'Tokens',
+                message: 'NFT Collections',
                 type: SuccessResponseTypes.array,
                 data: tokens
             }

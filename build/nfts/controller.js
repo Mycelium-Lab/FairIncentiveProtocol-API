@@ -13,10 +13,15 @@ exports.nftsPlugin = void 0;
 const schemas_1 = require("../schemas");
 const service_1 = require("./service");
 const errors_1 = require("../errors");
+const response_description_1 = require("../response_description");
 function nftsPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.get('/collections', {
             preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.nftCollectionsResponseDescription
+            }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.routeConfig.jwtData;
@@ -37,6 +42,10 @@ function nftsPlugin(app, opt) {
         }));
         app.get('/nfts', {
             preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.nftsResponseDescription
+            }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.routeConfig.jwtData;
@@ -57,7 +66,9 @@ function nftsPlugin(app, opt) {
             app.post('/add/collection', {
                 preHandler: app.authenticate,
                 schema: {
-                    body: { $ref: 'AddNFTCollection' }
+                    body: { $ref: 'AddNFTCollection' },
+                    headers: response_description_1.authorizationTokenDescription,
+                    response: response_description_1.collectionAddResponseDescription
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
@@ -82,7 +93,9 @@ function nftsPlugin(app, opt) {
         app.post('/add/nft', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'AddNFT' }
+                body: { $ref: 'AddNFT' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.nftAddResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -106,7 +119,9 @@ function nftsPlugin(app, opt) {
         app.post('/delete/nft', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'Delete' }
+                body: { $ref: 'Delete' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.nftsDeleteResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {

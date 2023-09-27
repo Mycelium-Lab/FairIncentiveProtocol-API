@@ -1,5 +1,6 @@
 export { signupResponseDecription, signinResponseDescription } from './auth'
 export { authorizationTokenDescription, errorCodesDescription } from './common'
 export { companyResponseDescription, changeNameResponseDescription, changeEmailResponseDescription, changePasswordResponseDescription, changePhoneResponseDescription, changeWalletResponseDescription } from './company'
-export { tokenResponseDescription, tokenAddResponseDescription } from './token'
+export { tokenResponseDescription, tokenAddResponseDescription } from './tokens'
 export { usersResponseDescription, userAddResponseDescription, userDeleteResponseDescription, userUpdateResponseDescription } from './users'
+export { nftCollectionsResponseDescription, nftsResponseDescription, collectionAddResponseDescription, nftAddResponseDescription, nftsDeleteResponseDescription } from './nfts'

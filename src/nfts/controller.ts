@@ -5,12 +5,17 @@ import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, Delet
 import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs } from "./service";
 import { CODES, CODES_RANGES } from "../utils/constants";
 import { prettyNFTError } from "../errors";
+import { authorizationTokenDescription, collectionAddResponseDescription, nftAddResponseDescription, nftCollectionsResponseDescription, nftsDeleteResponseDescription, nftsResponseDescription } from "../response_description";
 
 export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
         '/collections',
         {
             preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                response: nftCollectionsResponseDescription
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -34,6 +39,10 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         '/nfts',
         {
             preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                response: nftsResponseDescription
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -57,7 +66,9 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'AddNFTCollection' }
+                body: { $ref: 'AddNFTCollection' },
+                headers: authorizationTokenDescription,
+                response: collectionAddResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -85,7 +96,9 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'AddNFT' }
+                body: { $ref: 'AddNFT' },
+                headers: authorizationTokenDescription,
+                response: nftAddResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -112,7 +125,9 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'Delete' }
+                body: { $ref: 'Delete' },
+                headers: authorizationTokenDescription,
+                response: nftsDeleteResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {

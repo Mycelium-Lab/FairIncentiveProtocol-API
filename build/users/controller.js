@@ -13,19 +13,19 @@ exports.usersPlugin = void 0;
 const schemas_1 = require("../schemas");
 const service_1 = require("./service");
 const errors_1 = require("../errors");
+const response_description_1 = require("../response_description");
 function usersPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
-        app.post('/add', {
+        app.get('/', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'AddUser' }
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.usersResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = req.body;
-                yield schemas_1.AddUserValidation.validateAsync(user);
                 const data = req.routeConfig.jwtData;
-                const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                const res = yield (0, service_1.getUsers)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -40,12 +40,19 @@ function usersPlugin(app, opt) {
                     .send({ error: prettyError.error });
             }
         })),
-            app.get('/', {
+            app.post('/add', {
                 preHandler: app.authenticate,
+                schema: {
+                    body: { $ref: 'AddUser' },
+                    headers: response_description_1.authorizationTokenDescription,
+                    response: response_description_1.userAddResponseDescription
+                }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
+                    const user = req.body;
+                    yield schemas_1.AddUserValidation.validateAsync(user);
                     const data = req.routeConfig.jwtData;
-                    const res = yield (0, service_1.getUsers)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply
                         .code(res.code)
                         .type('application/json; charset=utf-8')
@@ -63,7 +70,9 @@ function usersPlugin(app, opt) {
             app.post('/delete', {
                 preHandler: app.authenticate,
                 schema: {
-                    body: { $ref: 'Delete' }
+                    body: { $ref: 'Delete' },
+                    headers: response_description_1.authorizationTokenDescription,
+                    response: response_description_1.userDeleteResponseDescription
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
@@ -88,7 +97,9 @@ function usersPlugin(app, opt) {
         app.post('/update', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'UpdateUser' }
+                body: { $ref: 'UpdateUser' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.userUpdateResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {

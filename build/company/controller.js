@@ -13,10 +13,15 @@ exports.getToken = exports.companyPlugin = void 0;
 const service_1 = require("./service");
 const schemas_1 = require("../schemas");
 const errors_1 = require("../errors");
+const response_description_1 = require("../response_description");
 function companyPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.get('/', {
-            preHandler: app.authenticate
+            preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.companyResponseDescription
+            }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.routeConfig.jwtData;
@@ -38,7 +43,9 @@ function companyPlugin(app, opt) {
         app.post('/changename', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'ChangeCompanyName' }
+                body: { $ref: 'ChangeCompanyName' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.changeNameResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -63,7 +70,9 @@ function companyPlugin(app, opt) {
         app.post('/changeemail', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'ChangeCompanyEmail' }
+                body: { $ref: 'ChangeCompanyEmail' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.changeEmailResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -88,7 +97,9 @@ function companyPlugin(app, opt) {
         app.post('/changephone', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'ChangeCompanyPhone' }
+                body: { $ref: 'ChangeCompanyPhone' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.changePhoneResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -113,7 +124,9 @@ function companyPlugin(app, opt) {
         app.post('/changewallet', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'ChangeCompanyWallet' }
+                body: { $ref: 'ChangeCompanyWallet' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.changeWalletResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -138,7 +151,9 @@ function companyPlugin(app, opt) {
         app.post('/changepassword', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'ChangeCompanyPassword' }
+                body: { $ref: 'ChangeCompanyPassword' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.changePasswordResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {

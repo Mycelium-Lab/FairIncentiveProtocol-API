@@ -1,6 +1,8 @@
 import Fastify, { FastifyInstance, FastifyReply, FastifyServerOptions } from 'fastify'
 import fastifyJwt from '@fastify/jwt'
 import cors from '@fastify/cors'
+import swagger from '@fastify/swagger'
+import swaggerUI from '@fastify/swagger-ui'
 import { config } from './config/config'
 import { addSchemas } from './schemas'
 import { companyPlugin } from './company/controller'
@@ -25,6 +27,21 @@ export async function build(opt: AppOptions = {}) {
     app.register(fastifyJwt, { 
         secret: config.SECRET_KEY
     })
+    app.register(swagger, {
+      swagger: {
+        info: {
+          title: 'Fair Protocol API',
+          description: 'Fair Protocol API',
+          version: '0.1.0'
+        },
+        externalDocs: {
+          url: 'https://swagger.io',
+          description: 'Find more info here'
+        },
+        host: 'kongam.space',
+        schemes: ['https'],
+      }
+    })
     app.decorate("authenticate", async function(request: any, reply: FastifyReply): Promise<void> {
       try {
         await request.jwtVerify()
@@ -47,6 +64,9 @@ export async function build(opt: AppOptions = {}) {
           .send({error: prettyError.error})
       }
     })
+    app.register(swaggerUI, {
+      routePrefix: '/docs'
+    });
     app.register(authPlugin, { prefix: '/auth' })
     app.register(companyPlugin, { prefix: '/company' })
     app.register(tokensPlugin, { prefix: '/tokens' })

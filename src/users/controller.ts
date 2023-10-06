@@ -4,14 +4,44 @@ import { AddUserValidation, DeleteValidation, UpdateUserValidation } from "../sc
 import { getToken } from "../company/controller";
 import { addUser, deleteUser, getUsers, updateUser } from "./service";
 import { prettyUsersError } from "../errors";
+import { authorizationTokenDescription, userAddResponseDescription, userDeleteResponseDescription, userUpdateResponseDescription, usersResponseDescription } from "../response_description";
 
 export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
+    app.get(
+        '/',
+        {
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                response: usersResponseDescription
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await getUsers({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyUsersError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    ),
     app.post(
         '/add',
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'AddUser' } 
+                body: { $ref: 'AddUser' },
+                headers: authorizationTokenDescription,
+                response: userAddResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -34,35 +64,14 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
             }
         }
     ),
-    app.get(
-        '/',
-        {
-            preHandler: app.authenticate,
-        },
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await getUsers({email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error.message)
-                const prettyError: ErrorResponse = prettyUsersError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({error: prettyError.error})
-            }
-        }
-    ),
     app.post(
         '/delete',
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'Delete' } 
+                body: { $ref: 'Delete' },
+                headers: authorizationTokenDescription,
+                response: userDeleteResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -90,7 +99,9 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'UpdateUser' } 
+                body: { $ref: 'UpdateUser' },
+                headers: authorizationTokenDescription,
+                response: userUpdateResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {

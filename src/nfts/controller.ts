@@ -5,14 +5,70 @@ import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, Delet
 import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs } from "./service";
 import { CODES, CODES_RANGES } from "../utils/constants";
 import { prettyNFTError } from "../errors";
+import { authorizationTokenDescription, collectionAddResponseDescription, nftAddResponseDescription, nftCollectionsResponseDescription, nftsDeleteResponseDescription, nftsResponseDescription } from "../response_description";
 
 export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
+    app.get(
+        '/collections',
+        {
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                response: nftCollectionsResponseDescription
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await getNFTCollections({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/nfts',
+        {
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                response: nftsResponseDescription
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res = await getNFTs({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error)
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .send({error: prettyError.error})
+            }
+        }
+    ),
     app.post(
         '/add/collection',
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'AddNFTCollection' }
+                body: { $ref: 'AddNFTCollection' },
+                headers: authorizationTokenDescription,
+                response: collectionAddResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -35,35 +91,14 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
             }
         }
     )
-    app.get(
-        '/collections',
-        {
-            preHandler: app.authenticate,
-        },
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res: ErrorResponse | SuccessResponse = await getNFTCollections({email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error.message)
-                const prettyError: ErrorResponse = prettyNFTError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({error: prettyError.error})
-            }
-        }
-    )
     app.post(
         '/add/nft',
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'AddNFT' }
+                body: { $ref: 'AddNFT' },
+                headers: authorizationTokenDescription,
+                response: nftAddResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -85,34 +120,14 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
             }
         }
     )
-    app.get(
-        '/nfts',
-        {
-            preHandler: app.authenticate,
-        },
-        async (req: FastifyRequest, reply: FastifyReply) => {
-            try {
-                const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const res = await getNFTs({email: data?.email, phone: data?.phone, company_id: data?.company_id})
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? {body: res.body} : {error: res.error})
-            } catch (error: any) {
-                console.log(error)
-                const prettyError: ErrorResponse = prettyNFTError(error.message)
-                reply
-                    .code(prettyError.code)
-                    .send({error: prettyError.error})
-            }
-        }
-    )
     app.post(
         '/delete/nft',
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'Delete' }
+                body: { $ref: 'Delete' },
+                headers: authorizationTokenDescription,
+                response: nftsDeleteResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {

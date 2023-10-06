@@ -50,16 +50,22 @@ exports.AddUser = {
         properties: {
             type: 'array',
             items: {
-                type: 'object'
-            },
-            default: []
+                type: 'object',
+                properties: {
+                    name: { type: 'string' },
+                    value: { type: 'string' }
+                }
+            }
         },
         stats: {
             type: 'array',
             items: {
-                type: 'object'
-            },
-            default: []
+                type: 'object',
+                properties: {
+                    name: { type: 'string' },
+                    value: { type: 'number' }
+                }
+            }
         }
     }
 };

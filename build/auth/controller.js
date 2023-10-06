@@ -14,11 +14,13 @@ const schemas_1 = require("../schemas");
 const service_1 = require("./service");
 const service_2 = require("../company/service");
 const errors_1 = require("../errors");
+const response_description_1 = require("../response_description");
 function authPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.post('/signup', {
             schema: {
-                body: { $ref: 'SignUpCompany' }
+                body: { $ref: 'SignUpCompany' },
+                response: response_description_1.signupResponseDecription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -41,7 +43,8 @@ function authPlugin(app, opt) {
         })),
             app.post('/signin', {
                 schema: {
-                    body: { $ref: 'SignInCompany' }
+                    body: { $ref: 'SignInCompany' },
+                    response: response_description_1.signinResponseDescription
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {

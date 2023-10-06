@@ -96,7 +96,7 @@ function getNFTCollections(getCompany) {
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
-                    message: 'Tokens',
+                    message: 'NFT Collections',
                     type: constants_1.SuccessResponseTypes.array,
                     data: tokens
                 }

@@ -15,6 +15,122 @@ const service_1 = require("./service");
 const errors_1 = require("../errors");
 function rewardsPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
+        app.get('/get/token', {
+            preHandler: app.authenticate,
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.getTokenRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        })),
+            app.get('/get/nfts', {
+                preHandler: app.authenticate,
+            }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    const data = req.routeConfig.jwtData;
+                    const res = yield (0, service_1.getNFTRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    reply
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
+                }
+                catch (error) {
+                    console.log(error.message);
+                    const prettyError = (0, errors_1.prettyRewardsError)(error.message);
+                    reply
+                        .code(prettyError.code)
+                        .type('application/json; charset=utf-8')
+                        .send({ error: prettyError.error });
+                }
+            }));
+        app.get('/events/nfts', {
+            preHandler: app.authenticate,
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.getRewardNFTEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
+        app.get('/events/claimabletoken', (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const query = req.query;
+                const res = yield (0, service_1.getClaimableToken)(query.id, query.user_id);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
+        app.get('/events/claimablenft', (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const query = req.query;
+                const res = yield (0, service_1.getClaimableNFT)(query.id, query.user_id);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
+        app.get('/events/tokens', {
+            preHandler: app.authenticate,
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.getRewardTokenEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
         app.post('/add/token', {
             preHandler: app.authenticate,
             schema: {
@@ -40,26 +156,6 @@ function rewardsPlugin(app, opt) {
                     .send({ error: prettyError.error });
             }
         })),
-            app.get('/get/token', {
-                preHandler: app.authenticate,
-            }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
-                try {
-                    const data = req.routeConfig.jwtData;
-                    const res = yield (0, service_1.getTokenRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                    reply
-                        .code(res.code)
-                        .type('application/json; charset=utf-8')
-                        .send('body' in res ? { body: res.body } : { error: res.error });
-                }
-                catch (error) {
-                    console.log(error.message);
-                    const prettyError = (0, errors_1.prettyRewardsError)(error.message);
-                    reply
-                        .code(prettyError.code)
-                        .type('application/json; charset=utf-8')
-                        .send({ error: prettyError.error });
-                }
-            })),
             app.post('/delete/token', {
                 preHandler: app.authenticate,
                 schema: {
@@ -110,12 +206,17 @@ function rewardsPlugin(app, opt) {
                         .send({ error: prettyError.error });
                 }
             })),
-            app.get('/events/tokens', {
+            app.post('/add/nft', {
                 preHandler: app.authenticate,
+                schema: {
+                    body: { $ref: 'AddNFTReward' }
+                }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
+                    const nftReward = req.body;
+                    yield schemas_1.AddNFTRewardValidation.validateAsync(nftReward);
                     const data = req.routeConfig.jwtData;
-                    const res = yield (0, service_1.getRewardTokenEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                    const res = yield (0, service_1.addNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, nftReward);
                     reply
                         .code(res.code)
                         .type('application/json; charset=utf-8')
@@ -130,51 +231,6 @@ function rewardsPlugin(app, opt) {
                         .send({ error: prettyError.error });
                 }
             }));
-        app.post('/add/nft', {
-            preHandler: app.authenticate,
-            schema: {
-                body: { $ref: 'AddNFTReward' }
-            }
-        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const nftReward = req.body;
-                yield schemas_1.AddNFTRewardValidation.validateAsync(nftReward);
-                const data = req.routeConfig.jwtData;
-                const res = yield (0, service_1.addNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, nftReward);
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? { body: res.body } : { error: res.error });
-            }
-            catch (error) {
-                console.log(error.message);
-                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({ error: prettyError.error });
-            }
-        }));
-        app.get('/get/nfts', {
-            preHandler: app.authenticate,
-        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = req.routeConfig.jwtData;
-                const res = yield (0, service_1.getNFTRewards)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? { body: res.body } : { error: res.error });
-            }
-            catch (error) {
-                console.log(error.message);
-                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({ error: prettyError.error });
-            }
-        }));
         app.post('/delete/nfts', {
             preHandler: app.authenticate,
             schema: {
@@ -211,62 +267,6 @@ function rewardsPlugin(app, opt) {
                 yield schemas_1.RewardWithTokenValidation.validateAsync(reward);
                 const data = req.routeConfig.jwtData;
                 const res = yield (0, service_1.rewardWithNFT)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, reward);
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? { body: res.body } : { error: res.error });
-            }
-            catch (error) {
-                console.log(error.message);
-                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({ error: prettyError.error });
-            }
-        }));
-        app.get('/events/nfts', {
-            preHandler: app.authenticate,
-        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const data = req.routeConfig.jwtData;
-                const res = yield (0, service_1.getRewardNFTEvents)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? { body: res.body } : { error: res.error });
-            }
-            catch (error) {
-                console.log(error.message);
-                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({ error: prettyError.error });
-            }
-        }));
-        app.get('/events/claimabletoken', (req, reply) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const query = req.query;
-                const res = yield (0, service_1.getClaimableToken)(query.id, query.user_id);
-                reply
-                    .code(res.code)
-                    .type('application/json; charset=utf-8')
-                    .send('body' in res ? { body: res.body } : { error: res.error });
-            }
-            catch (error) {
-                console.log(error.message);
-                const prettyError = (0, errors_1.prettyRewardsError)(error.message);
-                reply
-                    .code(prettyError.code)
-                    .type('application/json; charset=utf-8')
-                    .send({ error: prettyError.error });
-            }
-        }));
-        app.get('/events/claimablenft', (req, reply) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const query = req.query;
-                const res = yield (0, service_1.getClaimableNFT)(query.id, query.user_id);
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

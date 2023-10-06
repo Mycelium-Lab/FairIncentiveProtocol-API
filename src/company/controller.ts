@@ -3,12 +3,17 @@ import { ErrorResponse, JWTPayload, ReplyCompany, SuccessResponse, UpdateEmail, 
 import { changeEmail, changeName, changePassword, changePhone, changeWallet, getCompany } from "./service";
 import { ChangeCompanyEmailValidation, ChangeCompanyNameValidation, ChangeCompanyPasswordValidation, ChangeCompanyPhoneValidation, ChangeCompanyWalletValidation } from "../schemas";
 import { prettyCompanyError } from "../errors";
+import { authorizationTokenDescription, changeEmailResponseDescription, changeNameResponseDescription, changePasswordResponseDescription, changePhoneResponseDescription, changeWalletResponseDescription, companyResponseDescription } from "../response_description";
 
 export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
         '/', 
         {
-            preHandler: app.authenticate
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                response: companyResponseDescription
+            }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
@@ -33,7 +38,9 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'ChangeCompanyName' } 
+                body: { $ref: 'ChangeCompanyName' },
+                headers: authorizationTokenDescription,
+                response: changeNameResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -61,7 +68,9 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'ChangeCompanyEmail' } 
+                body: { $ref: 'ChangeCompanyEmail' },
+                headers: authorizationTokenDescription,
+                response: changeEmailResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -89,7 +98,9 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'ChangeCompanyPhone' } 
+                body: { $ref: 'ChangeCompanyPhone' },
+                headers: authorizationTokenDescription,
+                response: changePhoneResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -117,7 +128,9 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'ChangeCompanyWallet' } 
+                body: { $ref: 'ChangeCompanyWallet' },
+                headers: authorizationTokenDescription,
+                response: changeWalletResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
@@ -145,7 +158,9 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'ChangeCompanyPassword' } 
+                body: { $ref: 'ChangeCompanyPassword' },
+                headers: authorizationTokenDescription,
+                response: changePasswordResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {

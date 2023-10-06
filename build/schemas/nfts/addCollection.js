@@ -34,9 +34,11 @@ exports.AddNFTCollection = {
         links: {
             type: 'array',
             items: {
-                type: 'object'
-            },
-            default: []
+                type: 'object',
+                properties: {
+                    link: { type: 'string' }
+                }
+            }
         }
     }
 };
@@ -57,5 +59,7 @@ exports.AddNFTCollectionValidation = joi_1.default.object({
         .external(utils_1.checkChainID),
     beneficiary: joi_1.default.string().allow(null).external(utils_1.checkAddress),
     royalties: joi_1.default.number().required(),
-    links: joi_1.default.array().allow(null)
+    links: joi_1.default.array().items(joi_1.default.object({
+        link: joi_1.default.string().required()
+    })),
 });

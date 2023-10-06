@@ -29,9 +29,11 @@ export const AddNFTCollection: unknown = {
         links: {
             type: 'array',
             items: {
-                type: 'object'
-            },
-            default: []
+                type: 'object',
+                properties: {
+                    link: { type: 'string' }
+                }
+            }
         }
     }
 }
@@ -60,6 +62,10 @@ export const AddNFTCollectionValidation: Joi.ObjectSchema = Joi.object({
 
     royalties: Joi.number().required(),
 
-    links: Joi.array().allow(null)
+    links: Joi.array().items(
+        Joi.object({
+          link: Joi.string().required()
+        })
+    ),
 
 })

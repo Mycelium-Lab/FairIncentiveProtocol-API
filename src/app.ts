@@ -38,8 +38,8 @@ export async function build(opt: AppOptions = {}) {
           url: 'https://swagger.io',
           description: 'Find more info here'
         },
-        host: 'localhost',
-        schemes: ['http'],
+        host: 'kongam.space',
+        schemes: ['https'],
       }
     })
     app.decorate("authenticate", async function(request: any, reply: FastifyReply): Promise<void> {

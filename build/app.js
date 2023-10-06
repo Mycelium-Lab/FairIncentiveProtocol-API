@@ -49,8 +49,8 @@ function build(opt = {}) {
                     url: 'https://swagger.io',
                     description: 'Find more info here'
                 },
-                host: 'localhost',
-                schemes: ['http'],
+                host: 'kongam.space',
+                schemes: ['https'],
             }
         });
         app.decorate("authenticate", function (request, reply) {

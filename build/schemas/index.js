@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addSchemas = exports.DeleteApiKeyValidation = exports.StatusValidation = exports.UpdateUserValidation = exports.UpdateNFTRewardValidation = exports.UpdateTokenRewardValidation = exports.AddNFTRewardValidation = exports.AddNFTValidation = exports.RewardWithTokenValidation = exports.DeleteValidation = exports.AddTokenRewardValidation = exports.AddNFTCollectionValidation = exports.AddTokenValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
+exports.addSchemas = exports.ChangeCompanyRepnameValidation = exports.DeleteApiKeyValidation = exports.StatusValidation = exports.UpdateUserValidation = exports.UpdateNFTRewardValidation = exports.UpdateTokenRewardValidation = exports.AddNFTRewardValidation = exports.AddNFTValidation = exports.RewardWithTokenValidation = exports.DeleteValidation = exports.AddTokenRewardValidation = exports.AddNFTCollectionValidation = exports.AddTokenValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
 const SignUp_1 = require("./auth/SignUp");
 const SignIn_1 = require("./auth/SignIn");
 const name_1 = require("./company/name");
@@ -21,6 +21,7 @@ const updateNFTReward_1 = require("./rewards/updateNFTReward");
 const update_1 = require("./users/update");
 const status_1 = require("./rewards/status");
 const Delete_2 = require("./api_keys/Delete");
+const repname_1 = require("./company/repname");
 var SignUp_2 = require("./auth/SignUp");
 Object.defineProperty(exports, "SignUpValidation", { enumerable: true, get: function () { return SignUp_2.SignUpValidation; } });
 var SignIn_2 = require("./auth/SignIn");
@@ -61,6 +62,8 @@ var status_2 = require("./rewards/status");
 Object.defineProperty(exports, "StatusValidation", { enumerable: true, get: function () { return status_2.StatusValidation; } });
 var Delete_4 = require("./api_keys/Delete");
 Object.defineProperty(exports, "DeleteApiKeyValidation", { enumerable: true, get: function () { return Delete_4.DeleteApiKeyValidation; } });
+var repname_2 = require("./company/repname");
+Object.defineProperty(exports, "ChangeCompanyRepnameValidation", { enumerable: true, get: function () { return repname_2.ChangeCompanyRepnameValidation; } });
 function addSchemas(app) {
     app.addSchema(SignUp_1.SignUp);
     app.addSchema(SignIn_1.SignIn);
@@ -82,5 +85,6 @@ function addSchemas(app) {
     app.addSchema(update_1.UpdateUser);
     app.addSchema(status_1.Status);
     app.addSchema(Delete_2.DeleteApiKey);
+    app.addSchema(repname_1.ChangeCompanyRepname);
 }
 exports.addSchemas = addSchemas;

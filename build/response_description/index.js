@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.nftsDeleteResponseDescription = exports.nftAddResponseDescription = exports.collectionAddResponseDescription = exports.nftsResponseDescription = exports.nftCollectionsResponseDescription = exports.userUpdateResponseDescription = exports.userDeleteResponseDescription = exports.userAddResponseDescription = exports.usersResponseDescription = exports.tokenAddResponseDescription = exports.tokenResponseDescription = exports.changeWalletResponseDescription = exports.changePhoneResponseDescription = exports.changePasswordResponseDescription = exports.changeEmailResponseDescription = exports.changeNameResponseDescription = exports.companyResponseDescription = exports.errorCodesDescription = exports.authorizationTokenDescription = exports.signinResponseDescription = exports.signupResponseDecription = void 0;
+exports.nftsDeleteResponseDescription = exports.nftAddResponseDescription = exports.collectionAddResponseDescription = exports.nftsResponseDescription = exports.nftCollectionsResponseDescription = exports.userUpdateResponseDescription = exports.userDeleteResponseDescription = exports.userAddResponseDescription = exports.usersResponseDescription = exports.tokenAddResponseDescription = exports.tokenResponseDescription = exports.changeRepnameResponseDescription = exports.changeWalletResponseDescription = exports.changePhoneResponseDescription = exports.changePasswordResponseDescription = exports.changeEmailResponseDescription = exports.changeNameResponseDescription = exports.companyResponseDescription = exports.errorCodesDescription = exports.authorizationTokenDescription = exports.signinResponseDescription = exports.signupResponseDecription = void 0;
 var auth_1 = require("./auth");
 Object.defineProperty(exports, "signupResponseDecription", { enumerable: true, get: function () { return auth_1.signupResponseDecription; } });
 Object.defineProperty(exports, "signinResponseDescription", { enumerable: true, get: function () { return auth_1.signinResponseDescription; } });
@@ -14,6 +14,7 @@ Object.defineProperty(exports, "changeEmailResponseDescription", { enumerable: t
 Object.defineProperty(exports, "changePasswordResponseDescription", { enumerable: true, get: function () { return company_1.changePasswordResponseDescription; } });
 Object.defineProperty(exports, "changePhoneResponseDescription", { enumerable: true, get: function () { return company_1.changePhoneResponseDescription; } });
 Object.defineProperty(exports, "changeWalletResponseDescription", { enumerable: true, get: function () { return company_1.changeWalletResponseDescription; } });
+Object.defineProperty(exports, "changeRepnameResponseDescription", { enumerable: true, get: function () { return company_1.changeRepnameResponseDescription; } });
 var tokens_1 = require("./tokens");
 Object.defineProperty(exports, "tokenResponseDescription", { enumerable: true, get: function () { return tokens_1.tokenResponseDescription; } });
 Object.defineProperty(exports, "tokenAddResponseDescription", { enumerable: true, get: function () { return tokens_1.tokenAddResponseDescription; } });

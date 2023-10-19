@@ -1,9 +1,9 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
-import { ErrorResponse, JWTPayload, ReplyCompany, SuccessResponse, UpdateEmail, UpdateName, UpdatePassword, UpdatePhone, UpdateWallet } from "../entities";
-import { changeEmail, changeName, changePassword, changePhone, changeWallet, getCompany } from "./service";
-import { ChangeCompanyEmailValidation, ChangeCompanyNameValidation, ChangeCompanyPasswordValidation, ChangeCompanyPhoneValidation, ChangeCompanyWalletValidation } from "../schemas";
+import { ErrorResponse, JWTPayload, ReplyCompany, SuccessResponse, UpdateEmail, UpdateName, UpdatePassword, UpdatePhone, UpdateRepname, UpdateWallet } from "../entities";
+import { changeEmail, changeName, changePassword, changePhone, changeRepname, changeWallet, getCompany } from "./service";
+import { ChangeCompanyEmailValidation, ChangeCompanyNameValidation, ChangeCompanyPasswordValidation, ChangeCompanyPhoneValidation, ChangeCompanyRepnameValidation, ChangeCompanyWalletValidation } from "../schemas";
 import { prettyCompanyError } from "../errors";
-import { authorizationTokenDescription, changeEmailResponseDescription, changeNameResponseDescription, changePasswordResponseDescription, changePhoneResponseDescription, changeWalletResponseDescription, companyResponseDescription } from "../response_description";
+import { authorizationTokenDescription, changeEmailResponseDescription, changeNameResponseDescription, changePasswordResponseDescription, changePhoneResponseDescription, changeRepnameResponseDescription, changeWalletResponseDescription, companyResponseDescription } from "../response_description";
 
 export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
@@ -169,6 +169,36 @@ export async function companyPlugin(app: FastifyInstance, opt: FastifyPluginOpti
                 await ChangeCompanyPasswordValidation.validateAsync(updatePassword)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await changePassword({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updatePassword.newPassword)
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyCompanyError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.post(
+        '/changerepname',
+        {
+            preHandler: app.authenticate,
+            schema: { 
+                body: { $ref: 'ChangeCompanyRepname' },
+                headers: authorizationTokenDescription,
+                response: changeRepnameResponseDescription
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const updateRepname: UpdateRepname = req.body as UpdateRepname
+                await ChangeCompanyRepnameValidation.validateAsync(updateRepname)
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const res: ErrorResponse | SuccessResponse = await changeRepname({email: data?.email, phone: data?.phone, company_id: data?.company_id}, updateRepname.newRepname)
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

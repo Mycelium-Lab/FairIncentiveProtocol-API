@@ -27,7 +27,8 @@ export const companyResponseDescription = {
                             name: {type: 'string'},
                             email: {type: 'string'},
                             phone: {type: 'string'},
-                            wallet: {type: 'string'}
+                            wallet: {type: 'string'},
+                            repname: {type: 'string'}
                         }
                     }
                 }
@@ -172,6 +173,36 @@ export const changePasswordResponseDescription = {
                     message: {
                         type: 'string',
                         default: 'Company password has been successfully updated'
+                    },
+                    type: {
+                        type: 'string',
+                        default: 'null'
+                    },
+                    data: {
+                        type: 'null'
+                    }
+                }
+            }
+        }
+    },
+    ...errorCodesDescription
+}
+
+export const changeRepnameResponseDescription = {
+    200: {
+        description: 'Updates company repname',
+        type: 'object',
+        properties: {
+            code: {
+                type: 'number',
+                default: CODES.OK.code
+            },
+            body: {
+                type: 'object',
+                properties: {
+                    message: {
+                        type: 'string',
+                        default: 'Company repname has been successfully updated'
                     },
                     type: {
                         type: 'string',

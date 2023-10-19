@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePassword = exports.changeWallet = exports.changePhone = exports.changeEmail = exports.changeName = exports.getCompany = exports.createCompany = void 0;
+exports.changeRepname = exports.changePassword = exports.changeWallet = exports.changePhone = exports.changeEmail = exports.changeName = exports.getCompany = exports.createCompany = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const errors_1 = require("../errors");
 const constants_1 = require("../utils/constants");
@@ -59,7 +59,7 @@ function getCompany(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const selectedCompany = yield db_1.default
-                .select(['name', 'email', 'wallet', 'id', 'phone', 'role_id'])
+                .select(['name', 'email', 'wallet', 'id', 'phone', 'role_id', 'repname'])
                 .where({ id: getCompany.company_id })
                 .from('companies')
                 .first();
@@ -248,3 +248,35 @@ function changePassword(company, newPassword) {
     });
 }
 exports.changePassword = changePassword;
+function changeRepname(company, newRepname) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield (0, db_1.default)('companies')
+                .where({ id: company.company_id })
+                .update({
+                repname: newRepname
+            });
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Company repname has been successfully updated',
+                    type: constants_1.SuccessResponseTypes.nullType,
+                    data: null
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.changeRepname = changeRepname;

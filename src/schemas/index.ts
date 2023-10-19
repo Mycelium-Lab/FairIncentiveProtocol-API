@@ -19,6 +19,7 @@ import { UpdateNFTReward } from './rewards/updateNFTReward'
 import { UpdateUser } from './users/update'
 import { Status } from './rewards/status'
 import { DeleteApiKey } from './api_keys/Delete'
+import { ChangeCompanyRepname } from "./company/repname";
 export { SignUpValidation } from './auth/SignUp'
 export { SignInValidation } from './auth/SignIn'
 export { ChangeCompanyNameValidation } from './company/name'
@@ -39,6 +40,7 @@ export { UpdateNFTRewardValidation } from './rewards/updateNFTReward'
 export { UpdateUserValidation } from './users/update'
 export { StatusValidation } from './rewards/status'
 export { DeleteApiKeyValidation } from './api_keys/Delete'
+export { ChangeCompanyRepnameValidation } from './company/repname'
 
 export function addSchemas(app: FastifyInstance) {
     app.addSchema(SignUp)
@@ -61,4 +63,5 @@ export function addSchemas(app: FastifyInstance) {
     app.addSchema(UpdateUser)
     app.addSchema(Status)
     app.addSchema(DeleteApiKey)
+    app.addSchema(ChangeCompanyRepname)
 }

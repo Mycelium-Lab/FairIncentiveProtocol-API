@@ -44,7 +44,7 @@ export async function getCompany(getCompany: GetCompany): Promise<ErrorResponse 
     try {
         const selectedCompany: ReplyCompany = 
             await pg
-                .select(['name', 'email', 'wallet', 'id', 'phone', 'role_id'])
+                .select(['name', 'email', 'wallet', 'id', 'phone', 'role_id', 'repname'])
                 .where({id: getCompany.company_id})
                 .from('companies')
                 .first()
@@ -216,5 +216,31 @@ export async function changePassword(company: GetCompany, newPassword: string): 
     }
 }
 
-
-
+export async function changeRepname(company: GetCompany, newRepname: string): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        await pg('companies')
+            .where({id: company.company_id})
+            .update({
+                repname: newRepname
+            })
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Company repname has been successfully updated',
+                type: SuccessResponseTypes.nullType,
+                data: null
+            }
+        }
+        return res   
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
+    }
+}

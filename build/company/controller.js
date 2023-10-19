@@ -175,6 +175,33 @@ function companyPlugin(app, opt) {
                     .send({ error: prettyError.error });
             }
         }));
+        app.post('/changerepname', {
+            preHandler: app.authenticate,
+            schema: {
+                body: { $ref: 'ChangeCompanyRepname' },
+                headers: response_description_1.authorizationTokenDescription,
+                response: response_description_1.changeRepnameResponseDescription
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updateRepname = req.body;
+                yield schemas_1.ChangeCompanyRepnameValidation.validateAsync(updateRepname);
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, service_1.changeRepname)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, updateRepname.newRepname);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyCompanyError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
     });
 }
 exports.companyPlugin = companyPlugin;

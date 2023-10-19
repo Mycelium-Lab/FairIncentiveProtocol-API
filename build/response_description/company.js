@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePasswordResponseDescription = exports.changeWalletResponseDescription = exports.changePhoneResponseDescription = exports.changeEmailResponseDescription = exports.changeNameResponseDescription = exports.companyResponseDescription = void 0;
+exports.changeRepnameResponseDescription = exports.changePasswordResponseDescription = exports.changeWalletResponseDescription = exports.changePhoneResponseDescription = exports.changeEmailResponseDescription = exports.changeNameResponseDescription = exports.companyResponseDescription = void 0;
 const constants_1 = require("../utils/constants");
 const index_1 = require("./index");
 exports.companyResponseDescription = Object.assign({ 200: {
@@ -28,7 +28,8 @@ exports.companyResponseDescription = Object.assign({ 200: {
                             name: { type: 'string' },
                             email: { type: 'string' },
                             phone: { type: 'string' },
-                            wallet: { type: 'string' }
+                            wallet: { type: 'string' },
+                            repname: { type: 'string' }
                         }
                     }
                 }
@@ -153,6 +154,32 @@ exports.changePasswordResponseDescription = Object.assign({ 200: {
                     message: {
                         type: 'string',
                         default: 'Company password has been successfully updated'
+                    },
+                    type: {
+                        type: 'string',
+                        default: 'null'
+                    },
+                    data: {
+                        type: 'null'
+                    }
+                }
+            }
+        }
+    } }, index_1.errorCodesDescription);
+exports.changeRepnameResponseDescription = Object.assign({ 200: {
+        description: 'Updates company repname',
+        type: 'object',
+        properties: {
+            code: {
+                type: 'number',
+                default: constants_1.CODES.OK.code
+            },
+            body: {
+                type: 'object',
+                properties: {
+                    message: {
+                        type: 'string',
+                        default: 'Company repname has been successfully updated'
                     },
                     type: {
                         type: 'string',

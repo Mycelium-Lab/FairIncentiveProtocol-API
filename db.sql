@@ -578,3 +578,6 @@ CREATE TABLE reward_event_erc721(
     s               VARCHAR(66) NOT NULL,
     comment         TEXT
 );      
+
+ALTER TABLE reward_event_erc20 ADD event_datetime TIMESTAMPTZ DEFAULT NOW(); 
+ALTER TABLE reward_event_erc721 ADD event_datetime TIMESTAMPTZ DEFAULT NOW();

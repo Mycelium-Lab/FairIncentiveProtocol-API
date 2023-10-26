@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTotalCount = void 0;
+exports.get24hCount = exports.getUserCount = exports.getTotalCount = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
 function getTotalCount(getCompany) {
@@ -52,3 +52,78 @@ function getTotalCount(getCompany) {
     });
 }
 exports.getTotalCount = getTotalCount;
+function getUserCount(getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const rewardedUsersErc20Count = yield (0, db_1.default)('rewards_erc20')
+                .countDistinct('reward_event_erc20.user_id as count')
+                .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+                .first()
+                .where('rewards_erc20.company_id', getCompany.company_id);
+            const rewardedUsersErc721Count = yield (0, db_1.default)('rewards_erc721')
+                .countDistinct('reward_event_erc721.user_id as count')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .first()
+                .where('rewards_erc721.company_id', getCompany.company_id);
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards total count',
+                    type: constants_1.SuccessResponseTypes.number,
+                    data: +rewardedUsersErc20Count.count + +rewardedUsersErc721Count.count
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getUserCount = getUserCount;
+function get24hCount(getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const rewarded24hErc20Count = yield (0, db_1.default)('rewards_erc20')
+                .count('reward_event_erc20.id as count')
+                .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+                .first()
+                .whereRaw('rewards_erc20.company_id = ? AND reward_event_erc20.event_datetime >= ?', [getCompany.company_id, twentyFourHoursAgo]);
+            const rewarded24hErc721Count = yield (0, db_1.default)('rewards_erc721')
+                .count('reward_event_erc721.id as count')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .first()
+                .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ?', [getCompany.company_id, twentyFourHoursAgo]);
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards total count',
+                    type: constants_1.SuccessResponseTypes.number,
+                    data: +rewarded24hErc20Count.count + +rewarded24hErc721Count.count
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.get24hCount = get24hCount;

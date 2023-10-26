@@ -28,12 +28,16 @@ function getTotalCount(getCompany) {
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
                 .first()
                 .where('rewards_erc721.company_id', getCompany.company_id);
+            const total = {
+                erc20: +rewardsErc20Count.count,
+                erc721: +rewardsErc721Count.count
+            };
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
                     message: 'Rewards total count',
-                    type: constants_1.SuccessResponseTypes.number,
-                    data: +rewardsErc20Count.count + +rewardsErc721Count.count
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: total
                 }
             };
             return res;

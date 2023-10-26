@@ -60,21 +60,21 @@ function getUserCount(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const rewardedUsersErc20Count = yield (0, db_1.default)('rewards_erc20')
-                .countDistinct('reward_event_erc20.user_id as count')
+                .distinct('reward_event_erc20.user_id as user_id')
                 .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
-                .first()
                 .where('rewards_erc20.company_id', getCompany.company_id);
             const rewardedUsersErc721Count = yield (0, db_1.default)('rewards_erc721')
-                .countDistinct('reward_event_erc721.user_id as count')
+                .distinct('reward_event_erc721.user_id as user_id')
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
-                .first()
                 .where('rewards_erc721.company_id', getCompany.company_id);
+            const uniqueUserIds = new Set([...rewardedUsersErc20Count, ...rewardedUsersErc721Count].map((user) => user.user_id));
+            const totalUniqueUsers = uniqueUserIds.size;
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
                     message: 'Rewards users count',
                     type: constants_1.SuccessResponseTypes.number,
-                    data: +rewardedUsersErc20Count.count + +rewardedUsersErc721Count.count
+                    data: totalUniqueUsers
                 }
             };
             return res;

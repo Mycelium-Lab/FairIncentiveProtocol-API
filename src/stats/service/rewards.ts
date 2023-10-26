@@ -1,6 +1,6 @@
-import pg from "../../config/db";
-import { Distribution, ErrorResponse, GetCompany, SuccessResponse, Total, TotalOneType } from "../../entities";
-import { CODES, SuccessResponseTypes } from "../../utils/constants";
+import pg from "../../config/db"
+import { Distribution, ErrorResponse, GetCompany, SuccessResponse, Total, TotalOneType } from "../../entities"
+import { CODES, SuccessResponseTypes } from "../../utils/constants"
 
 export async function getTotalCount(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
@@ -42,22 +42,24 @@ export async function getTotalCount(getCompany: GetCompany): Promise<ErrorRespon
 
 export async function getUserCount(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
-        const rewardedUsersErc20Count: TotalOneType = await pg('rewards_erc20')
-            .countDistinct('reward_event_erc20.user_id as count')
+        const rewardedUsersErc20Count: Array<{user_id: string}> = await pg('rewards_erc20')
+            .distinct('reward_event_erc20.user_id as user_id')
             .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
-            .first()
             .where('rewards_erc20.company_id', getCompany.company_id)
-        const rewardedUsersErc721Count: TotalOneType = await pg('rewards_erc721')
-            .countDistinct('reward_event_erc721.user_id as count')
+        const rewardedUsersErc721Count: Array<{user_id: string}> = await pg('rewards_erc721')
+            .distinct('reward_event_erc721.user_id as user_id')
             .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
-            .first()
             .where('rewards_erc721.company_id', getCompany.company_id)
+
+        const uniqueUserIds = new Set([...rewardedUsersErc20Count, ...rewardedUsersErc721Count].map((user) => user.user_id))
+        const totalUniqueUsers = uniqueUserIds.size
+    
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {
                 message: 'Rewards users count',
                 type: SuccessResponseTypes.number,
-                data: +rewardedUsersErc20Count.count + +rewardedUsersErc721Count.count
+                data: totalUniqueUsers
             }
         }
         return res
@@ -76,7 +78,7 @@ export async function getUserCount(getCompany: GetCompany): Promise<ErrorRespons
 
 export async function get24hCount(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
         const rewarded24hErc20Count: TotalOneType = await pg('rewards_erc20')
             .count('reward_event_erc20.id as count')
             .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')

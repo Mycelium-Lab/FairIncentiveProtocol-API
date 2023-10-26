@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.get24hCount = exports.getUserCount = exports.getTotalCount = void 0;
+exports.getDistribution = exports.get24hCount = exports.getUserCount = exports.getTotalCount = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
 function getTotalCount(getCompany) {
@@ -68,7 +68,7 @@ function getUserCount(getCompany) {
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
-                    message: 'Rewards total count',
+                    message: 'Rewards users count',
                     type: constants_1.SuccessResponseTypes.number,
                     data: +rewardedUsersErc20Count.count + +rewardedUsersErc721Count.count
                 }
@@ -106,7 +106,7 @@ function get24hCount(getCompany) {
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
-                    message: 'Rewards total count',
+                    message: 'Rewards 24h',
                     type: constants_1.SuccessResponseTypes.number,
                     data: +rewarded24hErc20Count.count + +rewarded24hErc721Count.count
                 }
@@ -127,3 +127,43 @@ function get24hCount(getCompany) {
     });
 }
 exports.get24hCount = get24hCount;
+function getDistribution(getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const rewardsErc20Distribution = yield (0, db_1.default)('rewards_erc20')
+                .select('rewards_erc20.id', 'rewards_erc20.company_id', 'rewards_erc20.name')
+                .count('reward_event_erc20.id as event_count')
+                .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+                .groupBy('rewards_erc20.id', 'rewards_erc20.company_id', 'rewards_erc20.name')
+                .where('rewards_erc20.company_id', getCompany.company_id);
+            const rewardsErc721Distribution = yield (0, db_1.default)('rewards_erc721')
+                .select('rewards_erc721.id', 'rewards_erc721.company_id', 'rewards_erc721.name')
+                .count('reward_event_erc721.id as event_count')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .groupBy('rewards_erc721.id', 'rewards_erc721.company_id', 'rewards_erc721.name')
+                .where('rewards_erc721.company_id', getCompany.company_id);
+            const totalDistribution = [...rewardsErc20Distribution, ...rewardsErc721Distribution];
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards distribution',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: totalDistribution
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getDistribution = getDistribution;

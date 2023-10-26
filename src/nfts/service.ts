@@ -1,7 +1,5 @@
-import { config } from "../config/config";
 import pg from "../config/db";
 import { AddNFT, AddNFTCollection, BooleanResponse, Company, Delete, ErrorResponse, GetCompany, NFT, NFTCollection, NFTReward, SuccessResponse } from "../entities";
-import { prettyNFTError } from "../errors";
 import { CODES, SuccessResponseTypes } from "../utils/constants";
 
 export async function addNFTCollection(nftCollection: AddNFTCollection, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {

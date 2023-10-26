@@ -27,6 +27,7 @@ exports.SuccessResponseTypes = {
     object: 'object',
     array: 'array<object>',
     string: 'string',
+    number: 'number',
     nullType: 'null'
 };
 exports.CODES_RANGES = {

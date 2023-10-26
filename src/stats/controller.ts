@@ -1,0 +1,1 @@
+export { statRewardsController } from './controller/rewards'

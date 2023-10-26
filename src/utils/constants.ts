@@ -25,6 +25,7 @@ export const SuccessResponseTypes = {
     object: 'object',
     array: 'array<object>',
     string: 'string',
+    number: 'number',
     nullType: 'null'
 }
 

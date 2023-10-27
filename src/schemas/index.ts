@@ -20,6 +20,7 @@ import { UpdateUser } from './users/update'
 import { Status } from './rewards/status'
 import { DeleteApiKey } from './api_keys/Delete'
 import { ChangeCompanyRepname } from "./company/repname";
+import { DateRange } from "./stat/dateRange";
 export { SignUpValidation } from './auth/SignUp'
 export { SignInValidation } from './auth/SignIn'
 export { ChangeCompanyNameValidation } from './company/name'
@@ -41,6 +42,7 @@ export { UpdateUserValidation } from './users/update'
 export { StatusValidation } from './rewards/status'
 export { DeleteApiKeyValidation } from './api_keys/Delete'
 export { ChangeCompanyRepnameValidation } from './company/repname'
+export { DateRangeValidation } from './stat/dateRange'
 
 export function addSchemas(app: FastifyInstance) {
     app.addSchema(SignUp)
@@ -64,4 +66,5 @@ export function addSchemas(app: FastifyInstance) {
     app.addSchema(Status)
     app.addSchema(DeleteApiKey)
     app.addSchema(ChangeCompanyRepname)
+    app.addSchema(DateRange)
 }

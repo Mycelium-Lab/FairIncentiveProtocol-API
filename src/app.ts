@@ -17,7 +17,7 @@ import { CODES } from './utils/constants'
 import { prettyAuthError } from './errors'
 import { apiKeysPlugin } from './api_keys/controller'
 import { checkApiKey } from './api_keys/service'
-import { statRewardsController, statUsersController } from './stats/controller'
+import { statRewardsController, statUsersController } from './stat/controller'
 
 export type AppOptions = Partial<FastifyServerOptions>
 

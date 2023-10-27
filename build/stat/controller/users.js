@@ -13,6 +13,7 @@ exports.statUsersController = void 0;
 const response_description_1 = require("../../response_description");
 const errors_1 = require("../../errors");
 const users_1 = require("../service/users");
+const schemas_1 = require("../../schemas");
 function statUsersController(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.get('/total_users', {
@@ -41,8 +42,7 @@ function statUsersController(app, opt) {
         app.get('/users_24h', {
             preHandler: app.authenticate,
             schema: {
-                headers: response_description_1.authorizationTokenDescription,
-                querystring: {}
+                headers: response_description_1.authorizationTokenDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
@@ -52,6 +52,36 @@ function statUsersController(app, opt) {
                     .code(res.code)
                     .type('application/json; charset=utf-8')
                     .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyStatUsersError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
+        app.get('/new_users_range', {
+            preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                querystring: {
+                    $ref: 'DateRange'
+                }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const dateRange = req.query;
+                dateRange.startDate = new Date(dateRange.startDate);
+                dateRange.endDate = new Date(dateRange.endDate);
+                yield schemas_1.DateRangeValidation.validateAsync(dateRange);
+                // const res: ErrorResponse | SuccessResponse = await get24hCount({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(200)
+                    .type('application/json; charset=utf-8')
+                    .send('ok');
             }
             catch (error) {
                 console.log(error.message);

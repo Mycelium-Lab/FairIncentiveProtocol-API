@@ -31,7 +31,7 @@ const constants_1 = require("./utils/constants");
 const errors_1 = require("./errors");
 const controller_8 = require("./api_keys/controller");
 const service_1 = require("./api_keys/service");
-const controller_9 = require("./stats/controller");
+const controller_9 = require("./stat/controller");
 function build(opt = {}) {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, fastify_1.default)(opt);
@@ -94,6 +94,7 @@ function build(opt = {}) {
         app.register(controller_8.apiKeysPlugin, { prefix: '/api_keys' });
         app.register(controller_7.publicPlugin, { prefix: '/claim' });
         app.register(controller_9.statRewardsController, { prefix: '/stat' });
+        app.register(controller_9.statUsersController, { prefix: '/stat' });
         app.register(cors_1.default, {
             origin: "*",
             methods: ["GET", "POST"]

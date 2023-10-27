@@ -94,6 +94,7 @@ function build(opt = {}) {
         app.register(controller_8.apiKeysPlugin, { prefix: '/api_keys' });
         app.register(controller_7.publicPlugin, { prefix: '/claim' });
         app.register(controller_9.statRewardsController, { prefix: '/stat' });
+        app.register(controller_9.statUsersController, { prefix: '/stat' });
         app.register(cors_1.default, {
             origin: "*",
             methods: ["GET", "POST"]

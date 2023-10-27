@@ -1,5 +1,5 @@
 import pg from "../../config/db"
-import { DateInterval, DateRange, ErrorResponse, GetCompany, SuccessResponse, TotalOneType } from "../../entities"
+import { DateEnd, DateInterval, DateRange, ErrorResponse, GetCompany, SuccessResponse, TotalOneType } from "../../entities"
 import { CODES, SuccessResponseTypes } from "../../utils/constants"
 
 export async function getTotalCount(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
@@ -92,6 +92,50 @@ export async function getNewUsersRange(getCompany: GetCompany, dateRange: DateRa
             code: CODES.OK.code,
             body: {
                 message: 'New users range',
+                type: SuccessResponseTypes.array,
+                data: result
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
+    }
+}
+
+export async function getTotalUsersRange(getCompany: GetCompany, dateRange: DateRange): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const intervals = 30
+        const intervalSize = Math.floor((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / intervals)
+        let dates: any = []
+        for (let i = 0; i <= intervals; i++) {
+            dates.push(new Date(new Date(i === 0 ? dateRange.startDate.toISOString() : dates[i-1]).getTime() + intervalSize).toISOString())
+        }
+        dates = dates.map((v: any) => `'${v}'`)
+        const query = await pg.raw(`
+            SELECT
+            end_date,
+            COUNT(id) AS count
+            FROM (
+            SELECT
+                unnest(ARRAY[${dates.join(', ')}]::timestamptz[]) AS end_date
+            ) AS end_dates
+            LEFT JOIN users ON add_datetime <= end_date
+            GROUP BY end_date
+            ORDER BY end_date;
+        `);
+        const result: Array<DateEnd> = query.rows
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Total users range',
                 type: SuccessResponseTypes.array,
                 data: result
             }

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNewUsersRange = exports.get24hCount = exports.getTotalCount = void 0;
+exports.getTotalUsersRange = exports.getNewUsersRange = exports.get24hCount = exports.getTotalCount = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
 function getTotalCount(getCompany) {
@@ -132,3 +132,50 @@ function getNewUsersRange(getCompany, dateRange) {
     });
 }
 exports.getNewUsersRange = getNewUsersRange;
+function getTotalUsersRange(getCompany, dateRange) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const intervals = 30;
+            const intervalSize = Math.floor((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / intervals);
+            let dates = [];
+            for (let i = 0; i <= intervals; i++) {
+                dates.push(new Date(new Date(i === 0 ? dateRange.startDate.toISOString() : dates[i - 1]).getTime() + intervalSize).toISOString());
+            }
+            dates = dates.map((v) => `'${v}'`);
+            const query = yield db_1.default.raw(`
+            SELECT
+            end_date,
+            COUNT(id) AS count
+            FROM (
+            SELECT
+                unnest(ARRAY[${dates.join(', ')}]::timestamptz[]) AS end_date
+            ) AS end_dates
+            LEFT JOIN users ON add_datetime <= end_date
+            GROUP BY end_date
+            ORDER BY end_date;
+        `);
+            const result = query.rows;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Total users range',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: result
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getTotalUsersRange = getTotalUsersRange;

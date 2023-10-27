@@ -38,6 +38,29 @@ function statUsersController(app, opt) {
                     .send({ error: prettyError.error });
             }
         }));
+        app.get('/users_24h', {
+            preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const res = yield (0, users_1.get24hCount)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyStatUsersError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
     });
 }
 exports.statUsersController = statUsersController;

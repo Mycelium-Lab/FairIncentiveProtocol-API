@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTotalCount = void 0;
+exports.get24hCount = exports.getTotalCount = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
 function getTotalCount(getCompany) {
@@ -25,7 +25,7 @@ function getTotalCount(getCompany) {
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
-                    message: 'Rewards total count',
+                    message: 'Users total count',
                     type: constants_1.SuccessResponseTypes.number,
                     data: total.count
                 }
@@ -46,3 +46,35 @@ function getTotalCount(getCompany) {
     });
 }
 exports.getTotalCount = getTotalCount;
+function get24hCount(getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const usersAdded24hAgo = yield (0, db_1.default)('users')
+                .count('id as count')
+                .first()
+                .whereRaw('company_id = ? AND add_datetime >= ?', [getCompany.company_id, twentyFourHoursAgo]);
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Users 24h count',
+                    type: constants_1.SuccessResponseTypes.number,
+                    data: usersAdded24hAgo.count
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.get24hCount = get24hCount;

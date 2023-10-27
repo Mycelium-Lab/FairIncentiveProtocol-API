@@ -77,11 +77,11 @@ function statUsersController(app, opt) {
                 dateRange.startDate = new Date(dateRange.startDate);
                 dateRange.endDate = new Date(dateRange.endDate);
                 yield schemas_1.DateRangeValidation.validateAsync(dateRange);
-                // const res: ErrorResponse | SuccessResponse = await get24hCount({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                const res = yield (0, users_1.getNewUsersRange)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, dateRange);
                 reply
-                    .code(200)
+                    .code(res.code)
                     .type('application/json; charset=utf-8')
-                    .send('ok');
+                    .send('body' in res ? { body: res.body } : { error: res.error });
             }
             catch (error) {
                 console.log(error.message);

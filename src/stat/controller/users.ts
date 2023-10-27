@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } f
 import { authorizationTokenDescription } from "../../response_description";
 import { DateRange, ErrorResponse, JWTPayload, SuccessResponse } from "../../entities";
 import { prettyStatUsersError } from "../../errors";
-import { get24hCount, getTotalCount } from "../service/users";
+import { get24hCount, getNewUsersRange, getTotalCount } from "../service/users";
 import { DateRangeValidation } from "../../schemas";
 
 export async function statUsersController(app: FastifyInstance, opt: FastifyPluginOptions) {
@@ -76,11 +76,11 @@ export async function statUsersController(app: FastifyInstance, opt: FastifyPlug
                 dateRange.startDate = new Date(dateRange.startDate)
                 dateRange.endDate = new Date(dateRange.endDate)
                 await DateRangeValidation.validateAsync(dateRange)
-                // const res: ErrorResponse | SuccessResponse = await get24hCount({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                const res: ErrorResponse | SuccessResponse = await getNewUsersRange({email: data?.email, phone: data?.phone, company_id: data?.company_id}, dateRange)
                 reply
-                    .code(200)
+                    .code(res.code)
                     .type('application/json; charset=utf-8')
-                    .send('ok')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
             } catch (error: any) {
                 console.log(error.message)
                 const prettyError: ErrorResponse = prettyStatUsersError(error.message)

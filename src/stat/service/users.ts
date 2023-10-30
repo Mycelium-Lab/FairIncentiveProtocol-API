@@ -59,6 +59,41 @@ export async function get24hCount(getCompany: GetCompany): Promise<ErrorResponse
     }
 }
 
+export async function getActive(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000)
+        const rewarded60daysErc20Count: any = await pg('rewards_erc20')
+            .distinct('reward_event_erc20.user_id')
+            .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+            .whereRaw('rewards_erc20.company_id = ? AND reward_event_erc20.event_datetime >= ?', [getCompany.company_id, sixtyDaysAgo])
+        const rewarded60daysErc721Count: any = await pg('rewards_erc721')
+            .distinct('reward_event_erc721.user_id ')
+            .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+            .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ?', [getCompany.company_id, sixtyDaysAgo])
+        const uniqueUserIds = new Set([...rewarded60daysErc20Count, ...rewarded60daysErc721Count].map((user) => user.user_id))
+        const totalUniqueUsers = uniqueUserIds.size
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Users 24h count',
+                type: SuccessResponseTypes.number,
+                data: totalUniqueUsers
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
+    }
+}
+
 export async function getNewUsersRange(getCompany: GetCompany, dateRange: DateRange): Promise<ErrorResponse | SuccessResponse> {
     try {
         const intervals = 30

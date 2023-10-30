@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTotalUsersRange = exports.getNewUsersRange = exports.get24hCount = exports.getTotalCount = void 0;
+exports.getTotalUsersRange = exports.getNewUsersRange = exports.getActive = exports.get24hCount = exports.getTotalCount = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
 function getTotalCount(getCompany) {
@@ -78,6 +78,44 @@ function get24hCount(getCompany) {
     });
 }
 exports.get24hCount = get24hCount;
+function getActive(getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+            const rewarded60daysErc20Count = yield (0, db_1.default)('rewards_erc20')
+                .distinct('reward_event_erc20.user_id')
+                .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+                .whereRaw('rewards_erc20.company_id = ? AND reward_event_erc20.event_datetime >= ?', [getCompany.company_id, sixtyDaysAgo]);
+            const rewarded60daysErc721Count = yield (0, db_1.default)('rewards_erc721')
+                .distinct('reward_event_erc721.user_id ')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ?', [getCompany.company_id, sixtyDaysAgo]);
+            const uniqueUserIds = new Set([...rewarded60daysErc20Count, ...rewarded60daysErc721Count].map((user) => user.user_id));
+            const totalUniqueUsers = uniqueUserIds.size;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Users 24h count',
+                    type: constants_1.SuccessResponseTypes.number,
+                    data: totalUniqueUsers
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getActive = getActive;
 function getNewUsersRange(getCompany, dateRange) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

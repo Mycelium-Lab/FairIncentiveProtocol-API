@@ -51,7 +51,7 @@ export async function getUserCount(getCompany: GetCompany): Promise<ErrorRespons
             .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
             .where('rewards_erc721.company_id', getCompany.company_id)
 
-        const uniqueUserIds = new Set([...rewardedUsersErc20Count, ...rewardedUsersErc721Count].map((user) => user.user_id))
+        const uniqueUserIds = new Set([...rewardedUsersErc20Count, ...rewardedUsersErc721Count].filter(user => user).map((user) => user.user_id))
         const totalUniqueUsers = uniqueUserIds.size
     
         const res: SuccessResponse = {

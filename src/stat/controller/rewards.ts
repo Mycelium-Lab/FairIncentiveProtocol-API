@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { authorizationTokenDescription } from "../../response_description";
-import { ErrorResponse, JWTPayload, SuccessResponse } from "../../entities";
+import { DateRange, ErrorResponse, JWTPayload, SuccessResponse } from "../../entities";
 import { prettyStatRewardsError } from "../../errors";
-import { get24hCount, getDistribution, getTotalCount, getUserCount } from "../service/rewards";
+import { get24hCount, getDistribution, getRewardEventsRange, getTotalCount, getUserCount } from "../service/rewards";
+import { DateRangeValidation } from "../../schemas";
 
 export async function statRewardsController(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
@@ -95,6 +96,39 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
             try {
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await getDistribution({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyStatRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/rewards_range',
+        {
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                querystring: {
+                    $ref: 'DateRange'
+                }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const dateRange: DateRange = req.query as DateRange
+                dateRange.startDate = new Date(dateRange.startDate)
+                dateRange.endDate = new Date(dateRange.endDate)
+                await DateRangeValidation.validateAsync(dateRange)
+                const res: ErrorResponse | SuccessResponse = await getRewardEventsRange({email: data?.email, phone: data?.phone, company_id: data?.company_id}, dateRange)
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

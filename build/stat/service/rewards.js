@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDistribution = exports.get24hCount = exports.getUserCount = exports.getTotalCount = void 0;
+exports.getRewardEventsRange = exports.getDistribution = exports.get24hCount = exports.getUserCount = exports.getTotalCount = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
 function getTotalCount(getCompany) {
@@ -171,3 +171,63 @@ function getDistribution(getCompany) {
     });
 }
 exports.getDistribution = getDistribution;
+function getRewardEventsRange(getCompany, dateRange) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const intervals = 30;
+            const intervalSize = Math.floor((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / intervals);
+            const query = yield db_1.default.raw(`
+            WITH all_events AS (
+                (SELECT id, event_datetime FROM reward_event_erc20
+                WHERE event_datetime >= ? AND event_datetime <= ?)
+                UNION
+                (SELECT id, event_datetime FROM reward_event_erc721
+                WHERE event_datetime >= ? AND event_datetime <= ?)
+            )
+            SELECT
+                date_interval_start,
+                date_interval_end,
+                COUNT(id) as count
+            FROM (
+                SELECT
+                    date_interval_start,
+                    date_interval_start + INTERVAL '${intervalSize} milliseconds' as date_interval_end
+                FROM (
+                    SELECT
+                        generate_series(
+                            ?::timestamp,
+                            ?::timestamp,
+                            ?::interval
+                        ) AS date_interval_start
+                ) AS date_intervals
+            ) AS intervals
+            LEFT JOIN all_events ON all_events.event_datetime >= intervals.date_interval_start AND all_events.event_datetime < intervals.date_interval_end
+            GROUP BY date_interval_start, date_interval_end
+            ORDER BY date_interval_start;
+        `, [dateRange.startDate, dateRange.endDate, dateRange.startDate, dateRange.endDate, dateRange.startDate, dateRange.endDate, `${intervalSize} milliseconds`]);
+            console.log(query.rows);
+            const result = query.rows;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'New users range',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: result
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getRewardEventsRange = getRewardEventsRange;

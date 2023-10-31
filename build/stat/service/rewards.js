@@ -178,12 +178,12 @@ function getRewardEventsRange(getCompany, dateRange) {
             const intervalSize = Math.floor((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / intervals);
             const query = yield db_1.default.raw(`
             WITH all_events AS (
-                (SELECT user_id, event_datetime FROM reward_event_erc20
+                (SELECT id, event_datetime FROM reward_event_erc20
                 WHERE event_datetime >= ? AND event_datetime <= ? AND reward_id IN (
                     SELECT id FROM rewards_erc20 WHERE company_id = ?
                 ))
                 UNION
-                (SELECT user_id, event_datetime FROM reward_event_erc721
+                (SELECT id, event_datetime FROM reward_event_erc721
                 WHERE event_datetime >= ? AND event_datetime <= ? AND reward_id IN (
                     SELECT id FROM rewards_erc721 WHERE company_id = ?
                 ))
@@ -191,7 +191,7 @@ function getRewardEventsRange(getCompany, dateRange) {
             SELECT
                 date_interval_start,
                 date_interval_end,
-                COUNT(DISTINCT user_id) as count
+                COUNT(id) as count
             FROM (
                 SELECT
                     date_interval_start,

@@ -178,16 +178,20 @@ function getRewardEventsRange(getCompany, dateRange) {
             const intervalSize = Math.floor((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / intervals);
             const query = yield db_1.default.raw(`
             WITH all_events AS (
-                (SELECT id, event_datetime FROM reward_event_erc20
-                WHERE event_datetime >= ? AND event_datetime <= ?)
+                (SELECT user_id, event_datetime FROM reward_event_erc20
+                WHERE event_datetime >= ? AND event_datetime <= ? AND reward_id IN (
+                    SELECT id FROM rewards_erc20 WHERE company_id = ?
+                ))
                 UNION
-                (SELECT id, event_datetime FROM reward_event_erc721
-                WHERE event_datetime >= ? AND event_datetime <= ?)
+                (SELECT user_id, event_datetime FROM reward_event_erc721
+                WHERE event_datetime >= ? AND event_datetime <= ? AND reward_id IN (
+                    SELECT id FROM rewards_erc721 WHERE company_id = ?
+                ))
             )
             SELECT
                 date_interval_start,
                 date_interval_end,
-                COUNT(id) as count
+                COUNT(DISTINCT user_id) as count
             FROM (
                 SELECT
                     date_interval_start,
@@ -204,8 +208,7 @@ function getRewardEventsRange(getCompany, dateRange) {
             LEFT JOIN all_events ON all_events.event_datetime >= intervals.date_interval_start AND all_events.event_datetime < intervals.date_interval_end
             GROUP BY date_interval_start, date_interval_end
             ORDER BY date_interval_start;
-        `, [dateRange.startDate, dateRange.endDate, dateRange.startDate, dateRange.endDate, dateRange.startDate, dateRange.endDate, `${intervalSize} milliseconds`]);
-            console.log(query.rows);
+        `, [dateRange.startDate, dateRange.endDate, getCompany.company_id, dateRange.startDate, dateRange.endDate, getCompany.company_id, dateRange.startDate, dateRange.endDate, `${intervalSize} milliseconds`]);
             const result = query.rows;
             const res = {
                 code: constants_1.CODES.OK.code,

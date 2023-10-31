@@ -141,10 +141,11 @@ function getNewUsersRange(getCompany, dateRange) {
             ) AS intervals
             LEFT JOIN "users" ON
             "add_datetime" >= intervals.date_interval_start AND
-            "add_datetime" < intervals.date_interval_end
+            "add_datetime" < intervals.date_interval_end AND
+            "company_id" = ?
             GROUP BY date_interval_start, date_interval_end
             ORDER BY date_interval_start;
-        `, [dateRange.startDate, dateRange.endDate, `${intervalSize} milliseconds`]);
+        `, [dateRange.startDate, dateRange.endDate, `${intervalSize} milliseconds`, getCompany.company_id]);
             const result = query.rows;
             const res = {
                 code: constants_1.CODES.OK.code,
@@ -188,10 +189,10 @@ function getTotalUsersRange(getCompany, dateRange) {
             SELECT
                 unnest(ARRAY[${dates.join(', ')}]::timestamptz[]) AS end_date
             ) AS end_dates
-            LEFT JOIN users ON add_datetime <= end_date
+            LEFT JOIN users ON add_datetime <= end_date AND company_id = ?
             GROUP BY end_date
             ORDER BY end_date;
-        `);
+        `, [getCompany.company_id]);
             const result = query.rows;
             const res = {
                 code: constants_1.CODES.OK.code,

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkCountry = exports.checkChainID = exports.checkAddress = void 0;
 const ethers_1 = require("ethers");
 const country_list_1 = require("country-list");
-const chainids = ['137', '80001', '56', '1', '43114', '42161', '10'];
+const chainids = ['137', '80001', '56', '1', '43114', '42161', '10', '5'];
 function checkAddress(wallet, helpers) {
     if (!helpers.schema._valids._values.has(null)) {
         if (wallet === '')

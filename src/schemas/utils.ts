@@ -1,7 +1,7 @@
 import { utils } from 'ethers'
 import { getName } from 'country-list'
 
-const chainids = ['137', '80001', '56', '1', '43114', '42161', '10', '5']
+const chainids = ['137', '80001', '56', '1', '43114', '42161', '10', '5', '97']
 
 export function checkAddress(wallet: string, helpers: any) {
     if (!helpers.schema._valids._values.has(null)) {

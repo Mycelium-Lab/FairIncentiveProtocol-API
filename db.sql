@@ -383,6 +383,7 @@ INSERT INTO chains (id, name, explorer) VALUES(43114, 'AvalancheMainnet', 'https
 INSERT INTO chains (id, name, explorer) VALUES(42161, 'ArbitrumMainnet', 'https://arbiscan.io');
 INSERT INTO chains (id, name, explorer) VALUES(10, 'OptimismMainnet', 'https://optimistic.etherscan.io');
 INSERT INTO chains (id, name, explorer) VALUES(5, 'Goerli', 'https://goerli.etherscan.io');
+INSERT INTO chains (id, name, explorer) VALUES(97, 'BinanceTestnet', 'https://testnet.bscscan.com');
 
 CREATE TABLE erc20_tokens(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,

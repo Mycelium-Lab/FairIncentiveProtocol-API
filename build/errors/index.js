@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prettyStatUsersError = exports.prettyStatRewardsError = exports.prettyApiKeysError = exports.prettyCompanyError = exports.prettyRewardsError = exports.prettyTokensError = exports.prettyUsersError = exports.prettyNFTError = exports.prettyAuthError = void 0;
+exports.prettyStatTokensError = exports.prettyStatUsersError = exports.prettyStatRewardsError = exports.prettyApiKeysError = exports.prettyCompanyError = exports.prettyRewardsError = exports.prettyTokensError = exports.prettyUsersError = exports.prettyNFTError = exports.prettyAuthError = void 0;
 var auth_1 = require("./prettify/auth");
 Object.defineProperty(exports, "prettyAuthError", { enumerable: true, get: function () { return auth_1.prettyAuthError; } });
 var nfts_1 = require("./prettify/nfts");
@@ -19,3 +19,5 @@ var stat_rewards_1 = require("./prettify/stat_rewards");
 Object.defineProperty(exports, "prettyStatRewardsError", { enumerable: true, get: function () { return stat_rewards_1.prettyStatRewardsError; } });
 var stat_users_1 = require("./prettify/stat_users");
 Object.defineProperty(exports, "prettyStatUsersError", { enumerable: true, get: function () { return stat_users_1.prettyStatUsersError; } });
+var stat_tokens_1 = require("./prettify/stat_tokens");
+Object.defineProperty(exports, "prettyStatTokensError", { enumerable: true, get: function () { return stat_tokens_1.prettyStatTokensError; } });

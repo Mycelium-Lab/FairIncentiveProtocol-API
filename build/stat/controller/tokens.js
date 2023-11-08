@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.statTokensController = void 0;
 const response_description_1 = require("../../response_description");
 const errors_1 = require("../../errors");
+const schemas_1 = require("../../schemas");
 const tokens_1 = require("../service/tokens");
 function statTokensController(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -31,7 +32,7 @@ function statTokensController(app, opt) {
             }
             catch (error) {
                 console.log(error.message);
-                const prettyError = (0, errors_1.prettyStatRewardsError)(error.message);
+                const prettyError = (0, errors_1.prettyStatTokensError)(error.message);
                 reply
                     .code(prettyError.code)
                     .type('application/json; charset=utf-8')
@@ -54,7 +55,37 @@ function statTokensController(app, opt) {
             }
             catch (error) {
                 console.log(error.message);
-                const prettyError = (0, errors_1.prettyStatRewardsError)(error.message);
+                const prettyError = (0, errors_1.prettyStatTokensError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
+        app.get('/tokens_dist_range', {
+            preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                querystring: {
+                    $ref: 'DateRange'
+                }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const dateRange = req.query;
+                dateRange.startDate = new Date(dateRange.startDate);
+                dateRange.endDate = new Date(dateRange.endDate);
+                yield schemas_1.DateRangeValidation.validateAsync(dateRange);
+                const res = yield (0, tokens_1.getTokensDistRange)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, dateRange);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyStatTokensError)(error.message);
                 reply
                     .code(prettyError.code)
                     .type('application/json; charset=utf-8')

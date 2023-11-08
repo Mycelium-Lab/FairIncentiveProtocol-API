@@ -1,9 +1,9 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { authorizationTokenDescription } from "../../response_description";
 import { DateRange, ErrorResponse, JWTPayload, SuccessResponse } from "../../entities";
-import { prettyStatRewardsError } from "../../errors";
+import { prettyStatTokensError } from "../../errors";
 import { DateRangeValidation } from "../../schemas";
-import { getCount24h, getTotalCount } from "../service/tokens";
+import { getCount24h, getTokensDistRange, getTotalCount } from "../service/tokens";
 
 export async function statTokensController(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
@@ -24,7 +24,7 @@ export async function statTokensController(app: FastifyInstance, opt: FastifyPlu
                     .send('body' in res ? {body: res.body} : {error: res.error})
             } catch (error: any) {
                 console.log(error.message)
-                const prettyError: ErrorResponse = prettyStatRewardsError(error.message)
+                const prettyError: ErrorResponse = prettyStatTokensError(error.message)
                 reply
                     .code(prettyError.code)
                     .type('application/json; charset=utf-8')
@@ -50,7 +50,40 @@ export async function statTokensController(app: FastifyInstance, opt: FastifyPlu
                     .send('body' in res ? {body: res.body} : {error: res.error})
             } catch (error: any) {
                 console.log(error.message)
-                const prettyError: ErrorResponse = prettyStatRewardsError(error.message)
+                const prettyError: ErrorResponse = prettyStatTokensError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/tokens_dist_range',
+        {
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                querystring: {
+                    $ref: 'DateRange'
+                }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const dateRange: DateRange = req.query as DateRange
+                dateRange.startDate = new Date(dateRange.startDate)
+                dateRange.endDate = new Date(dateRange.endDate)
+                await DateRangeValidation.validateAsync(dateRange)
+                const res: ErrorResponse | SuccessResponse = await getTokensDistRange({email: data?.email, phone: data?.phone, company_id: data?.company_id}, dateRange)
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyStatTokensError(error.message)
                 reply
                     .code(prettyError.code)
                     .type('application/json; charset=utf-8')

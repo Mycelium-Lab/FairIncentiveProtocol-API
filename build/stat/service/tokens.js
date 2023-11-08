@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTotalCount = void 0;
+exports.getCount24h = exports.getTotalCount = void 0;
 const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
@@ -22,6 +22,7 @@ function getTotalCount(getCompany) {
             const total = yield (0, db_1.default)('reward_event_erc20')
                 .sum('rewards_erc20.amount as total')
                 .innerJoin('rewards_erc20', 'reward_event_erc20.reward_id', 'rewards_erc20.id')
+                .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id])
                 .first();
             const res = {
                 code: constants_1.CODES.OK.code,
@@ -47,3 +48,36 @@ function getTotalCount(getCompany) {
     });
 }
 exports.getTotalCount = getTotalCount;
+function getCount24h(getCompany) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const total = yield (0, db_1.default)('reward_event_erc20')
+                .sum('rewards_erc20.amount as total')
+                .innerJoin('rewards_erc20', 'reward_event_erc20.reward_id', 'rewards_erc20.id')
+                .whereRaw('rewards_erc20.company_id = ? AND reward_event_erc20.event_datetime >= ?', [getCompany.company_id, twentyFourHoursAgo])
+                .first();
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards total count',
+                    type: constants_1.SuccessResponseTypes.number,
+                    data: ethers_1.ethers.utils.formatEther(total.total || '0')
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getCount24h = getCount24h;

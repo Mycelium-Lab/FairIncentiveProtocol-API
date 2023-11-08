@@ -74,6 +74,9 @@ export const tokenResponseDescription = {
                                 },
                                 image: {
                                     type: 'string'
+                                },
+                                supply_type_name: {
+                                    type: 'string'
                                 }
                             }
                         }

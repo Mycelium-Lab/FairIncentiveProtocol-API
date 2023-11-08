@@ -15,4 +15,5 @@ export interface Token {
     verified: boolean,
     fpmanager: string,
     image?: string,
+    supply_type_name?: string
 }

@@ -48,10 +48,11 @@ export async function addToken(token: Token, getCompany: GetCompany): Promise<Er
 export async function getTokens(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const tokens: Array<Token> = await pg('erc20_tokens')
-            .select('*')
+            .select(['erc20_tokens.*', 'erc20_tokens_supply_types.name as supply_type_name'])
+            .leftJoin('erc20_tokens_supply_types', 'erc20_tokens.supply_type', 'erc20_tokens_supply_types.id')
             .where({
-                company_id: getCompany.company_id
-            })
+                'erc20_tokens.company_id': getCompany.company_id
+            });
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {

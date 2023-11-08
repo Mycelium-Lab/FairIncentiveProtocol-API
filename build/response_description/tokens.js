@@ -75,6 +75,9 @@ exports.tokenResponseDescription = Object.assign({ 200: {
                                 },
                                 image: {
                                     type: 'string'
+                                },
+                                supply_type_name: {
+                                    type: 'string'
                                 }
                             }
                         }

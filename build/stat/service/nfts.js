@@ -51,17 +51,26 @@ function get24hCount(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
             const rewarded24hErc721Count = yield (0, db_1.default)('rewards_erc721')
                 .count('reward_event_erc721.id as count')
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
                 .first()
                 .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ?', [getCompany.company_id, twentyFourHoursAgo]);
+            const rewarded48hErc721Count = yield (0, db_1.default)('rewards_erc721')
+                .count('reward_event_erc721.id as count')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .first()
+                .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ? AND reward_event_erc721.event_datetime <= ?', [getCompany.company_id, fortyEightHoursAgo, twentyFourHoursAgo]);
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
                     message: 'Rewards 24h',
                     type: constants_1.SuccessResponseTypes.number,
-                    data: rewarded24hErc721Count.count
+                    data: {
+                        twentyFourHoursAgo: rewarded24hErc721Count.count,
+                        fortyEightHoursAgo: rewarded48hErc721Count.count
+                    }
                 }
             };
             return res;

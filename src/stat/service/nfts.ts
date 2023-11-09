@@ -34,17 +34,26 @@ export async function getTotalCount(getCompany: GetCompany) {
 export async function get24hCount(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+        const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000)
         const rewarded24hErc721Count: TotalOneType = await pg('rewards_erc721')
             .count('reward_event_erc721.id as count')
             .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
             .first()
             .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ?', [getCompany.company_id, twentyFourHoursAgo])
+        const rewarded48hErc721Count: TotalOneType = await pg('rewards_erc721')
+            .count('reward_event_erc721.id as count')
+            .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+            .first()
+            .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ? AND reward_event_erc721.event_datetime <= ?', [getCompany.company_id, fortyEightHoursAgo, twentyFourHoursAgo])
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {
                 message: 'Rewards 24h',
                 type: SuccessResponseTypes.number,
-                data: rewarded24hErc721Count.count
+                data: {
+                    twentyFourHoursAgo: rewarded24hErc721Count.count,
+                    fortyEightHoursAgo: rewarded48hErc721Count.count
+                }
             }
         }
         return res

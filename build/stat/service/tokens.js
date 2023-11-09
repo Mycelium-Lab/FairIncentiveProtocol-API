@@ -52,17 +52,26 @@ function getCount24h(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-            const total = yield (0, db_1.default)('reward_event_erc20')
+            const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+            const total24h = yield (0, db_1.default)('reward_event_erc20')
                 .sum('rewards_erc20.amount as total')
                 .innerJoin('rewards_erc20', 'reward_event_erc20.reward_id', 'rewards_erc20.id')
                 .whereRaw('rewards_erc20.company_id = ? AND reward_event_erc20.event_datetime >= ?', [getCompany.company_id, twentyFourHoursAgo])
+                .first();
+            const total48h = yield (0, db_1.default)('reward_event_erc20')
+                .sum('rewards_erc20.amount as total')
+                .innerJoin('rewards_erc20', 'reward_event_erc20.reward_id', 'rewards_erc20.id')
+                .whereRaw('rewards_erc20.company_id = ? AND reward_event_erc20.event_datetime >= ? AND reward_event_erc20.event_datetime <= ?', [getCompany.company_id, fortyEightHoursAgo, twentyFourHoursAgo])
                 .first();
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
                     message: 'Rewards total count',
                     type: constants_1.SuccessResponseTypes.number,
-                    data: ethers_1.ethers.utils.formatEther(total.total || '0')
+                    data: {
+                        twentyFourHoursAgo: ethers_1.ethers.utils.formatEther(total24h.total || '0'),
+                        fortyEightHoursAgo: ethers_1.ethers.utils.formatEther(total48h.total || '0')
+                    }
                 }
             };
             return res;

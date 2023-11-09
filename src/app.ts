@@ -17,7 +17,7 @@ import { CODES } from './utils/constants'
 import { prettyAuthError } from './errors'
 import { apiKeysPlugin } from './api_keys/controller'
 import { checkApiKey } from './api_keys/service'
-import { statRewardsController, statTokensController, statUsersController } from './stat/controller'
+import { statNftsController, statRewardsController, statTokensController, statUsersController } from './stat/controller'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -79,6 +79,7 @@ export async function build(opt: AppOptions = {}) {
     app.register(statRewardsController, { prefix: '/stat' })
     app.register(statUsersController, { prefix: '/stat' })
     app.register(statTokensController, { prefix: '/stat' })
+    app.register(statNftsController, { prefix: '/stat' })
     app.register(cors, {
         origin: "*",
         methods: ["GET", "POST"]

@@ -114,7 +114,7 @@ function getTokensDistRange(getCompany, dateRange) {
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
-                    message: 'New users range',
+                    message: 'Tokens dist range',
                     type: constants_1.SuccessResponseTypes.array,
                     data: result
                 }

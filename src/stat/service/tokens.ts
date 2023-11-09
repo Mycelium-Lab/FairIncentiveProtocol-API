@@ -96,7 +96,7 @@ export async function getTokensDistRange(getCompany: GetCompany, dateRange: Date
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {
-                message: 'New users range',
+                message: 'Tokens dist range',
                 type: SuccessResponseTypes.array,
                 data: result
             }

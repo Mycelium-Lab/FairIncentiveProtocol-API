@@ -12,24 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTokensDistRange = exports.getCount24h = exports.getTotalCount = void 0;
-const ethers_1 = require("ethers");
+exports.getNftsDistRange = exports.get24hCount = exports.getTotalCount = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
 function getTotalCount(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const total = yield (0, db_1.default)('reward_event_erc20')
-                .sum('rewards_erc20.amount as total')
-                .innerJoin('rewards_erc20', 'reward_event_erc20.reward_id', 'rewards_erc20.id')
-                .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id])
-                .first();
+            const rewardsErc721Count = yield (0, db_1.default)('rewards_erc721')
+                .count('reward_event_erc721.id as count')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .first()
+                .where('rewards_erc721.company_id', getCompany.company_id);
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
                     message: 'Rewards total count',
                     type: constants_1.SuccessResponseTypes.number,
-                    data: ethers_1.ethers.utils.formatEther(total.total || '0')
+                    data: rewardsErc721Count.count
                 }
             };
             return res;
@@ -48,21 +47,21 @@ function getTotalCount(getCompany) {
     });
 }
 exports.getTotalCount = getTotalCount;
-function getCount24h(getCompany) {
+function get24hCount(getCompany) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-            const total = yield (0, db_1.default)('reward_event_erc20')
-                .sum('rewards_erc20.amount as total')
-                .innerJoin('rewards_erc20', 'reward_event_erc20.reward_id', 'rewards_erc20.id')
-                .whereRaw('rewards_erc20.company_id = ? AND reward_event_erc20.event_datetime >= ?', [getCompany.company_id, twentyFourHoursAgo])
-                .first();
+            const rewarded24hErc721Count = yield (0, db_1.default)('rewards_erc721')
+                .count('reward_event_erc721.id as count')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .first()
+                .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ?', [getCompany.company_id, twentyFourHoursAgo]);
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
-                    message: 'Rewards total count',
+                    message: 'Rewards 24h',
                     type: constants_1.SuccessResponseTypes.number,
-                    data: ethers_1.ethers.utils.formatEther(total.total || '0')
+                    data: rewarded24hErc721Count.count
                 }
             };
             return res;
@@ -80,14 +79,24 @@ function getCount24h(getCompany) {
         }
     });
 }
-exports.getCount24h = getCount24h;
-function getTokensDistRange(getCompany, dateRange) {
+exports.get24hCount = get24hCount;
+function getNftsDistRange(getCompany, dateRange) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const intervals = 30;
             const intervalSize = Math.floor((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / intervals);
             const query = yield db_1.default.raw(`
-            WITH date_intervals AS (
+            WITH all_events AS (
+                (SELECT id, event_datetime FROM reward_event_erc721
+                WHERE event_datetime >= ? AND event_datetime <= ? AND reward_id IN (
+                    SELECT id FROM rewards_erc721 WHERE company_id = ?
+                ))
+            )
+            SELECT
+                date_interval_start,
+                date_interval_end,
+                COUNT(id) as count
+            FROM (
                 SELECT
                     date_interval_start,
                     date_interval_start + INTERVAL '${intervalSize} milliseconds' as date_interval_end
@@ -99,22 +108,16 @@ function getTokensDistRange(getCompany, dateRange) {
                             ?::interval
                         ) AS date_interval_start
                 ) AS date_intervals
-            )
-            SELECT
-                date_interval_start,
-                date_interval_end,
-                COALESCE(SUM(CASE WHEN r.company_id = ? THEN r.amount ELSE 0 END), 0) as count
-            FROM date_intervals
-            LEFT JOIN reward_event_erc20 AS e ON e.event_datetime >= date_intervals.date_interval_start AND e.event_datetime < date_intervals.date_interval_end
-            LEFT JOIN rewards_erc20 AS r ON e.reward_id = r.id
+            ) AS intervals
+            LEFT JOIN all_events ON all_events.event_datetime >= intervals.date_interval_start AND all_events.event_datetime < intervals.date_interval_end
             GROUP BY date_interval_start, date_interval_end
-            ORDER BY date_interval_start
-        `, [dateRange.startDate, dateRange.endDate, `${intervalSize} milliseconds`, getCompany.company_id]);
+            ORDER BY date_interval_start;
+        `, [dateRange.startDate, dateRange.endDate, getCompany.company_id, dateRange.startDate, dateRange.endDate, `${intervalSize} milliseconds`]);
             const result = query.rows;
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {
-                    message: 'Tokens dist range',
+                    message: 'Nfts dist range',
                     type: constants_1.SuccessResponseTypes.array,
                     data: result
                 }
@@ -134,4 +137,4 @@ function getTokensDistRange(getCompany, dateRange) {
         }
     });
 }
-exports.getTokensDistRange = getTokensDistRange;
+exports.getNftsDistRange = getNftsDistRange;

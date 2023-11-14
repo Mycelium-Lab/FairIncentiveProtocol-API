@@ -33,17 +33,18 @@ async function main() {
     const res = await fetch(
         `/rewards/events/claimablenft?id=${params.id}&user_id=${params.user_id}`, requestOptions)
     const json = await res.json()
-    const resImage = await fetch(json.claimableNFT.nft_image)
+    console.log(json)
+    const resImage = await fetch(json.body.data.nft_image)
     const imageJson = await resImage.json()
     document.querySelector('#connect-button').addEventListener('click', async () =>  {
         await connect()
     })
-    document.querySelector('#user-address').textContent =  createLongStrView(json.claimableNFT.user_wallet)
-    document.querySelector('#nft-name').textContent =  json.claimableNFT.nft_name
-    document.querySelector('#collection-name').textContent =  json.claimableNFT.collection_name
+    document.querySelector('#user-address').textContent =  createLongStrView(json.body.data.user_wallet)
+    document.querySelector('#nft-name').textContent =  json.body.data.nft_name
+    document.querySelector('#collection-name').textContent =  json.body.data.collection_name
     document.querySelector('#nft-image').src = imageJson.image
-    if (json.claimableNFT.nft_description) {
-        document.querySelector('#nft-description').textContent = json.claimableNFT.nft_description
+    if (json.body.data.nft_description) {
+        document.querySelector('#nft-description').textContent = json.body.data.nft_description
     } else {
         document.querySelector('#nft-description').textContent = 'Description'
     }
@@ -53,15 +54,15 @@ async function main() {
             await provider.send("eth_requestAccounts", [])
             const signer = await provider.getSigner()
             let contract
-            if (json.claimableNFT.beneficiary) {
-                contract = new ethers.Contract(json.claimableNFT.collection_address, erc721DefaultRoyaltyAbi, signer)
+            if (json.body.data.beneficiary) {
+                contract = new ethers.Contract(json.body.data.collection_address, erc721DefaultRoyaltyAbi, signer)
             } else {
-                contract = new ethers.Contract(json.claimableNFT.collection_address, erc721TokenRoyaltyAbi, signer)
+                contract = new ethers.Contract(json.body.data.collection_address, erc721TokenRoyaltyAbi, signer)
             }
-            const tx = await contract.safeMintSigner(json.claimableNFT.r, json.claimableNFT.v, json.claimableNFT.s, json.claimableNFT.nft_image)
+            const tx = await contract.safeMintSigner(json.body.data.r, json.body.data.v, json.body.data.s, json.body.data.nft_image)
             const res = await tx.wait()
             const tokenID = res.events.find(v => v.event === 'SafeMintSigner').args.ID
-            document.querySelector('#collection-address').textContent = json.claimableNFT.collection_address
+            document.querySelector('#collection-address').textContent = json.body.data.collection_address
             document.querySelector('#tokenid').textContent = tokenID
             document.querySelector('#instruction').style.display = 'block'
         } catch (error) {

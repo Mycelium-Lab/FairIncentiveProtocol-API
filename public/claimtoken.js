@@ -37,10 +37,10 @@ async function main() {
     document.querySelector('#connect-button').addEventListener('click', async () =>  {
         await connect()
     })
-    document.querySelector('#user-address').textContent =  createLongStrView(json.claimableToken.user_wallet)
-    document.querySelector('#token-amount').textContent =  ethers.utils.formatEther(json.claimableToken.reward_amount)
-    document.querySelector('#token-symbol').textContent =  json.claimableToken.token_symbol
-    if (json.claimableToken.reward_description) {
+    document.querySelector('#user-address').textContent =  createLongStrView(json.body.data.user_wallet)
+    document.querySelector('#token-amount').textContent =  ethers.utils.formatEther(json.body.data.reward_amount)
+    document.querySelector('#token-symbol').textContent =  json.body.data.token_symbol
+    if (json.body.data.reward_description) {
         document.querySelector('#reward-description').textContent = json.claimableNFT.reward_description
     } else {
         document.querySelector('#reward-description').textContent = 'Description'
@@ -50,10 +50,10 @@ async function main() {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             await provider.send("eth_requestAccounts", [])
             const signer = await provider.getSigner()
-            const contract = new ethers.Contract(json.claimableToken.fpmanager, fpManagerAbi, signer)
+            const contract = new ethers.Contract(json.body.data.fpmanager, fpManagerAbi, signer)
             const tx = await contract.mintSigner(
-                json.claimableToken.r, json.claimableToken.v, json.claimableToken.s, 
-                json.claimableToken.token_address, json.claimableToken.reward_amount
+                json.body.data.r, json.body.data.v, json.body.data.s, 
+                json.body.data.token_address, json.body.data.reward_amount
             )
             tx.wait()
                 .then( async () => {
@@ -64,8 +64,8 @@ async function main() {
                           params: {
                             type: 'ERC20', // Initially only supports ERC-20 tokens, but eventually more!
                             options: {
-                              address: json.claimableToken.token_address, // The address of the token.
-                              symbol: json.claimableToken.token_symbol, // A ticker symbol or shorthand, up to 5 characters.
+                              address: json.body.data.token_address, // The address of the token.
+                              symbol: json.body.data.token_symbol, // A ticker symbol or shorthand, up to 5 characters.
                               decimals: 18 // The number of decimals in the token.
                             },
                           },

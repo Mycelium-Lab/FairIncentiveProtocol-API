@@ -18,6 +18,7 @@ exports.config = {
     PORT: parseInt(process.env.PORT || '3000'),
     SALT_ROUNDS: parseInt(process.env.SALT_ROUNDS || '13'),
     SECRET_KEY: process.env.SECRET_KEY || 'SECRET_KEY',
+    NFT_STORAGE_KEY: process.env.NFT_STORAGE_KEY || 'NFT_STORAGE_KEY',
     DB_CONNECTION: process.env.STATUS === "prod"
         ?
             `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`

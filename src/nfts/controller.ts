@@ -116,6 +116,7 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 }
                 await AddNFTCollectionValidation.validateAsync(nft)
                 const storage = new NFTStorage({ token: config.NFT_STORAGE_KEY })
+                //@ts-ignore
                 const cid = await storage.storeDirectory([
                     logoImage, featuredImage, bannerImage
                 ])

@@ -140,6 +140,7 @@ function nftsPlugin(app, opt) {
                     }
                     yield schemas_1.AddNFTCollectionValidation.validateAsync(nft);
                     const storage = new nft_storage_1.NFTStorage({ token: config_1.config.NFT_STORAGE_KEY });
+                    //@ts-ignore
                     const cid = yield storage.storeDirectory([
                         logoImage, featuredImage, bannerImage
                     ]);

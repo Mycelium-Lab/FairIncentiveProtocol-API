@@ -14,7 +14,10 @@ export async function addNFTCollection(nftCollection: AddNFTCollection, getCompa
                 chainid: nftCollection.chainid,
                 address: nftCollection.address,
                 beneficiary: nftCollection.beneficiary,
-                royalty_percent: nftCollection.royalties
+                royalty_percent: nftCollection.royalties,
+                logo_image: nftCollection.logo_image,
+                featured_image: nftCollection.featured_image,
+                banner_image: nftCollection.banner_image
             }, '*')
             .then(async (collections) => {
                 nftCollection.links.forEach(v => {

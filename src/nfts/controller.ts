@@ -68,15 +68,60 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'AddNFTCollection' },
+                // body: { $ref: 'AddNFTCollection' },
                 headers: authorizationTokenDescription,
                 response: collectionAddResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const nft: AddNFTCollection = req.body as AddNFTCollection
+                // const file: any = await req.file()
+                const parts: any = req.parts()
+                let logoImage, featuredImage, bannerImage
+                let nft: any = {}
+                for await (const part of parts) {
+                    if (part.fieldname === 'address') {
+                        nft.address = part.value
+                    }
+                    if (part.fieldname === 'name') {
+                        nft.name = part.value
+                    }
+                    if (part.fieldname === 'symbol') {
+                        nft.symbol = part.value
+                    }
+                    if (part.fieldname === 'chainid') {
+                        nft.chainid = part.value
+                    }
+                    if (part.fieldname === 'description') {
+                        nft.description = part.value === 'null' ? null : part.value
+                    }
+                    if (part.fieldname === 'links') {
+                        nft.links = JSON.parse(part.value)
+                    }
+                    if (part.fieldname === 'beneficiary') {
+                        nft.beneficiary = part.value === 'null' ? null : part.value
+                    }
+                    if (part.fieldname === 'royalties') {
+                        nft.royalties = part.value
+                    }
+                    if (part.fieldname === 'logo_image') {
+                        logoImage = new File([await part.toBuffer()], part.filename, {type: part.mimetype})
+                    }
+                    if (part.fieldname === 'featured_image') {
+                        featuredImage = new File([await part.toBuffer()], part.filename, {type: part.mimetype})
+                    }
+                    if (part.fieldname === 'banner_image') {
+                        bannerImage = new File([await part.toBuffer()], part.filename, {type: part.mimetype})
+                    }
+                }
                 await AddNFTCollectionValidation.validateAsync(nft)
+                const storage = new NFTStorage({ token: config.NFT_STORAGE_KEY })
+                const cid = await storage.storeDirectory([
+                    logoImage, featuredImage, bannerImage
+                ])
+                nft.logo_image = `https://ipfs.io/ipfs/${cid}/${logoImage?.name}`
+                nft.featured_image = `https://ipfs.io/ipfs/${cid}/${featuredImage?.name}`
+                nft.banner_image = `https://ipfs.io/ipfs/${cid}/${bannerImage?.name}`
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await addNFTCollection(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply

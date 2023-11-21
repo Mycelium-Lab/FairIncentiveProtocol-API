@@ -7,6 +7,9 @@ export interface AddNFTCollection {
     chainid: string,
     beneficiary?: string,
     royalties: number,
+    logo_image?: string,
+    featured_image?: string,
+    banner_image?: string,
     links: Array<Link>
 }
 

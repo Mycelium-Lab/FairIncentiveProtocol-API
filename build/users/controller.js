@@ -14,6 +14,8 @@ const schemas_1 = require("../schemas");
 const service_1 = require("./service");
 const errors_1 = require("../errors");
 const response_description_1 = require("../response_description");
+const nft_storage_1 = require("nft.storage");
+const config_1 = require("../config/config");
 function usersPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.get('/', {
@@ -43,14 +45,31 @@ function usersPlugin(app, opt) {
             app.post('/add', {
                 preHandler: app.authenticate,
                 schema: {
-                    body: { $ref: 'AddUser' },
+                    // body: { $ref: 'AddUser' },
                     headers: response_description_1.authorizationTokenDescription,
                     response: response_description_1.userAddResponseDescription
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
-                    const user = req.body;
+                    const file = yield req.file();
+                    const user = {
+                        external_id: file.fields.external_id.value,
+                        email: file.fields.email.value,
+                        wallet: file.fields.wallet.value,
+                        notes: file.fields.notes.value,
+                        properties: JSON.parse(file.fields.properties.value),
+                        stats: JSON.parse(file.fields.stats.value)
+                    };
                     yield schemas_1.AddUserValidation.validateAsync(user);
+                    const _file = new nft_storage_1.File([yield file.toBuffer()], file.filename, { type: file.mimetype });
+                    const storage = new nft_storage_1.NFTStorage({ token: config_1.config.NFT_STORAGE_KEY });
+                    const cid = yield storage.store({
+                        image: _file,
+                        name: file.filename,
+                        description: file.filename
+                    });
+                    const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`;
+                    user.image = image;
                     const data = req.routeConfig.jwtData;
                     const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply

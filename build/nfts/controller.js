@@ -14,6 +14,8 @@ const schemas_1 = require("../schemas");
 const service_1 = require("./service");
 const errors_1 = require("../errors");
 const response_description_1 = require("../response_description");
+const nft_storage_1 = require("nft.storage");
+const config_1 = require("../config/config");
 function nftsPlugin(app, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         app.get('/collections', {
@@ -93,14 +95,30 @@ function nftsPlugin(app, opt) {
         app.post('/add/nft', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'AddNFT' },
+                // body: { $ref: 'AddNFT' },
                 headers: response_description_1.authorizationTokenDescription,
                 response: response_description_1.nftAddResponseDescription
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const nft = req.body;
+                const file = yield req.file();
+                const nft = {
+                    address: file.fields.address.value,
+                    chainid: file.fields.chainid.value,
+                    amount: file.fields.amount.value === 'null' ? null : file.fields.amount.value,
+                    name: file.fields.name.value,
+                    description: file.fields.description.value === 'null' ? null : file.fields.description.value
+                };
                 yield schemas_1.AddNFTValidation.validateAsync(nft);
+                const _file = new nft_storage_1.File([yield file.toBuffer()], file.filename, { type: file.mimetype });
+                const storage = new nft_storage_1.NFTStorage({ token: config_1.config.NFT_STORAGE_KEY });
+                const cid = yield storage.store({
+                    image: _file,
+                    name: file.filename,
+                    description: file.filename
+                });
+                const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`;
+                nft.image = image;
                 const data = req.routeConfig.jwtData;
                 const res = yield (0, service_1.addNFT)(nft, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                 reply

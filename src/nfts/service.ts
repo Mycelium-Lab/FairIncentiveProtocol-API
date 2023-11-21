@@ -102,10 +102,11 @@ export async function addNFT(nft: AddNFT, getCompany: GetCompany): Promise<Error
         if (collection.length === 0) throw Error("The collection with this company and address was not found")
         const nfts = await pg('nfts').insert({
             address: nft.address,
-            image: "https://gateway.pinata.cloud/ipfs/QmX9qWa4p1Te3PhdRpyyY1SSvdgY9JAjVcGX2sy8HtaFn4?_gl=1*owkaeo*rs_ga*NzVlMGVjN2MtMTExNC00MmRkLTg2ZjQtZGZkZWMyOGY3Nzg4*rs_ga_5RMPXG14TE*MTY4Mzg3OTYxNi42LjEuMTY4Mzg4MDE3Ni42MC4wLjA",
+            image: nft.image,
             amount: nft.amount,
             name: nft.name,
-            description: nft.description
+            description: nft.description,
+            chainid: nft.chainid
         }, '*')
         const res: SuccessResponse = {
             code: CODES.OK.code,

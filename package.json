@@ -20,6 +20,7 @@
     "@fastify/cookie": "^8.3.0",
     "@fastify/cors": "^8.2.1",
     "@fastify/jwt": "^6.7.1",
+    "@fastify/multipart": "^8.0.0",
     "@fastify/static": "^6.10.1",
     "@fastify/swagger": "^8.9.0",
     "@fastify/swagger-ui": "^1.9.3",
@@ -34,6 +35,7 @@
     "joi-password": "^4.1.1",
     "joi-phone-number": "^5.1.1",
     "knex": "^2.4.2",
+    "nft.storage": "^7.1.1",
     "pg": "^8.10.0"
   },
   "devDependencies": {

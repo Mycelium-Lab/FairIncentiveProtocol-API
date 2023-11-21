@@ -125,10 +125,11 @@ function addNFT(nft, getCompany) {
                 throw Error("The collection with this company and address was not found");
             const nfts = yield (0, db_1.default)('nfts').insert({
                 address: nft.address,
-                image: "https://gateway.pinata.cloud/ipfs/QmX9qWa4p1Te3PhdRpyyY1SSvdgY9JAjVcGX2sy8HtaFn4?_gl=1*owkaeo*rs_ga*NzVlMGVjN2MtMTExNC00MmRkLTg2ZjQtZGZkZWMyOGY3Nzg4*rs_ga_5RMPXG14TE*MTY4Mzg3OTYxNi42LjEuMTY4Mzg4MDE3Ni42MC4wLjA",
+                image: nft.image,
                 amount: nft.amount,
                 name: nft.name,
-                description: nft.description
+                description: nft.description,
+                chainid: nft.chainid
             }, '*');
             const res = {
                 code: constants_1.CODES.OK.code,

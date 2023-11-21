@@ -392,7 +392,7 @@ CREATE TABLE erc20_tokens(
     supply_type     INT NOT NULL REFERENCES erc20_tokens_supply_types(id),
     max_supply      NUMERIC(78,0),
     initial_supply  NUMERIC(78,0),
-    chainid        INT NOT NULL REFERENCES chains(id),
+    chainid         INT NOT NULL REFERENCES chains(id),
     decimals        INT NOT NULL DEFAULT 18,
     address         VARCHAR(42) NOT NULL,
     pausable        BOOLEAN DEFAULT FALSE,
@@ -402,7 +402,7 @@ CREATE TABLE erc20_tokens(
     verified        BOOLEAN DEFAULT FALSE,
     fpmanager       VARCHAR(42) NOT NULL,
     image           VARCHAR(255),
-    PRIMARY KEY(company_id, address)
+    PRIMARY KEY(chainid, address)
 );
 
 CREATE TABLE erc721_tokens(
@@ -424,13 +424,14 @@ CREATE TABLE erc721_tokens(
     roles           BOOLEAN DEFAULT FALSE,
     uri_storage     BOOLEAN DEFAULT FALSE,
     image           VARCHAR(255),
-    PRIMARY KEY(company_id, address)
+    PRIMARY KEY(chainid, address)
 );
 
 /*для v,r,s поставить правильную длину*/
 CREATE TABLE nfts(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    address         VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address),
+    chainid         INT NOT NULL REFERENCES chains(id),
+    address         VARCHAR(42) NOT NULL,
     image           TEXT NOT NULL,
     name            VARCHAR(255) NOT NULL,
     description     VARCHAR(1000),
@@ -439,8 +440,8 @@ CREATE TABLE nfts(
 
 CREATE TABLE social_links(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-    token_address   VARCHAR(42) NOT NULL REFERENCES erc721_tokens(address) ON DELETE CASCADE,
-    chainid        INT NOT NULL REFERENCES chains(id),
+    token_address   VARCHAR(42) NOT NULL,
+    chainid         INT NOT NULL REFERENCES chains(id),
     link            VARCHAR(500) NOT NULL
 );
 
@@ -536,7 +537,8 @@ CREATE TABLE rewards_erc20(
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     description     VARCHAR(1000),
-    address         VARCHAR(42) NOT NULL REFERENCES erc20_tokens(address),
+    chainid         INT NOT NULL REFERENCES chains(id),
+    address         VARCHAR(42) NOT NULL,
     amount          NUMERIC(78,0) NOT NULL,
     status          INT NOT NULL REFERENCES reward_statuses(id) DEFAULT 0
 );

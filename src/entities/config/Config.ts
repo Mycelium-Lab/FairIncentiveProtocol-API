@@ -3,6 +3,7 @@ export interface Config {
     SALT_ROUNDS: number,
     SECRET_KEY: string,
     DB_CONNECTION: string,
+    NFT_STORAGE_KEY: string,
     networks: Array<Network>
 }
 

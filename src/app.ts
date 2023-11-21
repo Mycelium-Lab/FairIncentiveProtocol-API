@@ -18,6 +18,7 @@ import { prettyAuthError } from './errors'
 import { apiKeysPlugin } from './api_keys/controller'
 import { checkApiKey } from './api_keys/service'
 import { statNftsController, statRewardsController, statTokensController, statUsersController } from './stat/controller'
+import fastifyMultipart from '@fastify/multipart'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -28,6 +29,7 @@ export async function build(opt: AppOptions = {}) {
     app.register(fastifyJwt, { 
         secret: config.SECRET_KEY
     })
+    app.register(fastifyMultipart)
     app.register(swagger, {
       swagger: {
         info: {

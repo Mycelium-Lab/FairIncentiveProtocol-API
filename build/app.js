@@ -32,6 +32,7 @@ const errors_1 = require("./errors");
 const controller_8 = require("./api_keys/controller");
 const service_1 = require("./api_keys/service");
 const controller_9 = require("./stat/controller");
+const multipart_1 = __importDefault(require("@fastify/multipart"));
 function build(opt = {}) {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, fastify_1.default)(opt);
@@ -39,6 +40,7 @@ function build(opt = {}) {
         app.register(jwt_1.default, {
             secret: config_1.config.SECRET_KEY
         });
+        app.register(multipart_1.default);
         app.register(swagger_1.default, {
             swagger: {
                 info: {

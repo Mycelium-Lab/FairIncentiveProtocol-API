@@ -13,7 +13,8 @@ export async function addUser(user: User, getCompany: GetCompany): Promise<Error
                 external_id: user.external_id,
                 email: user.email,
                 wallet: user.wallet,
-                notes: user.notes
+                notes: user.notes,
+                image: user.image
             }, '*')
             .then(async (_user) => {
                 user.properties?.forEach(v => {

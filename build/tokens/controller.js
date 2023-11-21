@@ -52,7 +52,6 @@ function tokensPlugin(app, opt) {
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const file = yield req.file();
-                console.log(file.fields.name, file.fields.symbol, file.fields.supply_type, file.fields.chainid, file.fields.address, file.fields.maxSupply, file.fields.initialSupply, file.fields.pausable, file.fields.burnable, file.fields.blacklist, file.fields.recoverable, file.fields.verified, file.fields.fpmanager);
                 const token = {
                     name: file.fields.name.value,
                     symbol: file.fields.symbol.value,

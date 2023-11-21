@@ -1,5 +1,4 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
-import { getToken } from "../company/controller";
 import { ErrorResponse, JWTPayload, SuccessResponse, Token } from "../entities";
 import { AddTokenValidation } from "../schemas";
 import { addToken, getTokens } from "./service";
@@ -7,7 +6,6 @@ import { prettyTokensError } from "../errors";
 import { authorizationTokenDescription, tokenAddResponseDescription, tokenResponseDescription } from "../response_description";
 import { NFTStorage, File } from "nft.storage";
 import { config } from "../config/config";
-import fs from 'fs'
 
 export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
@@ -50,21 +48,6 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const file: any = await req.file()
-                console.log(
-                    file.fields.name,
-                    file.fields.symbol,
-                    file.fields.supply_type,
-                    file.fields.chainid,
-                    file.fields.address,
-                    file.fields.maxSupply,
-                    file.fields.initialSupply,
-                    file.fields.pausable,
-                    file.fields.burnable,
-                    file.fields.blacklist,
-                    file.fields.recoverable,
-                    file.fields.verified,
-                    file.fields.fpmanager
-                )
                 const token: Token = {
                     name: file.fields.name.value,
                     symbol: file.fields.symbol.value,

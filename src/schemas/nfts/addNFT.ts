@@ -32,6 +32,10 @@ export const AddNFTValidation: Joi.ObjectSchema = Joi.object({
 
     name: Joi.string().required(),
 
-    description: Joi.string().allow(null)
+    description: Joi.string().allow(null),
+
+    chainid: Joi.string()
+        .required()
+        .external(checkChainID)
 
 })

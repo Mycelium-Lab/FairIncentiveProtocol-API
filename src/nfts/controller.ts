@@ -6,6 +6,8 @@ import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs } from 
 import { CODES, CODES_RANGES } from "../utils/constants";
 import { prettyNFTError } from "../errors";
 import { authorizationTokenDescription, collectionAddResponseDescription, nftAddResponseDescription, nftCollectionsResponseDescription, nftsDeleteResponseDescription, nftsResponseDescription } from "../response_description";
+import { File, NFTStorage } from "nft.storage";
+import { config } from "../config/config";
 
 export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
@@ -96,15 +98,31 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'AddNFT' },
+                // body: { $ref: 'AddNFT' },
                 headers: authorizationTokenDescription,
                 response: nftAddResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const nft: AddNFT = req.body as AddNFT
+                const file: any = await req.file()
+                const nft: AddNFT = {
+                    address: file.fields.address.value,
+                    chainid: file.fields.chainid.value,
+                    amount: file.fields.amount.value === 'null' ? null : file.fields.amount.value,
+                    name: file.fields.name.value,
+                    description: file.fields.description.value === 'null' ? null : file.fields.description.value
+                }
                 await AddNFTValidation.validateAsync(nft)
+                const _file = new File([await file.toBuffer()], file.filename, {type: file.mimetype})
+                const storage = new NFTStorage({ token: config.NFT_STORAGE_KEY })
+                const cid = await storage.store({
+                    image: _file,
+                    name: file.filename,
+                    description: file.filename
+                })
+                const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`
+                nft.image = image
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await addNFT(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply

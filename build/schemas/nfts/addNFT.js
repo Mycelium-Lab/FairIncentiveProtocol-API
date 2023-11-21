@@ -33,5 +33,8 @@ exports.AddNFTValidation = joi_1.default.object({
         .external(utils_1.checkAddress),
     amount: joi_1.default.number().allow(null),
     name: joi_1.default.string().required(),
-    description: joi_1.default.string().allow(null)
+    description: joi_1.default.string().allow(null),
+    chainid: joi_1.default.string()
+        .required()
+        .external(utils_1.checkChainID)
 });

@@ -51,25 +51,27 @@ function usersPlugin(app, opt) {
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
-                    const file = yield req.file();
-                    const user = {
-                        external_id: file.fields.external_id.value,
-                        email: file.fields.email.value,
-                        wallet: file.fields.wallet.value,
-                        notes: file.fields.notes.value,
-                        properties: JSON.parse(file.fields.properties.value),
-                        stats: JSON.parse(file.fields.stats.value)
+                    const body = req.body;
+                    let user = {
+                        external_id: body.external_id.value,
+                        email: body.email.value,
+                        wallet: body.wallet.value,
+                        notes: body.notes.value === 'null' ? null : body.notes.value,
+                        properties: JSON.parse(body.properties.value),
+                        stats: JSON.parse(body.stats.value)
                     };
                     yield schemas_1.AddUserValidation.validateAsync(user);
-                    const _file = new nft_storage_1.File([yield file.toBuffer()], file.filename, { type: file.mimetype });
-                    const storage = new nft_storage_1.NFTStorage({ token: config_1.config.NFT_STORAGE_KEY });
-                    const cid = yield storage.store({
-                        image: _file,
-                        name: file.filename,
-                        description: file.filename
-                    });
-                    const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`;
-                    user.image = image;
+                    if (body.image) {
+                        const image = new nft_storage_1.File([yield body.image.toBuffer()], body.image.filename, { type: body.image.mimetype });
+                        const storage = new nft_storage_1.NFTStorage({ token: config_1.config.NFT_STORAGE_KEY });
+                        const cid = yield storage.store({
+                            image: image,
+                            name: image.name,
+                            description: image.name
+                        });
+                        const _image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`;
+                        user.image = _image;
+                    }
                     const data = req.routeConfig.jwtData;
                     const res = yield (0, service_1.addUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply

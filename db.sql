@@ -571,7 +571,6 @@ CREATE TABLE reward_event_erc20 (
     comment         TEXT
 );
 
-/*TODO: v,r,s правильной длинны*/
 CREATE TABLE reward_event_erc721(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     status          INT NOT NULL REFERENCES reward_event_statuses(id),

@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { AddNFT, AddNFTCollection, Delete, ErrorResponse, JWTPayload, NFTCollection, SuccessResponse } from "../entities";
+import { AddNFT, AddNFTCollection, Delete, ErrorResponse, GetOneCollectionNft, JWTPayload, NFTCollection, SuccessResponse } from "../entities";
 import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, DeleteValidation } from "../schemas";
-import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs } from "./service";
+import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs, getNFTsOneCollection } from "./service";
 import { CODES, CODES_RANGES } from "../utils/constants";
 import { prettyNFTError } from "../errors";
 import { authorizationTokenDescription, collectionAddResponseDescription, nftAddResponseDescription, nftCollectionsResponseDescription, nftsDeleteResponseDescription, nftsResponseDescription } from "../response_description";
@@ -50,6 +50,35 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
             try {
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res = await getNFTs({email: data?.email, phone: data?.phone, company_id: data?.company_id})
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error)
+                const prettyError: ErrorResponse = prettyNFTError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .send({error: prettyError.error})
+            }
+        }
+    ),
+    app.get(
+        '/nfts/one',
+        {
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                querystring: {
+                    $ref: 'GetOneCollectionNft'
+                }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const getOneCollectionNft: GetOneCollectionNft = req.query as GetOneCollectionNft
+                const res = await getNFTsOneCollection({email: data?.email, phone: data?.phone, company_id: data?.company_id}, getOneCollectionNft)
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

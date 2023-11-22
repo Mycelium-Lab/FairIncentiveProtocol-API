@@ -21,6 +21,7 @@ import { Status } from './rewards/status'
 import { DeleteApiKey } from './api_keys/Delete'
 import { ChangeCompanyRepname } from "./company/repname";
 import { DateRange } from "./stat/dateRange";
+import { GetOneCollectionNft } from './nfts/getOneCollectionNft'
 export { SignUpValidation } from './auth/SignUp'
 export { SignInValidation } from './auth/SignIn'
 export { ChangeCompanyNameValidation } from './company/name'
@@ -43,6 +44,7 @@ export { StatusValidation } from './rewards/status'
 export { DeleteApiKeyValidation } from './api_keys/Delete'
 export { ChangeCompanyRepnameValidation } from './company/repname'
 export { DateRangeValidation } from './stat/dateRange'
+export { GetOneCollectionNftValidation } from './nfts/getOneCollectionNft'
 
 export function addSchemas(app: FastifyInstance) {
     app.addSchema(SignUp)
@@ -67,4 +69,5 @@ export function addSchemas(app: FastifyInstance) {
     app.addSchema(DeleteApiKey)
     app.addSchema(ChangeCompanyRepname)
     app.addSchema(DateRange)
+    app.addSchema(GetOneCollectionNft)
 }

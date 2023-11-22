@@ -72,6 +72,32 @@ function nftsPlugin(app, opt) {
                     .send({ error: prettyError.error });
             }
         })),
+            app.get('/nfts/one', {
+                preHandler: app.authenticate,
+                schema: {
+                    headers: response_description_1.authorizationTokenDescription,
+                    querystring: {
+                        $ref: 'GetOneCollectionNft'
+                    }
+                }
+            }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+                try {
+                    const data = req.routeConfig.jwtData;
+                    const getOneCollectionNft = req.query;
+                    const res = yield (0, service_1.getNFTsOneCollection)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, getOneCollectionNft);
+                    reply
+                        .code(res.code)
+                        .type('application/json; charset=utf-8')
+                        .send('body' in res ? { body: res.body } : { error: res.error });
+                }
+                catch (error) {
+                    console.log(error);
+                    const prettyError = (0, errors_1.prettyNFTError)(error.message);
+                    reply
+                        .code(prettyError.code)
+                        .send({ error: prettyError.error });
+                }
+            })),
             app.post('/add/collection', {
                 preHandler: app.authenticate,
                 schema: {

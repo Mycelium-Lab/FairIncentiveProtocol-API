@@ -210,6 +210,7 @@ exports.getNFTs = getNFTs;
 function getNFTsOneCollection(getCompany, getOneCollectionNft) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            console.log(getOneCollectionNft);
             const result = yield (0, db_1.default)('erc721_tokens')
                 .select([
                 'nfts.address as collection_address',
@@ -224,7 +225,10 @@ function getNFTsOneCollection(getCompany, getOneCollectionNft) {
             ])
                 .count('reward_event_erc721.id as rewards_count')
                 .from('erc721_tokens')
-                .join('nfts', 'erc721_tokens.chainid', 'nfts.chainid')
+                .join('nfts', function () {
+                this.on('erc721_tokens.chainid', '=', 'nfts.chainid')
+                    .andOn('erc721_tokens.address', '=', 'nfts.address');
+            })
                 .leftJoin('rewards_erc721', 'nfts.id', 'rewards_erc721.nft_id')
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
                 .where({
@@ -233,6 +237,7 @@ function getNFTsOneCollection(getCompany, getOneCollectionNft) {
                 'erc721_tokens.chainid': getOneCollectionNft.chainid
             })
                 .groupBy('nfts.address', 'nfts.image', 'nfts.name', 'erc721_tokens.chainid', 'erc721_tokens.name', 'nfts.id');
+            console.log(result);
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {

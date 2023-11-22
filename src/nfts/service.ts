@@ -181,7 +181,6 @@ export async function getNFTs(getCompany: GetCompany): Promise<ErrorResponse | S
 
 export async function getNFTsOneCollection(getCompany: GetCompany, getOneCollectionNft: GetOneCollectionNft): Promise<ErrorResponse | SuccessResponse> {
     try {
-        console.log(getOneCollectionNft)
         const result = await pg('erc721_tokens')
             .select([
                 'nfts.address as collection_address',
@@ -208,7 +207,6 @@ export async function getNFTsOneCollection(getCompany: GetCompany, getOneCollect
                 'erc721_tokens.chainid': getOneCollectionNft.chainid
             })
             .groupBy('nfts.address', 'nfts.image', 'nfts.name', 'erc721_tokens.chainid', 'erc721_tokens.name', 'nfts.id');
-        console.log(result)
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {

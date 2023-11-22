@@ -210,7 +210,6 @@ exports.getNFTs = getNFTs;
 function getNFTsOneCollection(getCompany, getOneCollectionNft) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            console.log(getOneCollectionNft);
             const result = yield (0, db_1.default)('erc721_tokens')
                 .select([
                 'nfts.address as collection_address',
@@ -237,7 +236,6 @@ function getNFTsOneCollection(getCompany, getOneCollectionNft) {
                 'erc721_tokens.chainid': getOneCollectionNft.chainid
             })
                 .groupBy('nfts.address', 'nfts.image', 'nfts.name', 'erc721_tokens.chainid', 'erc721_tokens.name', 'nfts.id');
-            console.log(result);
             const res = {
                 code: constants_1.CODES.OK.code,
                 body: {

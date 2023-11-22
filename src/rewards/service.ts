@@ -42,8 +42,8 @@ export async function getTokenRewards(getCompany: GetCompany): Promise<ErrorResp
                 .whereRaw('rewards_erc20.company_id = ?', [getCompany.company_id]) 
                 .leftJoin('erc20_tokens', 'rewards_erc20.address', '=', 'erc20_tokens.address')
                 .leftJoin('reward_event_erc20', 'rewards_erc20.id', '=', 'reward_event_erc20.reward_id')
-                .groupBy('rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status')
-                .select(['rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status'])
+                .groupBy('rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status', 'rewards_erc20.chainid')
+                .select(['rewards_erc20.id', 'rewards_erc20.name','rewards_erc20.description', 'rewards_erc20.amount', 'rewards_erc20.address', 'erc20_tokens.symbol', 'rewards_erc20.status', 'rewards_erc20.chainid'])
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {
@@ -237,10 +237,13 @@ export async function getNFTRewards(getCompany: GetCompany): Promise<ErrorRespon
                 .count('reward_event_erc721.user_id')
                 .whereRaw('rewards_erc721.company_id = ?', [getCompany.company_id]) 
                 .leftJoin('nfts', 'rewards_erc721.nft_id', '=', 'nfts.id')
-                .leftJoin('erc721_tokens', 'nfts.address', '=', 'erc721_tokens.address')
+                .leftJoin('erc721_tokens', function() {
+                    this.on('erc721_tokens.chainid', '=', 'nfts.chainid')
+                        .andOn('erc721_tokens.address', '=', 'nfts.address')
+                  })
                 .leftJoin('reward_event_erc721', 'rewards_erc721.id', '=', 'reward_event_erc721.reward_id')
-                .groupBy('rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol','nfts.name', 'nfts.address', 'rewards_erc721.status')
-                .select(['rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name', 'nfts.address as address', 'rewards_erc721.status'])
+                .groupBy('rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol','nfts.name', 'nfts.address', 'rewards_erc721.status', 'erc721_tokens.chainid')
+                .select(['rewards_erc721.id', 'rewards_erc721.name','rewards_erc721.description', 'rewards_erc721.nft_id', 'erc721_tokens.symbol', 'nfts.name as nft_name', 'nfts.address as address', 'rewards_erc721.status', 'erc721_tokens.chainid'])
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {

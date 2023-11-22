@@ -23,7 +23,7 @@ function addTokenReward(getCompany, tokenReward) {
         try {
             tokenReward.company_id = getCompany.company_id;
             const addedReward = yield (0, db_1.default)('rewards_erc20').insert(tokenReward).returning('*');
-            const token = yield (0, db_1.default)('erc20_tokens').select('*').where({ address: tokenReward.address }).first();
+            const token = yield (0, db_1.default)('erc20_tokens').select('*').where({ address: tokenReward.address, chainid: tokenReward.chainid }).first();
             addedReward[0].symbol = token.symbol;
             const res = {
                 code: constants_1.CODES.OK.code,
@@ -220,13 +220,14 @@ function addNFTReward(getCompany, nftReward) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             nftReward.company_id = getCompany.company_id;
-            const company = yield (0, db_1.default)('nfts')
+            const nft = yield (0, db_1.default)('nfts')
                 .whereRaw('nfts.id = ?', [nftReward.nft_id])
                 .leftJoin('erc721_tokens', 'nfts.address', '=', 'erc721_tokens.address')
-                .select('erc721_tokens.company_id as company_id')
+                .select('erc721_tokens.company_id as company_id', 'erc721_tokens.chainid as chainid')
                 .first();
-            if (!company.company_id)
+            if (!nft.company_id)
                 throw Error('Not this company');
+            nftReward.chainid = nft.chainid;
             const addedReward = yield (0, db_1.default)('rewards_erc721').insert(nftReward).returning('*');
             const nftCollection = yield (0, db_1.default)('nfts')
                 .whereRaw('nfts.id = ?', [addedReward[0].nft_id])

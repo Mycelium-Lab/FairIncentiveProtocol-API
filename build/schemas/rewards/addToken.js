@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AddTokenRewardValidation = exports.AddTokenReward = void 0;
-const ethers_1 = require("ethers");
 const joi_1 = __importDefault(require("joi"));
+const utils_1 = require("../utils");
 exports.AddTokenReward = {
     $id: 'AddTokenReward',
     type: 'object',
@@ -30,16 +30,13 @@ exports.AddTokenRewardValidation = joi_1.default.object({
         .max(42)
         .allow('')
         .required()
-        .external(checkAddress),
+        .external(utils_1.checkAddress),
     description: joi_1.default.string().allow(null),
     name: joi_1.default.string()
         .required(),
     amount: joi_1.default.string()
+        .required(),
+    chainid: joi_1.default.string()
         .required()
+        .external(utils_1.checkChainID)
 });
-function checkAddress(wallet) {
-    const _isAddress = ethers_1.utils.isAddress(wallet);
-    if (!_isAddress) {
-        throw Error('Wallet is incorrect');
-    }
-}

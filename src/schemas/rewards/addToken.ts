@@ -1,5 +1,6 @@
 import { utils } from 'ethers'
 import Joi  from 'joi'
+import { checkAddress, checkChainID } from '../utils'
 
 export const AddTokenReward: unknown = {
     $id: 'AddTokenReward',
@@ -34,13 +35,9 @@ export const AddTokenRewardValidation: Joi.ObjectSchema = Joi.object({
         .required(),
 
     amount: Joi.string()
+        .required(),
+    
+    chainid: Joi.string()
         .required()
-
+        .external(checkChainID)
 })
-
-function checkAddress(wallet: string) {
-    const _isAddress = utils.isAddress(wallet)
-    if (!_isAddress) {
-        throw Error('Wallet is incorrect')
-    }
-}

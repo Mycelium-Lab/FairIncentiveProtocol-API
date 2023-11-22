@@ -10,7 +10,7 @@ export async function addTokenReward(getCompany: GetCompany, tokenReward: TokenR
     try {
         tokenReward.company_id = getCompany.company_id
         const addedReward: Array<TokenReward> = await pg('rewards_erc20').insert(tokenReward).returning('*')
-        const token: Token = await pg('erc20_tokens').select('*').where({address: tokenReward.address}).first()
+        const token: Token = await pg('erc20_tokens').select('*').where({address: tokenReward.address, chainid: tokenReward.chainid}).first()
         addedReward[0].symbol = token.symbol
         const res: SuccessResponse = {
             code: CODES.OK.code,
@@ -191,13 +191,14 @@ export async function getRewardTokenEvents(getCompany: GetCompany): Promise<Erro
 export async function addNFTReward(getCompany: GetCompany, nftReward: NFTReward): Promise<ErrorResponse | SuccessResponse> {
     try {
         nftReward.company_id = getCompany.company_id
-        const company: GetCompany = 
+        const nft: any = 
             await pg('nfts')
             .whereRaw('nfts.id = ?', [nftReward.nft_id])
             .leftJoin('erc721_tokens', 'nfts.address','=','erc721_tokens.address')
-            .select('erc721_tokens.company_id as company_id')
+            .select('erc721_tokens.company_id as company_id', 'erc721_tokens.chainid as chainid')
             .first()
-        if (!company.company_id) throw Error('Not this company')
+        if (!nft.company_id) throw Error('Not this company')
+        nftReward.chainid = nft.chainid
         const addedReward: Array<NFTReward> = await pg('rewards_erc721').insert(nftReward).returning('*')
         const nftCollection: any = 
             await pg('nfts')

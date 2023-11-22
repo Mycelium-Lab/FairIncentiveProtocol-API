@@ -546,6 +546,7 @@ CREATE TABLE rewards_erc20(
 CREATE TABLE rewards_erc721(
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id      UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    chainid         INT NOT NULL REFERENCES chains(id),
     name            VARCHAR(255) NOT NULL,
     description     VARCHAR(1000),
     nft_id          UUID NOT NULL REFERENCES nfts(id),
@@ -586,3 +587,4 @@ ALTER TABLE reward_event_erc20 ADD event_datetime TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE reward_event_erc721 ADD event_datetime TIMESTAMPTZ DEFAULT NOW();
 
 ALTER TABLE users ADD add_datetime TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE rewards_erc721 ADD chainid INT NOT NULL REFERENCES chains(id) DEFAULT '1';

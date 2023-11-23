@@ -40,7 +40,7 @@ function build(opt = {}) {
         app.register(jwt_1.default, {
             secret: config_1.config.SECRET_KEY
         });
-        app.register(multipart_1.default);
+        app.register(multipart_1.default, { attachFieldsToBody: true });
         app.register(swagger_1.default, {
             swagger: {
                 info: {

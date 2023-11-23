@@ -80,6 +80,9 @@ exports.nftCollectionsResponseDescription = Object.assign({ 200: {
                                 },
                                 image: {
                                     type: 'string'
+                                },
+                                nft_count: {
+                                    type: 'number'
                                 }
                             }
                         }

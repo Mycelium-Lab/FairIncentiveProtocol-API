@@ -29,7 +29,7 @@ export async function build(opt: AppOptions = {}) {
     app.register(fastifyJwt, { 
         secret: config.SECRET_KEY
     })
-    app.register(fastifyMultipart)
+    app.register(fastifyMultipart, {attachFieldsToBody: true})
     app.register(swagger, {
       swagger: {
         info: {

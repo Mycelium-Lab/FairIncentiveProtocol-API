@@ -47,25 +47,27 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const file: any = await req.file()
-                const user: User = {
-                    external_id: file.fields.external_id.value,
-                    email: file.fields.email.value,
-                    wallet: file.fields.wallet.value,
-                    notes: file.fields.notes.value,
-                    properties: JSON.parse(file.fields.properties.value),
-                    stats: JSON.parse(file.fields.stats.value)
+                const body: any = req.body
+                let user: User = {
+                    external_id: body.external_id.value,
+                    email: body.email.value,
+                    wallet: body.wallet.value,
+                    notes: body.notes.value === 'null' ? null : body.notes.value,
+                    properties: JSON.parse(body.properties.value),
+                    stats: JSON.parse(body.stats.value)
                 }
                 await AddUserValidation.validateAsync(user)
-                const _file = new File([await file.toBuffer()], file.filename, {type: file.mimetype})
-                const storage = new NFTStorage({ token: config.NFT_STORAGE_KEY })
-                const cid = await storage.store({
-                    image: _file,
-                    name: file.filename,
-                    description: file.filename
-                })
-                const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`
-                user.image = image
+                if (body.image) {
+                    const image = new File([await body.image.toBuffer()], body.image.filename, {type: body.image.mimetype})
+                    const storage = new NFTStorage({ token: config.NFT_STORAGE_KEY })
+                    const cid = await storage.store({
+                        image: image,
+                        name: image.name,
+                        description: image.name
+                    })
+                    const _image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`
+                    user.image = _image
+                }
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await addUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply

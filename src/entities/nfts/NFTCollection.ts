@@ -16,5 +16,6 @@ export interface NFTCollection {
     ownable: boolean,
     roles: boolean,
     uri_storage: boolean,
-    image: string,
+    image?: string,
+    nft_count: number
 }

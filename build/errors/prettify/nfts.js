@@ -3,6 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.prettyNFTError = void 0;
 const constants_1 = require("../../utils/constants");
 function prettyNFTError(errorMessage) {
+    if (errorMessage.includes("image cannot be null")) {
+        return {
+            code: constants_1.CODES.BAD_REQUEST.code,
+            error: {
+                name: constants_1.CODES.BAD_REQUEST.name,
+                message: errorMessage
+            }
+        };
+    }
     if (errorMessage.includes("\"address\" length must be less than or equal to 42 characters long")
         ||
             errorMessage.includes('\"address\" length must be at least 42 characters long')) {

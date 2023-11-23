@@ -73,10 +73,35 @@ export async function addNFTCollection(nftCollection: AddNFTCollection, getCompa
 export async function getNFTCollections(getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const tokens: Array<NFTCollection> = await pg('erc721_tokens')
-            .select('*')
-            .where({
-                company_id: getCompany.company_id
+            .leftJoin('nfts', function() {
+                this.on('erc721_tokens.chainid', '=', 'nfts.chainid')
+                    .andOn('erc721_tokens.address', '=', 'nfts.address');
             })
+            .select(
+                'erc721_tokens.company_id',
+                'erc721_tokens.name',
+                'erc721_tokens.symbol',
+                'erc721_tokens.description',
+                'erc721_tokens.logo_image',
+                'erc721_tokens.featured_image',
+                'erc721_tokens.banner_image',
+                'erc721_tokens.chainid',
+                'erc721_tokens.address',
+                'erc721_tokens.beneficiary',
+                'erc721_tokens.royalty_percent',
+                'erc721_tokens.pausable',
+                'erc721_tokens.burnable',
+                'erc721_tokens.mintable',
+                'erc721_tokens.ownable',
+                'erc721_tokens.roles',
+                'erc721_tokens.uri_storage',
+                'erc721_tokens.image'
+            )
+            .count('nfts.id as nft_count')
+            .where({
+                'erc721_tokens.company_id': getCompany.company_id
+            })
+            .groupBy('erc721_tokens.chainid', 'erc721_tokens.address');
         const res: SuccessResponse = {
             code: CODES.OK.code,
             body: {
@@ -106,6 +131,7 @@ export async function addNFT(nft: AddNFT, getCompany: GetCompany): Promise<Error
         const nfts = await pg('nfts').insert({
             address: nft.address,
             image: nft.image,
+            image_json: nft.image_json,
             amount: nft.amount,
             name: nft.name,
             description: nft.description,

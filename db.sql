@@ -588,3 +588,5 @@ ALTER TABLE reward_event_erc721 ADD event_datetime TIMESTAMPTZ DEFAULT NOW();
 
 ALTER TABLE users ADD add_datetime TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE rewards_erc721 ADD chainid INT NOT NULL REFERENCES chains(id) DEFAULT '80001';
+
+ALTER TABLE nfts ADD image_json TEXT NOT NULL DEFAULT '';

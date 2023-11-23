@@ -8,13 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __asyncValues = (this && this.__asyncValues) || function (o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.nftsPlugin = void 0;
 const schemas_1 = require("../schemas");
@@ -106,64 +99,31 @@ function nftsPlugin(app, opt) {
                     response: response_description_1.collectionAddResponseDescription
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
-                var _a, e_1, _b, _c;
                 try {
-                    // const file: any = await req.file()
-                    const parts = req.parts();
+                    const body = req.body;
                     let logoImage, featuredImage, bannerImage;
-                    let nft = {};
-                    try {
-                        for (var _d = true, parts_1 = __asyncValues(parts), parts_1_1; parts_1_1 = yield parts_1.next(), _a = parts_1_1.done, !_a;) {
-                            _c = parts_1_1.value;
-                            _d = false;
-                            try {
-                                const part = _c;
-                                if (part.fieldname === 'address') {
-                                    nft.address = part.value;
-                                }
-                                if (part.fieldname === 'name') {
-                                    nft.name = part.value;
-                                }
-                                if (part.fieldname === 'symbol') {
-                                    nft.symbol = part.value;
-                                }
-                                if (part.fieldname === 'chainid') {
-                                    nft.chainid = part.value;
-                                }
-                                if (part.fieldname === 'description') {
-                                    nft.description = part.value === 'null' ? null : part.value;
-                                }
-                                if (part.fieldname === 'links') {
-                                    nft.links = JSON.parse(part.value);
-                                }
-                                if (part.fieldname === 'beneficiary') {
-                                    nft.beneficiary = part.value === 'null' ? null : part.value;
-                                }
-                                if (part.fieldname === 'royalties') {
-                                    nft.royalties = part.value;
-                                }
-                                if (part.fieldname === 'logo_image') {
-                                    logoImage = new nft_storage_1.File([yield part.toBuffer()], part.filename, { type: part.mimetype });
-                                }
-                                if (part.fieldname === 'featured_image') {
-                                    featuredImage = new nft_storage_1.File([yield part.toBuffer()], part.filename, { type: part.mimetype });
-                                }
-                                if (part.fieldname === 'banner_image') {
-                                    bannerImage = new nft_storage_1.File([yield part.toBuffer()], part.filename, { type: part.mimetype });
-                                }
-                            }
-                            finally {
-                                _d = true;
-                            }
-                        }
-                    }
-                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                    finally {
-                        try {
-                            if (!_d && !_a && (_b = parts_1.return)) yield _b.call(parts_1);
-                        }
-                        finally { if (e_1) throw e_1.error; }
-                    }
+                    let nft = {
+                        address: body.address.value,
+                        name: body.name.value,
+                        symbol: body.symbol.value,
+                        chainid: body.chainid.value,
+                        description: body.description.value === 'null' ? null : body.description.value,
+                        links: JSON.parse(body.links.value),
+                        beneficiary: body.beneficiary.value === 'null' ? null : body.beneficiary.value,
+                        royalties: body.royalties.value
+                    };
+                    if (!body.logo_image)
+                        throw Error('Logo image cannot be null');
+                    else
+                        logoImage = new nft_storage_1.File([yield body.logo_image.toBuffer()], body.logo_image.filename, { type: body.logo_image.mimetype });
+                    if (!body.featured_image)
+                        throw Error('Featured image cannot be null');
+                    else
+                        featuredImage = new nft_storage_1.File([yield body.featured_image.toBuffer()], body.featured_image.filename, { type: body.featured_image.mimetype });
+                    if (!body.banner_image)
+                        throw Error('Banner image cannot be null');
+                    else
+                        bannerImage = new nft_storage_1.File([yield body.banner_image.toBuffer()], body.banner_image.filename, { type: body.banner_image.mimetype });
                     yield schemas_1.AddNFTCollectionValidation.validateAsync(nft);
                     const storage = new nft_storage_1.NFTStorage({ token: config_1.config.NFT_STORAGE_KEY });
                     //@ts-ignore
@@ -198,21 +158,25 @@ function nftsPlugin(app, opt) {
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const file = yield req.file();
+                const body = req.body;
                 const nft = {
-                    address: file.fields.address.value,
-                    chainid: file.fields.chainid.value,
-                    amount: file.fields.amount.value === 'null' ? null : file.fields.amount.value,
-                    name: file.fields.name.value,
-                    description: file.fields.description.value === 'null' ? null : file.fields.description.value
+                    address: body.address.value,
+                    chainid: body.chainid.value,
+                    amount: body.amount.value === 'null' ? null : body.amount.value,
+                    name: body.name.value,
+                    description: body.description.value === 'null' ? null : body.description.value
                 };
                 yield schemas_1.AddNFTValidation.validateAsync(nft);
-                const _file = new nft_storage_1.File([yield file.toBuffer()], file.filename, { type: file.mimetype });
+                let _file;
+                if (!body.image)
+                    throw Error('NFT image cannot be null');
+                else
+                    _file = new nft_storage_1.File([yield body.image.toBuffer()], body.image.filename, { type: body.image.mimetype });
                 const storage = new nft_storage_1.NFTStorage({ token: config_1.config.NFT_STORAGE_KEY });
                 const cid = yield storage.store({
                     image: _file,
-                    name: file.filename,
-                    description: file.filename
+                    name: body.image.filename,
+                    description: body.image.filename
                 });
                 const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`;
                 nft.image = image;

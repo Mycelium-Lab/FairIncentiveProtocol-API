@@ -2,6 +2,15 @@ import { ErrorResponse } from "../../entities";
 import { CODES } from "../../utils/constants";
 
 export function prettyNFTError(errorMessage: string): ErrorResponse {
+    if (errorMessage.includes("image cannot be null")) {
+        return {
+            code: CODES.BAD_REQUEST.code,
+            error: {
+                name: CODES.BAD_REQUEST.name,
+                message: errorMessage
+            }
+        }
+    }
     if (
         errorMessage.includes("\"address\" length must be less than or equal to 42 characters long")
         || 

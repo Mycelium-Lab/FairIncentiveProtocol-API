@@ -79,6 +79,9 @@ export const nftCollectionsResponseDescription = {
                                 },
                                 image: {
                                     type: 'string'
+                                },
+                                nft_count: {
+                                    type: 'number'
                                 }
                             }
                         }

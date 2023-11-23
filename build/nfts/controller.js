@@ -175,11 +175,12 @@ function nftsPlugin(app, opt) {
                 const storage = new nft_storage_1.NFTStorage({ token: config_1.config.NFT_STORAGE_KEY });
                 const cid = yield storage.store({
                     image: _file,
-                    name: body.image.filename,
-                    description: body.image.filename
+                    name: (nft === null || nft === void 0 ? void 0 : nft.name) || body.image.filename,
+                    description: (nft === null || nft === void 0 ? void 0 : nft.description) || body.image.filename
                 });
                 const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`;
                 nft.image = image;
+                nft.image_json = `https://ipfs.io/ipfs/${cid.url.replace('ipfs://', '')}`;
                 const data = req.routeConfig.jwtData;
                 const res = yield (0, service_1.addNFT)(nft, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                 reply

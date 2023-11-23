@@ -178,11 +178,12 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
                 const storage = new NFTStorage({ token: config.NFT_STORAGE_KEY })
                 const cid = await storage.store({
                     image: _file,
-                    name: body.image.filename,
-                    description: body.image.filename
+                    name: nft?.name || body.image.filename,
+                    description: nft?.description || body.image.filename
                 })
                 const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`
                 nft.image = image
+                nft.image_json = `https://ipfs.io/ipfs/${cid.url.replace('ipfs://','')}`
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await addNFT(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply

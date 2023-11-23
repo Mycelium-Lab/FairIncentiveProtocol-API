@@ -135,6 +135,7 @@ function addNFT(nft, getCompany) {
             const nfts = yield (0, db_1.default)('nfts').insert({
                 address: nft.address,
                 image: nft.image,
+                image_json: nft.image_json,
                 amount: nft.amount,
                 name: nft.name,
                 description: nft.description,

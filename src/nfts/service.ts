@@ -131,6 +131,7 @@ export async function addNFT(nft: AddNFT, getCompany: GetCompany): Promise<Error
         const nfts = await pg('nfts').insert({
             address: nft.address,
             image: nft.image,
+            image_json: nft.image_json,
             amount: nft.amount,
             name: nft.name,
             description: nft.description,

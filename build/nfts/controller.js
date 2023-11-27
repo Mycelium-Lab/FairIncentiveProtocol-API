@@ -159,12 +159,16 @@ function nftsPlugin(app, opt) {
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const body = req.body;
+                const nftProperties = JSON.parse(body.properties.value);
+                const nftStats = JSON.parse(body.stats.value);
                 const nft = {
                     address: body.address.value,
                     chainid: body.chainid.value,
                     amount: body.amount.value === 'null' ? null : body.amount.value,
                     name: body.name.value,
-                    description: body.description.value === 'null' ? null : body.description.value
+                    description: body.description.value === 'null' ? null : body.description.value,
+                    properties: nftProperties,
+                    stats: nftStats
                 };
                 yield schemas_1.AddNFTValidation.validateAsync(nft);
                 let _file;
@@ -172,11 +176,15 @@ function nftsPlugin(app, opt) {
                     throw Error('NFT image cannot be null');
                 else
                     _file = new nft_storage_1.File([yield body.image.toBuffer()], body.image.filename, { type: body.image.mimetype });
+                const properties = {};
+                nftProperties.forEach(v => { properties[`${v.name}`] = v.value; });
+                nftStats.forEach(v => { properties[`${v.name}`] = +v.value; });
                 const storage = new nft_storage_1.NFTStorage({ token: config_1.config.NFT_STORAGE_KEY });
                 const cid = yield storage.store({
                     image: _file,
                     name: (nft === null || nft === void 0 ? void 0 : nft.name) || body.image.filename,
-                    description: (nft === null || nft === void 0 ? void 0 : nft.description) || body.image.filename
+                    description: (nft === null || nft === void 0 ? void 0 : nft.description) || body.image.filename,
+                    properties
                 });
                 const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`;
                 nft.image = image;

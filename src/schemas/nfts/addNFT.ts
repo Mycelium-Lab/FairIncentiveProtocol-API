@@ -16,6 +16,26 @@ export const AddNFT: unknown = {
         },
         description: {
             type: ['null', 'string'], nullable: true
+        },
+        properties: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    name: {type: 'string'},
+                    value: {type: 'string'}
+                }
+            }
+        },
+        stats: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    name: {type: 'string'},
+                    value: {type: 'number'}
+                }
+            }
         }
     }
 }
@@ -36,6 +56,20 @@ export const AddNFTValidation: Joi.ObjectSchema = Joi.object({
 
     chainid: Joi.string()
         .required()
-        .external(checkChainID)
+        .external(checkChainID),
+
+    properties: Joi.array().items(
+        Joi.object({
+            name: Joi.string().required(),
+            value: Joi.string().required(),
+        })
+    ),
+
+    stats: Joi.array().items(
+        Joi.object({
+            name: Joi.string().required(),
+            value: Joi.number().required(),
+        })
+    )
 
 })

@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { AddNFT, AddNFTCollection, Delete, ErrorResponse, GetOneCollectionNft, JWTPayload, NFTCollection, SuccessResponse } from "../entities";
+import { AddNFT, AddNFTCollection, Delete, ErrorResponse, GetOneCollectionNft, JWTPayload, NFTCollection, Property, Stat, SuccessResponse } from "../entities";
 import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, DeleteValidation } from "../schemas";
 import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs, getNFTsOneCollection } from "./service";
 import { CODES, CODES_RANGES } from "../utils/constants";
@@ -163,23 +163,30 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const body: any = req.body
+                const nftProperties: Array<Property> = JSON.parse(body.properties.value)
+                const nftStats: Array<Stat> = JSON.parse(body.stats.value)
                 const nft: AddNFT = {
                     address: body.address.value,
                     chainid: body.chainid.value,
                     amount: body.amount.value === 'null' ? null : body.amount.value,
                     name: body.name.value,
-                    description: body.description.value === 'null' ? null : body.description.value
+                    description: body.description.value === 'null' ? null : body.description.value,
+                    properties: nftProperties,
+                    stats: nftStats
                 }
                 await AddNFTValidation.validateAsync(nft)
                 let _file;
                 if (!body.image) throw Error('NFT image cannot be null')
                 else _file = new File([await body.image.toBuffer()], body.image.filename, {type: body.image.mimetype})
-            
+                const properties: any = {}
+                nftProperties.forEach(v => { properties[`${v.name}`] = v.value })
+                nftStats.forEach(v => { properties[`${v.name}`] = +v.value })
                 const storage = new NFTStorage({ token: config.NFT_STORAGE_KEY })
                 const cid = await storage.store({
                     image: _file,
                     name: nft?.name || body.image.filename,
-                    description: nft?.description || body.image.filename
+                    description: nft?.description || body.image.filename,
+                    properties
                 })
                 const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`
                 nft.image = image

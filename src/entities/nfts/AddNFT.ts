@@ -1,3 +1,5 @@
+import { Property, Stat } from "../users/User"
+
 export interface AddNFT {
     address: string,
     image?: string,
@@ -5,5 +7,7 @@ export interface AddNFT {
     chainid: string,
     amount?: number
     name?: string,
-    description?: string
+    description?: string,
+    properties?: Array<Property>,
+    stats?: Array<Stat>
 }

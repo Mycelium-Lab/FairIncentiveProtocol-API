@@ -21,6 +21,26 @@ exports.AddNFT = {
         },
         description: {
             type: ['null', 'string'], nullable: true
+        },
+        properties: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    name: { type: 'string' },
+                    value: { type: 'string' }
+                }
+            }
+        },
+        stats: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    name: { type: 'string' },
+                    value: { type: 'number' }
+                }
+            }
         }
     }
 };
@@ -36,5 +56,13 @@ exports.AddNFTValidation = joi_1.default.object({
     description: joi_1.default.string().allow(null),
     chainid: joi_1.default.string()
         .required()
-        .external(utils_1.checkChainID)
+        .external(utils_1.checkChainID),
+    properties: joi_1.default.array().items(joi_1.default.object({
+        name: joi_1.default.string().required(),
+        value: joi_1.default.string().required(),
+    })),
+    stats: joi_1.default.array().items(joi_1.default.object({
+        name: joi_1.default.string().required(),
+        value: joi_1.default.number().required(),
+    }))
 });

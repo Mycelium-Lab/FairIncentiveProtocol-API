@@ -271,3 +271,63 @@ export async function getTotalCountErc721Reward(getCompany: GetCompany, rewardId
         return err
     }
 }
+
+export async function getUserCountErc20Reward(getCompany: GetCompany, rewardId: string): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const rewardedUsersErc20Count: TotalOneType = await pg('rewards_erc20')
+            .first()
+            .countDistinct('reward_event_erc20.user_id as count')
+            .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+            .whereRaw('rewards_erc20.company_id = ? AND rewards_erc20.id = ?', [getCompany.company_id, rewardId])
+    
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Rewards users count for ERC20 reward',
+                type: SuccessResponseTypes.number,
+                data: rewardedUsersErc20Count.count
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
+    }
+}
+
+export async function getUserCountErc721Reward(getCompany: GetCompany, rewardId: string): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const rewardedUsersErc721Count: TotalOneType = await pg('rewards_erc721')
+            .first()
+            .countDistinct('reward_event_erc721.user_id as count')
+            .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+            .whereRaw('rewards_erc721.company_id = ? AND rewards_erc721.id = ?', [getCompany.company_id, rewardId])
+
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Rewards users count for ERC721 reward',
+                type: SuccessResponseTypes.number,
+                data: rewardedUsersErc721Count.count
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
+    }
+}

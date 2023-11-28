@@ -143,7 +143,7 @@ function statRewardsController(app, opt) {
             schema: {
                 headers: response_description_1.authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
@@ -171,7 +171,7 @@ function statRewardsController(app, opt) {
             schema: {
                 headers: response_description_1.authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
@@ -199,7 +199,7 @@ function statRewardsController(app, opt) {
             schema: {
                 headers: response_description_1.authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
@@ -227,7 +227,7 @@ function statRewardsController(app, opt) {
             schema: {
                 headers: response_description_1.authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
@@ -255,7 +255,7 @@ function statRewardsController(app, opt) {
             schema: {
                 headers: response_description_1.authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {

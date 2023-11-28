@@ -150,7 +150,7 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
             schema: {
                 headers: authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }  
         },
@@ -181,7 +181,7 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
             schema: {
                 headers: authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }  
         },
@@ -212,7 +212,7 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
             schema: {
                 headers: authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }  
         },
@@ -243,7 +243,7 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
             schema: {
                 headers: authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }  
         },
@@ -274,7 +274,7 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
             schema: {
                 headers: authorizationTokenDescription,
                 querystring: {
-                    $ref: 'RewardOneStat'
+                    $ref: 'Uuid'
                 }
             }  
         },

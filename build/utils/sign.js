@@ -12,11 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.signTokenReward = exports.signNFTReward = void 0;
 const ethers_1 = require("ethers");
 //TODO: Добавить тип Address и BigInt
-function signNFTReward(uri, sender, signer, contractAddress) {
+function signNFTReward(rewardEventId, uri, sender, signer, contractAddress) {
     return __awaiter(this, void 0, void 0, function* () {
-        const message = [uri, sender, contractAddress];
+        const message = [uri, sender, contractAddress, rewardEventId];
         const hashMessage = ethers_1.ethers.utils.solidityKeccak256([
-            "string", "uint160", "uint160"
+            "string", "uint160", "uint160", "string"
         ], message);
         const sign = yield signer.signMessage(ethers_1.ethers.utils.arrayify(hashMessage));
         const r = sign.substr(0, 66);

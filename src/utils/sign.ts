@@ -3,11 +3,12 @@ import { ethers } from "ethers";
 //TODO: Добавить тип Address и BigInt
 
 export async function signNFTReward(
+    rewardEventId: string,
     uri: string, sender: string, signer: ethers.Wallet, contractAddress: string
 ) {
-    const message = [uri, sender, contractAddress]
+    const message = [uri, sender, contractAddress, rewardEventId]
     const hashMessage = ethers.utils.solidityKeccak256([
-        "string","uint160","uint160"
+        "string","uint160","uint160", "string"
     ], message)
     const sign = await signer.signMessage(ethers.utils.arrayify(hashMessage));
     const r = sign.substr(0, 66)

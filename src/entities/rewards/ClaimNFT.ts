@@ -10,5 +10,6 @@ export interface ClaimNFT {
     v: string,
     r: string,
     s: string,
-    status: number
+    status: number,
+    reward_id: string
 }

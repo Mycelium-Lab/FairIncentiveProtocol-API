@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import pg from "../config/db";
-import { ClaimNFT, ClaimToken, Delete, ErrorResponse, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, SuccessResponse, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
+import { ClaimNFT, ClaimToken, Uuid, ErrorResponse, GetCompany, NFT, NFTCollection, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, SuccessResponse, Token, TokenReward, UpdateNFTReward, UpdateTokenReward, User } from "../entities";
 import { config } from "../config/config";
 import { signNFTReward, signTokenReward } from "../utils/sign";
 import { Company } from "../entities";
@@ -66,7 +66,7 @@ export async function getTokenRewards(getCompany: GetCompany): Promise<ErrorResp
     }   
 }
 
-export async function deleteTokenReward(getCompany: GetCompany, Delete: Delete): Promise<ErrorResponse | SuccessResponse> {
+export async function deleteTokenReward(getCompany: GetCompany, Delete: Uuid): Promise<ErrorResponse | SuccessResponse> {
     try {
         const count = await pg('rewards_erc20')
             .count('reward_event_erc20.reward_id')
@@ -295,7 +295,7 @@ export async function getNFTRewards(getCompany: GetCompany): Promise<ErrorRespon
     }
 }
 
-export async function deleteNFTReward(getCompany: GetCompany, Delete: Delete): Promise<ErrorResponse | SuccessResponse> {
+export async function deleteNFTReward(getCompany: GetCompany, Delete: Uuid): Promise<ErrorResponse | SuccessResponse> {
     try {
         const count = await pg('rewards_erc721')
             .count('reward_event_erc721.reward_id')
@@ -587,7 +587,7 @@ export async function updateNFTReward(getCompany: GetCompany, nftReward: UpdateN
     }
 }
 
-export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewardEvent: Delete): Promise<ErrorResponse | SuccessResponse> {
+export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewardEvent: Uuid): Promise<ErrorResponse | SuccessResponse> {
     try {
         const rewardCompany: Company = 
             await pg('reward_event_erc20')
@@ -619,7 +619,7 @@ export async function deleteTokenRewardEvent(getCompany: GetCompany, deleteRewar
     }
 }
 
-export async function deleteNFTRewardEvent(getCompany: GetCompany, deleteRewardEvent: Delete): Promise<ErrorResponse | SuccessResponse> {
+export async function deleteNFTRewardEvent(getCompany: GetCompany, deleteRewardEvent: Uuid): Promise<ErrorResponse | SuccessResponse> {
     try {
         const rewardCompany: Company = 
             await pg('reward_event_erc721')

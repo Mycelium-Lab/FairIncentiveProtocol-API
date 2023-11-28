@@ -10,7 +10,7 @@ import { AddUser } from "./users/add";
 import { AddToken } from "./tokens/add";
 import { AddNFTCollection } from './nfts/addCollection'
 import { AddTokenReward } from "./rewards/addToken";
-import { Delete } from "./common/Delete";
+import { Uuid } from "./common/Uuid";
 import { RewardWithToken } from './rewards/rewardWithToken'
 import { AddNFT } from './nfts/addNFT'
 import { AddNFTReward } from './rewards/addNFT'
@@ -34,7 +34,7 @@ export { AddUserValidation } from './users/add'
 export { AddTokenValidation } from './tokens/add'
 export { AddNFTCollectionValidation } from './nfts/addCollection'
 export { AddTokenRewardValidation } from './rewards/addToken'
-export { DeleteValidation } from "./common/Delete";
+export { UuidValidation } from "./common/Uuid";
 export { RewardWithTokenValidation } from './rewards/rewardWithToken'
 export { AddNFTValidation } from './nfts/addNFT'
 export { AddNFTRewardValidation } from './rewards/addNFT'
@@ -60,7 +60,7 @@ export function addSchemas(app: FastifyInstance) {
     app.addSchema(AddToken)
     app.addSchema(AddNFTCollection)
     app.addSchema(AddTokenReward)
-    app.addSchema(Delete)
+    app.addSchema(Uuid)
     app.addSchema(RewardWithToken)
     app.addSchema(AddNFT)
     app.addSchema(AddNFTReward)

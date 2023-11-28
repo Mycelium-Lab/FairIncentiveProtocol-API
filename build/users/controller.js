@@ -91,14 +91,14 @@ function usersPlugin(app, opt) {
             app.post('/delete', {
                 preHandler: app.authenticate,
                 schema: {
-                    body: { $ref: 'Delete' },
+                    body: { $ref: 'Uuid' },
                     headers: response_description_1.authorizationTokenDescription,
                     response: response_description_1.userDeleteResponseDescription
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const user = req.body;
-                    yield schemas_1.DeleteValidation.validateAsync(user);
+                    yield schemas_1.UuidValidation.validateAsync(user);
                     const data = req.routeConfig.jwtData;
                     const res = yield (0, service_1.deleteUser)(user, { email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id });
                     reply

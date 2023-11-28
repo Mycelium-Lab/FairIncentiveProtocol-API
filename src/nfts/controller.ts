@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { AddNFT, AddNFTCollection, Delete, ErrorResponse, GetOneCollectionNft, JWTPayload, NFTCollection, Property, Stat, SuccessResponse } from "../entities";
-import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, DeleteValidation } from "../schemas";
+import { AddNFT, AddNFTCollection, Uuid, ErrorResponse, GetOneCollectionNft, JWTPayload, NFTCollection, Property, Stat, SuccessResponse } from "../entities";
+import { AddNFTCollectionValidation, AddNFTValidation, AddTokenValidation, UuidValidation } from "../schemas";
 import { addNFT, addNFTCollection, deleteNFT, getNFTCollections, getNFTs, getNFTsOneCollection } from "./service";
 import { CODES, CODES_RANGES } from "../utils/constants";
 import { prettyNFTError } from "../errors";
@@ -211,15 +211,15 @@ export async function nftsPlugin(app: FastifyInstance, opt: FastifyPluginOptions
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'Delete' },
+                body: { $ref: 'Uuid' },
                 headers: authorizationTokenDescription,
                 response: nftsDeleteResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const nft: Delete = req.body as Delete
-                await DeleteValidation.validateAsync(nft)
+                const nft: Uuid = req.body as Uuid
+                await UuidValidation.validateAsync(nft)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res = await deleteNFT(nft, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply

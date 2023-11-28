@@ -6,6 +6,7 @@ export interface ClaimToken {
     reward_name: string,
     reward_description: string,
     reward_amount: string,
+    reward_id: string,
     chainid: string,
     user_id: string,
     user_wallet: string,

@@ -429,7 +429,8 @@ export async function getClaimableToken(rewardEventID: string, user_id: string):
                     'erc20_tokens.address as token_address', 'erc20_tokens.fpmanager', 'rewards_erc20.name as reward_name',
                     'rewards_erc20.description as reward_description', 'rewards_erc20.amount as reward_amount',
                     'erc20_tokens.chainid', 'users.id as user_id', 'users.wallet as user_wallet',
-                    'reward_event_erc20.v','reward_event_erc20.r','reward_event_erc20.s', 'rewards_erc20.status'
+                    'reward_event_erc20.v','reward_event_erc20.r','reward_event_erc20.s', 'rewards_erc20.status',
+                    'reward_event_erc20.id as reward_id'
                 ])
         if (claimableToken.status == 1) throw Error('Already taken')
         const res: SuccessResponse = {

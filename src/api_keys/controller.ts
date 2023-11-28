@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
-import { ApiKey, Delete, ErrorResponse, GetCompany, JWTPayload } from "../entities";
+import { ApiKey, ErrorResponse, GetCompany, JWTPayload } from "../entities";
 import { prettyApiKeysError } from "../errors";
 import { DeleteApiKeyValidation } from "../schemas";
 import { createApiKey, deleteApiKey, getApiKeys } from "./service";

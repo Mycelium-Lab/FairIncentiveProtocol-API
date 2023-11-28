@@ -1,5 +1,5 @@
 import pg from "../config/db";
-import { AddNFT, AddNFTCollection, BooleanResponse, Company, Delete, ErrorResponse, GetCompany, GetOneCollectionNft, NFT, NFTCollection, NFTReward, SuccessResponse } from "../entities";
+import { AddNFT, AddNFTCollection, BooleanResponse, Company, ErrorResponse, GetCompany, GetOneCollectionNft, NFT, NFTCollection, NFTReward, SuccessResponse, Uuid } from "../entities";
 import { CODES, SuccessResponseTypes } from "../utils/constants";
 
 export async function addNFTCollection(nftCollection: AddNFTCollection, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
@@ -255,7 +255,7 @@ export async function getNFTsOneCollection(getCompany: GetCompany, getOneCollect
     }
 }
 
-export async function deleteNFT(nft: Delete, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
+export async function deleteNFT(nft: Uuid, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         const company: Company = await pg('nfts')
             .whereRaw('nfts.id = ?', [nft.id])

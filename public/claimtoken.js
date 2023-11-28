@@ -54,7 +54,7 @@ async function main() {
             const contract = new ethers.Contract(json.body.data.fpmanager, fpManagerAbi, signer)
             const tx = await contract.mintSigner(
                 json.body.data.r, json.body.data.v, json.body.data.s, 
-                json.body.data.token_address, json.body.data.reward_amount, json.body.data.reward_id
+                json.body.data.token_address, json.body.data.reward_amount, json.body.data.reward_event_id
             )
             tx.wait()
                 .then( async () => {
@@ -84,7 +84,7 @@ async function main() {
             
         } catch (error) {
             console.log(error)
-            if (error.data.message.includes('Already taken')) {
+            if (error.data && error.data.message.includes('Already taken')) {
                 alert('Already taken')
             }
         }

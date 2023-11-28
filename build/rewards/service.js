@@ -505,7 +505,7 @@ function getClaimableToken(rewardEventID, user_id) {
                 'rewards_erc20.description as reward_description', 'rewards_erc20.amount as reward_amount',
                 'erc20_tokens.chainid', 'users.id as user_id', 'users.wallet as user_wallet',
                 'reward_event_erc20.v', 'reward_event_erc20.r', 'reward_event_erc20.s', 'rewards_erc20.status',
-                'reward_event_erc20.id as reward_id'
+                'reward_event_erc20.id as reward_event_id'
             ]);
             if (claimableToken.status == 1)
                 throw Error('Already taken');
@@ -545,11 +545,11 @@ function getClaimableNFT(rewardEventID, user_id) {
                 .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
                 .select([
                 'erc721_tokens.name as collection_name', 'erc721_tokens.address as collection_address',
-                'nfts.name as nft_name', 'nfts.image as nft_image',
+                'nfts.name as nft_name', 'nfts.image as nft_image', 'nfts.image_json as nft_json_image',
                 'nfts.description as nft_description', 'erc721_tokens.chainid as chainid',
                 'users.wallet as user_wallet',
                 'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r',
-                'erc721_tokens.beneficiary as beneficiary', 'rewards_erc721.status', 'reward_event_erc721.id as reward_id'
+                'erc721_tokens.beneficiary as beneficiary', 'rewards_erc721.status', 'reward_event_erc721.id as reward_event_id'
             ]);
             if (claimableNFT.status == 1)
                 throw Error('Already taken');

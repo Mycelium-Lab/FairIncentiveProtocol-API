@@ -138,6 +138,60 @@ function statRewardsController(app, opt) {
                     .send({ error: prettyError.error });
             }
         }));
+        app.get('/total_rewards/erc20', {
+            preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                querystring: {
+                    $ref: 'RewardOneStat'
+                }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const deleteReward = req.query;
+                const res = yield (0, rewards_1.getTotalCountErc20Reward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, deleteReward.id);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyStatRewardsError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
+        app.get('/total_rewards/erc721', {
+            preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                querystring: {
+                    $ref: 'RewardOneStat'
+                }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const deleteReward = req.query;
+                const res = yield (0, rewards_1.getTotalCountErc721Reward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, deleteReward.id);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyStatRewardsError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
     });
 }
 exports.statRewardsController = statRewardsController;

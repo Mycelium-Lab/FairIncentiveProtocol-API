@@ -1,9 +1,9 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { authorizationTokenDescription } from "../../response_description";
-import { DateRange, Uuid, ErrorResponse, JWTPayload, SuccessResponse } from "../../entities";
+import { DateRange, Uuid, ErrorResponse, JWTPayload, SuccessResponse, UuidDateRange } from "../../entities";
 import { prettyStatRewardsError } from "../../errors";
-import { get24hCount, get24hCountErc20, get24hCountErc721, getDistribution, getRewardEventsRange, getTotalCount, getTotalCountErc20Reward, getTotalCountErc721Reward, getUserCount, getUserCountErc20Reward, getUserCountErc721Reward } from "../service/rewards";
-import { DateRangeValidation, UuidValidation } from "../../schemas";
+import { get24hCount, get24hCountErc20, get24hCountErc721, getDistribution, getRewardEventsRange, getRewardEventsRangeErc20, getRewardEventsRangeErc721, getTotalCount, getTotalCountErc20Reward, getTotalCountErc721Reward, getUserCount, getUserCountErc20Reward, getUserCountErc721Reward } from "../service/rewards";
+import { DateRangeValidation, UuidDateRangeValidation, UuidValidation } from "../../schemas";
 
 export async function statRewardsController(app: FastifyInstance, opt: FastifyPluginOptions) {
     app.get(
@@ -336,18 +336,51 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
             schema: {
                 headers: authorizationTokenDescription,
                 querystring: {
-                    $ref: 'DateRange'
+                    $ref: 'UuidDateRange'
                 }
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const dateRange: DateRange = req.query as DateRange
+                const dateRange: UuidDateRange = req.query as UuidDateRange
                 dateRange.startDate = new Date(dateRange.startDate)
                 dateRange.endDate = new Date(dateRange.endDate)
-                await DateRangeValidation.validateAsync(dateRange)
-                const res: ErrorResponse | SuccessResponse = await getRewardEventsRange({email: data?.email, phone: data?.phone, company_id: data?.company_id}, dateRange)
+                await UuidDateRangeValidation.validateAsync(dateRange)
+                const res: ErrorResponse | SuccessResponse = await getRewardEventsRangeErc20({email: data?.email, phone: data?.phone, company_id: data?.company_id}, dateRange)
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyStatRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/rewards_range/erc721',
+        {
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                querystring: {
+                    $ref: 'UuidDateRange'
+                }
+            }
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const dateRange: UuidDateRange = req.query as UuidDateRange
+                dateRange.startDate = new Date(dateRange.startDate)
+                dateRange.endDate = new Date(dateRange.endDate)
+                await UuidDateRangeValidation.validateAsync(dateRange)
+                const res: ErrorResponse | SuccessResponse = await getRewardEventsRangeErc721({email: data?.email, phone: data?.phone, company_id: data?.company_id}, dateRange)
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

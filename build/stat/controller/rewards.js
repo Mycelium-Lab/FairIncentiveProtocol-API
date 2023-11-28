@@ -311,7 +311,7 @@ function statRewardsController(app, opt) {
             schema: {
                 headers: response_description_1.authorizationTokenDescription,
                 querystring: {
-                    $ref: 'DateRange'
+                    $ref: 'UuidDateRange'
                 }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
@@ -320,8 +320,38 @@ function statRewardsController(app, opt) {
                 const dateRange = req.query;
                 dateRange.startDate = new Date(dateRange.startDate);
                 dateRange.endDate = new Date(dateRange.endDate);
-                yield schemas_1.DateRangeValidation.validateAsync(dateRange);
-                const res = yield (0, rewards_1.getRewardEventsRange)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, dateRange);
+                yield schemas_1.UuidDateRangeValidation.validateAsync(dateRange);
+                const res = yield (0, rewards_1.getRewardEventsRangeErc20)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, dateRange);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyStatRewardsError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
+        app.get('/rewards_range/erc721', {
+            preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                querystring: {
+                    $ref: 'UuidDateRange'
+                }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const dateRange = req.query;
+                dateRange.startDate = new Date(dateRange.startDate);
+                dateRange.endDate = new Date(dateRange.endDate);
+                yield schemas_1.UuidDateRangeValidation.validateAsync(dateRange);
+                const res = yield (0, rewards_1.getRewardEventsRangeErc721)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, dateRange);
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

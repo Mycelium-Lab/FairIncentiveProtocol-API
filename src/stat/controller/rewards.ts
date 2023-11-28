@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } f
 import { authorizationTokenDescription } from "../../response_description";
 import { DateRange, Delete, ErrorResponse, JWTPayload, SuccessResponse } from "../../entities";
 import { prettyStatRewardsError } from "../../errors";
-import { get24hCount, getDistribution, getRewardEventsRange, getTotalCount, getTotalCountErc20Reward, getTotalCountErc721Reward, getUserCount, getUserCountErc20Reward, getUserCountErc721Reward } from "../service/rewards";
+import { get24hCount, get24hCountErc20, get24hCountErc721, getDistribution, getRewardEventsRange, getTotalCount, getTotalCountErc20Reward, getTotalCountErc721Reward, getUserCount, getUserCountErc20Reward, getUserCountErc721Reward } from "../service/rewards";
 import { DateRangeValidation } from "../../schemas";
 
 export async function statRewardsController(app: FastifyInstance, opt: FastifyPluginOptions) {
@@ -157,8 +157,8 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const deleteReward: Delete = req.query as Delete
-                const res: ErrorResponse | SuccessResponse = await getTotalCountErc20Reward({email: data?.email, phone: data?.phone, company_id: data?.company_id}, deleteReward.id)
+                const reward: Delete = req.query as Delete
+                const res: ErrorResponse | SuccessResponse = await getTotalCountErc20Reward({email: data?.email, phone: data?.phone, company_id: data?.company_id}, reward.id)
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -187,8 +187,8 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const deleteReward: Delete = req.query as Delete
-                const res: ErrorResponse | SuccessResponse = await getTotalCountErc721Reward({email: data?.email, phone: data?.phone, company_id: data?.company_id}, deleteReward.id)
+                const reward: Delete = req.query as Delete
+                const res: ErrorResponse | SuccessResponse = await getTotalCountErc721Reward({email: data?.email, phone: data?.phone, company_id: data?.company_id}, reward.id)
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -217,8 +217,8 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const deleteReward: Delete = req.query as Delete
-                const res: ErrorResponse | SuccessResponse = await getUserCountErc20Reward({email: data?.email, phone: data?.phone, company_id: data?.company_id}, deleteReward.id)
+                const reward: Delete = req.query as Delete
+                const res: ErrorResponse | SuccessResponse = await getUserCountErc20Reward({email: data?.email, phone: data?.phone, company_id: data?.company_id}, reward.id)
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')
@@ -247,8 +247,68 @@ export async function statRewardsController(app: FastifyInstance, opt: FastifyPl
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
-                const deleteReward: Delete = req.query as Delete
-                const res: ErrorResponse | SuccessResponse = await getUserCountErc721Reward({email: data?.email, phone: data?.phone, company_id: data?.company_id}, deleteReward.id)
+                const reward: Delete = req.query as Delete
+                const res: ErrorResponse | SuccessResponse = await getUserCountErc721Reward({email: data?.email, phone: data?.phone, company_id: data?.company_id}, reward.id)
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyStatRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/rewarded_24h/erc20',
+        {
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                querystring: {
+                    $ref: 'RewardOneStat'
+                }
+            }  
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const reward: Delete = req.query as Delete
+                const res: ErrorResponse | SuccessResponse = await get24hCountErc20({email: data?.email, phone: data?.phone, company_id: data?.company_id}, reward.id)
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? {body: res.body} : {error: res.error})
+            } catch (error: any) {
+                console.log(error.message)
+                const prettyError: ErrorResponse = prettyStatRewardsError(error.message)
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({error: prettyError.error})
+            }
+        }
+    )
+    app.get(
+        '/rewarded_24h/erc721',
+        {
+            preHandler: app.authenticate,
+            schema: {
+                headers: authorizationTokenDescription,
+                querystring: {
+                    $ref: 'RewardOneStat'
+                }
+            }  
+        },
+        async (req: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const data: JWTPayload | undefined = req.routeConfig.jwtData
+                const reward: Delete = req.query as Delete
+                const res: ErrorResponse | SuccessResponse = await get24hCountErc721({email: data?.email, phone: data?.phone, company_id: data?.company_id}, reward.id)
                 reply
                     .code(res.code)
                     .type('application/json; charset=utf-8')

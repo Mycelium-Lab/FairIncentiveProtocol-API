@@ -331,3 +331,65 @@ export async function getUserCountErc721Reward(getCompany: GetCompany, rewardId:
         return err
     }
 }
+
+export async function get24hCountErc20(getCompany: GetCompany, rewardId: string): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+        const rewarded24hErc20Count: TotalOneType = await pg('rewards_erc20')
+            .count('reward_event_erc20.id as count')
+            .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+            .first()
+            .whereRaw('rewards_erc20.company_id = ? AND reward_event_erc20.event_datetime >= ? AND rewards_erc20.id = ?', [getCompany.company_id, twentyFourHoursAgo, rewardId])
+        
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Rewards 24h for ERC20 reward',
+                type: SuccessResponseTypes.number,
+                data: rewarded24hErc20Count.count
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
+    }
+}
+
+export async function get24hCountErc721(getCompany: GetCompany, rewardId: string): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+        const rewarded24hErc721Count: TotalOneType = await pg('rewards_erc721')
+            .count('reward_event_erc721.id as count')
+            .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+            .first()
+            .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ? AND rewards_erc721.id = ?', [getCompany.company_id, twentyFourHoursAgo, rewardId])
+        
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Rewards 24h for ERC721 reward',
+                type: SuccessResponseTypes.number,
+                data: rewarded24hErc721Count.count
+            }
+        }
+        return res
+    } catch (error: any) {
+        console.log(error.message)
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+        return err
+    }
+}

@@ -17,12 +17,13 @@ export async function signNFTReward(
 }
 
 export async function signTokenReward(
+    rewardEventId: string,
     amount: string, senderAddress: string, 
     signer: ethers.Wallet, managerAddress: string, tokenAddress: string
 ) {
-    const message = [amount, senderAddress, tokenAddress, managerAddress]
+    const message = [amount, senderAddress, tokenAddress, managerAddress, rewardEventId]
     const hashMessage = ethers.utils.solidityKeccak256([
-        "uint256","uint160","uint160","uint160"
+        "uint256","uint160","uint160","uint160", "string"
     ], message)
     const sign = await signer.signMessage(ethers.utils.arrayify(hashMessage));
     const r = sign.substr(0, 66)

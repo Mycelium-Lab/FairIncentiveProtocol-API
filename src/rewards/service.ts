@@ -117,25 +117,54 @@ export async function rewardWithToken(getCompany: GetCompany, reward: RewardWith
         const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
         const signer = new ethers.Wallet(network?.private_key || '', provider)
         const user: User = await pg('users').where({id: reward.user_id}).first()
-        const signature = await signTokenReward(tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address)
-        const rewardEvent = await pg('reward_event_erc20').insert({
-            status: 1,
-            reward_id: reward.reward_id,
-            user_id: reward.user_id,
-            comment: reward.comment,
-            v: signature.v,
-            r: signature.r,
-            s: signature.s
-        }, '*')
-        const res: SuccessResponse = {
-            code: CODES.OK.code,
-            body: {
-                message: 'The token reward event was successfully added',
-                type: SuccessResponseTypes.object,
-                data: rewardEvent[0]
+        const trx = await pg.transaction()
+        const rewardEvent = await trx('reward_event_erc20')
+            .insert({
+                status: 1,
+                reward_id: reward.reward_id,
+                user_id: reward.user_id,
+                comment: reward.comment,
+                v: '',
+                r: '',
+                s: ''
+            }, '*')
+            .then(async (event) => {
+                const signature = await signTokenReward(event[0].id, tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address)
+                await pg('reward_event_erc20').update({
+                    v: signature.v,
+                    r: signature.r,
+                    s: signature.s
+                }).where('id', event[0].id)
+                return event[0]
+            })
+            .then(async (event) => {
+                await trx.commit()
+                return event
+            })
+            .catch(async (err) => {
+                await trx.rollback()
+                return err.message
+            })
+        if (!(rewardEvent instanceof String)) {
+            const res: SuccessResponse = {
+                code: CODES.OK.code,
+                body: {
+                    message: 'The token reward event was successfully added',
+                    type: SuccessResponseTypes.object,
+                    data: rewardEvent
+                }
             }
+            return res
+        } else {
+            const err: ErrorResponse = {
+                code: CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: CODES.INTERNAL_ERROR.name,
+                    message: rewardEvent.toString()
+                }
+            }
+            return err
         }
-        return res
     } catch (error: any) {
         console.log(error.message)
         const err: ErrorResponse = {

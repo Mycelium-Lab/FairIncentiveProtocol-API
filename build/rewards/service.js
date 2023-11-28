@@ -140,25 +140,55 @@ function rewardWithToken(getCompany, reward) {
             const provider = new ethers_1.ethers.providers.JsonRpcProvider(network === null || network === void 0 ? void 0 : network.rpc);
             const signer = new ethers_1.ethers.Wallet((network === null || network === void 0 ? void 0 : network.private_key) || '', provider);
             const user = yield (0, db_1.default)('users').where({ id: reward.user_id }).first();
-            const signature = yield (0, sign_1.signTokenReward)(tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address);
-            const rewardEvent = yield (0, db_1.default)('reward_event_erc20').insert({
+            const trx = yield db_1.default.transaction();
+            const rewardEvent = yield trx('reward_event_erc20')
+                .insert({
                 status: 1,
                 reward_id: reward.reward_id,
                 user_id: reward.user_id,
                 comment: reward.comment,
-                v: signature.v,
-                r: signature.r,
-                s: signature.s
-            }, '*');
-            const res = {
-                code: constants_1.CODES.OK.code,
-                body: {
-                    message: 'The token reward event was successfully added',
-                    type: constants_1.SuccessResponseTypes.object,
-                    data: rewardEvent[0]
-                }
-            };
-            return res;
+                v: '',
+                r: '',
+                s: ''
+            }, '*')
+                .then((event) => __awaiter(this, void 0, void 0, function* () {
+                const signature = yield (0, sign_1.signTokenReward)(event[0].id, tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address);
+                yield (0, db_1.default)('reward_event_erc20').update({
+                    v: signature.v,
+                    r: signature.r,
+                    s: signature.s
+                }).where('id', event[0].id);
+                return event[0];
+            }))
+                .then((event) => __awaiter(this, void 0, void 0, function* () {
+                yield trx.commit();
+                return event;
+            }))
+                .catch((err) => __awaiter(this, void 0, void 0, function* () {
+                yield trx.rollback();
+                return err.message;
+            }));
+            if (!(rewardEvent instanceof String)) {
+                const res = {
+                    code: constants_1.CODES.OK.code,
+                    body: {
+                        message: 'The token reward event was successfully added',
+                        type: constants_1.SuccessResponseTypes.object,
+                        data: rewardEvent
+                    }
+                };
+                return res;
+            }
+            else {
+                const err = {
+                    code: constants_1.CODES.INTERNAL_ERROR.code,
+                    error: {
+                        name: constants_1.CODES.INTERNAL_ERROR.name,
+                        message: rewardEvent.toString()
+                    }
+                };
+                return err;
+            }
         }
         catch (error) {
             console.log(error.message);

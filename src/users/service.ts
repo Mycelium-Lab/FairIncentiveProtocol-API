@@ -1,5 +1,5 @@
 import pg from "../config/db";
-import { Company, DeleteUser, ErrorResponse, GetCompany, Property, Stat, SuccessResponse, UpdateUser, User } from "../entities";
+import { Company, Uuid, ErrorResponse, GetCompany, Property, Stat, SuccessResponse, UpdateUser, User } from "../entities";
 import { CODES, SuccessResponseTypes } from "../utils/constants";
 
 export async function addUser(user: User, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
@@ -153,7 +153,7 @@ export async function getUsers(getCompany: GetCompany): Promise<ErrorResponse | 
     }    
 }
 
-export async function deleteUser(deleteUser: DeleteUser, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
+export async function deleteUser(deleteUser: Uuid, getCompany: GetCompany): Promise<ErrorResponse | SuccessResponse> {
     try {
         await pg.raw('DELETE FROM users WHERE company_id=? AND id=?', [getCompany.company_id, deleteUser.id])
         const res: SuccessResponse = {

@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
 import { getToken } from "../company/controller";
-import { ClaimNFT, ClaimToken, Delete, ErrorResponse, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, SuccessResponse, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
-import { AddNFTRewardValidation, AddTokenRewardValidation, DeleteValidation, RewardWithTokenValidation, StatusValidation, UpdateNFTRewardValidation, UpdateTokenRewardValidation } from "../schemas";
+import { ClaimNFT, ClaimToken, Uuid, ErrorResponse, JWTPayload, NFTReward, RewardNFTEvent, RewardTokenEvent, RewardWithToken, Status, SuccessResponse, TokenReward, UpdateNFTReward, UpdateTokenReward } from "../entities";
+import { AddNFTRewardValidation, AddTokenRewardValidation, UuidValidation, RewardWithTokenValidation, StatusValidation, UpdateNFTRewardValidation, UpdateTokenRewardValidation } from "../schemas";
 import { addNFTReward, addTokenReward, deleteNFTReward, deleteTokenReward, getClaimableNFT, getNFTRewards, getRewardNFTEvents, getRewardTokenEvents, getTokenRewards, rewardWithNFT, rewardWithToken, updateNFTReward, updateTokenReward, deleteTokenRewardEvent, deleteNFTRewardEvent, getClaimableToken, setTokenRewardStatus, setNFTRewardStatus } from "./service";
 import { prettyRewardsError } from "../errors";
 
@@ -174,13 +174,13 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'Delete' }
+                body: { $ref: 'Uuid' }
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const Delete: Delete = req.body as Delete
-                await DeleteValidation.validateAsync(Delete)
+                const Delete: Uuid = req.body as Uuid
+                await UuidValidation.validateAsync(Delete)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await deleteTokenReward(
                     {email: data?.email, phone: data?.phone, company_id: data?.company_id},
@@ -267,13 +267,13 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'Delete' }
+                body: { $ref: 'Uuid' }
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const Delete: Delete = req.body as Delete
-                await DeleteValidation.validateAsync(Delete)
+                const Delete: Uuid = req.body as Uuid
+                await UuidValidation.validateAsync(Delete)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await deleteNFTReward(
                     {email: data?.email, phone: data?.phone, company_id: data?.company_id},
@@ -455,8 +455,8 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const tokenRewardEvent: Delete = req.body as Delete
-                await DeleteValidation.validateAsync(tokenRewardEvent)
+                const tokenRewardEvent: Uuid = req.body as Uuid
+                await UuidValidation.validateAsync(tokenRewardEvent)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await deleteTokenRewardEvent(
                     {email: data?.email, phone: data?.phone, company_id: data?.company_id},
@@ -483,8 +483,8 @@ export async function rewardsPlugin(app: FastifyInstance, opt: FastifyPluginOpti
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const nftRewardEvent: Delete = req.body as Delete
-                await DeleteValidation.validateAsync(nftRewardEvent)
+                const nftRewardEvent: Uuid = req.body as Uuid
+                await UuidValidation.validateAsync(nftRewardEvent)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await deleteNFTRewardEvent(
                     {email: data?.email, phone: data?.phone, company_id: data?.company_id},

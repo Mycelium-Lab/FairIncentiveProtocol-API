@@ -159,12 +159,12 @@ function rewardsPlugin(app, opt) {
             app.post('/delete/token', {
                 preHandler: app.authenticate,
                 schema: {
-                    body: { $ref: 'Delete' }
+                    body: { $ref: 'Uuid' }
                 }
             }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const Delete = req.body;
-                    yield schemas_1.DeleteValidation.validateAsync(Delete);
+                    yield schemas_1.UuidValidation.validateAsync(Delete);
                     const data = req.routeConfig.jwtData;
                     const res = yield (0, service_1.deleteTokenReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, Delete);
                     reply
@@ -234,12 +234,12 @@ function rewardsPlugin(app, opt) {
         app.post('/delete/nfts', {
             preHandler: app.authenticate,
             schema: {
-                body: { $ref: 'Delete' }
+                body: { $ref: 'Uuid' }
             }
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const Delete = req.body;
-                yield schemas_1.DeleteValidation.validateAsync(Delete);
+                yield schemas_1.UuidValidation.validateAsync(Delete);
                 const data = req.routeConfig.jwtData;
                 const res = yield (0, service_1.deleteNFTReward)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, Delete);
                 reply
@@ -386,7 +386,7 @@ function rewardsPlugin(app, opt) {
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const tokenRewardEvent = req.body;
-                yield schemas_1.DeleteValidation.validateAsync(tokenRewardEvent);
+                yield schemas_1.UuidValidation.validateAsync(tokenRewardEvent);
                 const data = req.routeConfig.jwtData;
                 const res = yield (0, service_1.deleteTokenRewardEvent)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, tokenRewardEvent);
                 reply
@@ -408,7 +408,7 @@ function rewardsPlugin(app, opt) {
         }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const nftRewardEvent = req.body;
-                yield schemas_1.DeleteValidation.validateAsync(nftRewardEvent);
+                yield schemas_1.UuidValidation.validateAsync(nftRewardEvent);
                 const data = req.routeConfig.jwtData;
                 const res = yield (0, service_1.deleteNFTRewardEvent)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, nftRewardEvent);
                 reply

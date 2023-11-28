@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyReply, FastifyRequest } from "fastify";
-import { Delete, ErrorResponse, JWTPayload, SuccessResponse, UpdateUser, User } from "../entities";
-import { AddUserValidation, DeleteValidation, UpdateUserValidation } from "../schemas";
+import { ErrorResponse, JWTPayload, SuccessResponse, UpdateUser, User, Uuid } from "../entities";
+import { AddUserValidation, UuidValidation, UpdateUserValidation } from "../schemas";
 import { addUser, deleteUser, getUsers, updateUser } from "./service";
 import { prettyUsersError } from "../errors";
 import { authorizationTokenDescription, userAddResponseDescription, userDeleteResponseDescription, userUpdateResponseDescription, usersResponseDescription } from "../response_description";
@@ -89,15 +89,15 @@ export async function usersPlugin(app: FastifyInstance, opt: FastifyPluginOption
         {
             preHandler: app.authenticate,
             schema: { 
-                body: { $ref: 'Delete' },
+                body: { $ref: 'Uuid' },
                 headers: authorizationTokenDescription,
                 response: userDeleteResponseDescription
             }
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const user: Delete = req.body as Delete
-                await DeleteValidation.validateAsync(user)
+                const user: Uuid = req.body as Uuid
+                await UuidValidation.validateAsync(user)
                 const data: JWTPayload | undefined = req.routeConfig.jwtData
                 const res: ErrorResponse | SuccessResponse = await deleteUser(user, {email: data?.email, phone: data?.phone, company_id: data?.company_id})
                 reply

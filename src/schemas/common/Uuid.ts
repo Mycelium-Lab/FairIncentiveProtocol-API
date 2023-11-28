@@ -1,7 +1,7 @@
 import Joi  from 'joi'
 
-export const Delete: unknown = {
-    $id: 'Delete',
+export const Uuid: unknown = {
+    $id: 'Uuid',
     type: 'object',
     properties: {
         id: {
@@ -10,7 +10,7 @@ export const Delete: unknown = {
     }
 }
 
-export const DeleteValidation: Joi.ObjectSchema = Joi.object({
+export const UuidValidation: Joi.ObjectSchema = Joi.object({
     id: Joi.string()
         .uuid()
         .required()

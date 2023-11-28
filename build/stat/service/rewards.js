@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRewardEventsRange = exports.getDistribution = exports.get24hCount = exports.getUserCount = exports.getTotalCount = void 0;
+exports.getTotalRewardsDistributionErc721 = exports.getTotalRewardsDistributionErc20 = exports.getRewardEventsRangeErc721 = exports.getRewardEventsRangeErc20 = exports.get24hCountErc721 = exports.get24hCountErc20 = exports.getUserCountErc721Reward = exports.getUserCountErc20Reward = exports.getTotalCountErc721Reward = exports.getTotalCountErc20Reward = exports.getRewardEventsRange = exports.getDistribution = exports.get24hCount = exports.getUserCount = exports.getTotalCount = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
 function getTotalCount(getCompany) {
@@ -234,3 +234,408 @@ function getRewardEventsRange(getCompany, dateRange) {
     });
 }
 exports.getRewardEventsRange = getRewardEventsRange;
+//FOR ONE
+function getTotalCountErc20Reward(getCompany, rewardId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const rewardsErc20Count = yield (0, db_1.default)('rewards_erc20')
+                .count('reward_event_erc20.id as count')
+                .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+                .first()
+                .whereRaw('rewards_erc20.company_id = ? AND rewards_erc20.id = ?', [getCompany.company_id, rewardId]);
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards total count for ERC20 reward',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: rewardsErc20Count.count
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getTotalCountErc20Reward = getTotalCountErc20Reward;
+function getTotalCountErc721Reward(getCompany, rewardId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const rewardsErc721Count = yield (0, db_1.default)('rewards_erc721')
+                .count('reward_event_erc721.id as count')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .first()
+                .whereRaw('rewards_erc721.company_id = ? AND rewards_erc721.id = ?', [getCompany.company_id, rewardId]);
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards total count for ERC721 reward',
+                    type: constants_1.SuccessResponseTypes.object,
+                    data: rewardsErc721Count.count
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getTotalCountErc721Reward = getTotalCountErc721Reward;
+function getUserCountErc20Reward(getCompany, rewardId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const rewardedUsersErc20Count = yield (0, db_1.default)('rewards_erc20')
+                .first()
+                .countDistinct('reward_event_erc20.user_id as count')
+                .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+                .whereRaw('rewards_erc20.company_id = ? AND rewards_erc20.id = ?', [getCompany.company_id, rewardId]);
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards users count for ERC20 reward',
+                    type: constants_1.SuccessResponseTypes.number,
+                    data: rewardedUsersErc20Count.count
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getUserCountErc20Reward = getUserCountErc20Reward;
+function getUserCountErc721Reward(getCompany, rewardId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const rewardedUsersErc721Count = yield (0, db_1.default)('rewards_erc721')
+                .first()
+                .countDistinct('reward_event_erc721.user_id as count')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .whereRaw('rewards_erc721.company_id = ? AND rewards_erc721.id = ?', [getCompany.company_id, rewardId]);
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards users count for ERC721 reward',
+                    type: constants_1.SuccessResponseTypes.number,
+                    data: rewardedUsersErc721Count.count
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getUserCountErc721Reward = getUserCountErc721Reward;
+function get24hCountErc20(getCompany, rewardId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const rewarded24hErc20Count = yield (0, db_1.default)('rewards_erc20')
+                .count('reward_event_erc20.id as count')
+                .leftJoin('reward_event_erc20', 'rewards_erc20.id', 'reward_event_erc20.reward_id')
+                .first()
+                .whereRaw('rewards_erc20.company_id = ? AND reward_event_erc20.event_datetime >= ? AND rewards_erc20.id = ?', [getCompany.company_id, twentyFourHoursAgo, rewardId]);
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards 24h for ERC20 reward',
+                    type: constants_1.SuccessResponseTypes.number,
+                    data: rewarded24hErc20Count.count
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.get24hCountErc20 = get24hCountErc20;
+function get24hCountErc721(getCompany, rewardId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const rewarded24hErc721Count = yield (0, db_1.default)('rewards_erc721')
+                .count('reward_event_erc721.id as count')
+                .leftJoin('reward_event_erc721', 'rewards_erc721.id', 'reward_event_erc721.reward_id')
+                .first()
+                .whereRaw('rewards_erc721.company_id = ? AND reward_event_erc721.event_datetime >= ? AND rewards_erc721.id = ?', [getCompany.company_id, twentyFourHoursAgo, rewardId]);
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Rewards 24h for ERC721 reward',
+                    type: constants_1.SuccessResponseTypes.number,
+                    data: rewarded24hErc721Count.count
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.get24hCountErc721 = get24hCountErc721;
+function getRewardEventsRangeErc20(getCompany, uuidDateRange) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const intervals = 30;
+            const intervalSize = Math.floor((uuidDateRange.endDate.getTime() - uuidDateRange.startDate.getTime()) / intervals);
+            const query = yield db_1.default.raw(`
+            WITH all_events AS (
+                (SELECT id, event_datetime FROM reward_event_erc20
+                WHERE event_datetime >= ? AND event_datetime <= ? AND reward_id IN (
+                    SELECT id FROM rewards_erc20 WHERE company_id = ? AND id = ?
+                ))
+            )
+            SELECT
+                date_interval_start,
+                date_interval_end,
+                COUNT(id) as count
+            FROM (
+                SELECT
+                    date_interval_start,
+                    date_interval_start + INTERVAL '${intervalSize} milliseconds' as date_interval_end
+                FROM (
+                    SELECT
+                        generate_series(
+                            ?::timestamp,
+                            ?::timestamp,
+                            ?::interval
+                        ) AS date_interval_start
+                ) AS date_intervals
+            ) AS intervals
+            LEFT JOIN all_events ON all_events.event_datetime >= intervals.date_interval_start AND all_events.event_datetime < intervals.date_interval_end
+            GROUP BY date_interval_start, date_interval_end
+            ORDER BY date_interval_start;
+        `, [uuidDateRange.startDate, uuidDateRange.endDate, getCompany.company_id, uuidDateRange.id, uuidDateRange.startDate, uuidDateRange.endDate, `${intervalSize} milliseconds`]);
+            const result = query.rows;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Reward events range ERC20',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: result
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getRewardEventsRangeErc20 = getRewardEventsRangeErc20;
+function getRewardEventsRangeErc721(getCompany, uuidDateRange) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const intervals = 30;
+            const intervalSize = Math.floor((uuidDateRange.endDate.getTime() - uuidDateRange.startDate.getTime()) / intervals);
+            const query = yield db_1.default.raw(`
+            WITH all_events AS (
+                (SELECT id, event_datetime FROM reward_event_erc721
+                WHERE event_datetime >= ? AND event_datetime <= ? AND reward_id IN (
+                    SELECT id FROM rewards_erc721 WHERE company_id = ? AND id = ?
+                ))
+            )
+            SELECT
+                date_interval_start,
+                date_interval_end,
+                COUNT(id) as count
+            FROM (
+                SELECT
+                    date_interval_start,
+                    date_interval_start + INTERVAL '${intervalSize} milliseconds' as date_interval_end
+                FROM (
+                    SELECT
+                        generate_series(
+                            ?::timestamp,
+                            ?::timestamp,
+                            ?::interval
+                        ) AS date_interval_start
+                ) AS date_intervals
+            ) AS intervals
+            LEFT JOIN all_events ON all_events.event_datetime >= intervals.date_interval_start AND all_events.event_datetime < intervals.date_interval_end
+            GROUP BY date_interval_start, date_interval_end
+            ORDER BY date_interval_start;
+        `, [uuidDateRange.startDate, uuidDateRange.endDate, getCompany.company_id, uuidDateRange.id, uuidDateRange.startDate, uuidDateRange.endDate, `${intervalSize} milliseconds`]);
+            const result = query.rows;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Reward events range ERC721',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: result
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getRewardEventsRangeErc721 = getRewardEventsRangeErc721;
+function getTotalRewardsDistributionErc20(getCompany, uuidDateRange) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const intervals = 30;
+            const intervalSize = Math.floor((uuidDateRange.endDate.getTime() - uuidDateRange.startDate.getTime()) / intervals);
+            let dates = [];
+            for (let i = 0; i <= intervals; i++) {
+                dates.push(new Date(new Date(i === 0 ? uuidDateRange.startDate.toISOString() : dates[i - 1]).getTime() + intervalSize).toISOString());
+            }
+            dates = dates.map((v) => `'${v}'`);
+            const query = yield db_1.default.raw(`
+            SELECT
+            end_date,
+            COUNT(id) AS count
+            FROM (
+            SELECT
+                unnest(ARRAY[${dates.join(', ')}]::timestamptz[]) AS end_date
+            ) AS end_dates
+            LEFT JOIN reward_event_erc20 ON event_datetime <= end_date AND reward_id = ?
+            GROUP BY end_date
+            ORDER BY end_date;
+        `, [uuidDateRange.id]);
+            const result = query.rows;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Total rewards event range ERC20',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: result
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getTotalRewardsDistributionErc20 = getTotalRewardsDistributionErc20;
+function getTotalRewardsDistributionErc721(getCompany, uuidDateRange) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const intervals = 30;
+            const intervalSize = Math.floor((uuidDateRange.endDate.getTime() - uuidDateRange.startDate.getTime()) / intervals);
+            let dates = [];
+            for (let i = 0; i <= intervals; i++) {
+                dates.push(new Date(new Date(i === 0 ? uuidDateRange.startDate.toISOString() : dates[i - 1]).getTime() + intervalSize).toISOString());
+            }
+            dates = dates.map((v) => `'${v}'`);
+            const query = yield db_1.default.raw(`
+            SELECT
+            end_date,
+            COUNT(id) AS count
+            FROM (
+            SELECT
+                unnest(ARRAY[${dates.join(', ')}]::timestamptz[]) AS end_date
+            ) AS end_dates
+            LEFT JOIN reward_event_erc721 ON event_datetime <= end_date AND reward_id = ?
+            GROUP BY end_date
+            ORDER BY end_date;
+        `, [uuidDateRange.id]);
+            const result = query.rows;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'Total rewards event range ERC721',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: result
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getTotalRewardsDistributionErc721 = getTotalRewardsDistributionErc721;

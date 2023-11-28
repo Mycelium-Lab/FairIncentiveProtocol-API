@@ -34,15 +34,13 @@ async function main() {
         `/rewards/events/claimablenft?id=${params.id}&user_id=${params.user_id}`, requestOptions)
     const json = await res.json()
     console.log(json)
-    const resImage = await fetch(json.body.data.nft_image)
-    const imageJson = await resImage.json()
     document.querySelector('#connect-button').addEventListener('click', async () =>  {
         await connect()
     })
     document.querySelector('#user-address').textContent =  createLongStrView(json.body.data.user_wallet)
     document.querySelector('#nft-name').textContent =  json.body.data.nft_name
     document.querySelector('#collection-name').textContent =  json.body.data.collection_name
-    document.querySelector('#nft-image').src = imageJson.image
+    document.querySelector('#nft-image').src = json.body.data.nft_image
     if (json.body.data.nft_description) {
         document.querySelector('#nft-description').textContent = json.body.data.nft_description
     } else {
@@ -59,7 +57,7 @@ async function main() {
             } else {
                 contract = new ethers.Contract(json.body.data.collection_address, erc721TokenRoyaltyAbi, signer)
             }
-            const tx = await contract.safeMintSigner(json.body.data.r, json.body.data.v, json.body.data.s, json.body.data.nft_image)
+            const tx = await contract.safeMintSigner(json.body.data.r, json.body.data.v, json.body.data.s, json.body.data.nft_json_image, json.body.data.reward_event_id)
             const res = await tx.wait()
             const tokenID = res.events.find(v => v.event === 'SafeMintSigner').args.ID
             document.querySelector('#collection-address').textContent = json.body.data.collection_address
@@ -67,6 +65,9 @@ async function main() {
             document.querySelector('#instruction').style.display = 'block'
         } catch (error) {
             console.log(error)
+            if (error.data && error.data.message.includes('Already taken')) {
+                alert('Already taken')
+            }
         }
     })
 }

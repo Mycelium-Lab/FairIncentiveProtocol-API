@@ -117,25 +117,54 @@ export async function rewardWithToken(getCompany: GetCompany, reward: RewardWith
         const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
         const signer = new ethers.Wallet(network?.private_key || '', provider)
         const user: User = await pg('users').where({id: reward.user_id}).first()
-        const signature = await signTokenReward(tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address)
-        const rewardEvent = await pg('reward_event_erc20').insert({
-            status: 1,
-            reward_id: reward.reward_id,
-            user_id: reward.user_id,
-            comment: reward.comment,
-            v: signature.v,
-            r: signature.r,
-            s: signature.s
-        }, '*')
-        const res: SuccessResponse = {
-            code: CODES.OK.code,
-            body: {
-                message: 'The token reward event was successfully added',
-                type: SuccessResponseTypes.object,
-                data: rewardEvent[0]
+        const trx = await pg.transaction()
+        const rewardEvent = await trx('reward_event_erc20')
+            .insert({
+                status: 1,
+                reward_id: reward.reward_id,
+                user_id: reward.user_id,
+                comment: reward.comment,
+                v: '',
+                r: '',
+                s: ''
+            }, '*')
+            .then(async (event) => {
+                const signature = await signTokenReward(event[0].id, tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address)
+                await trx('reward_event_erc20').update({
+                    v: signature.v,
+                    r: signature.r,
+                    s: signature.s
+                }).where('id', event[0].id)
+                return event[0]
+            })
+            .then(async (event) => {
+                await trx.commit()
+                return event
+            })
+            .catch(async (err) => {
+                await trx.rollback()
+                return err.message
+            })
+        if (!(rewardEvent instanceof String)) {
+            const res: SuccessResponse = {
+                code: CODES.OK.code,
+                body: {
+                    message: 'The token reward event was successfully added',
+                    type: SuccessResponseTypes.object,
+                    data: rewardEvent
+                }
             }
+            return res
+        } else {
+            const err: ErrorResponse = {
+                code: CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: CODES.INTERNAL_ERROR.name,
+                    message: rewardEvent.toString()
+                }
+            }
+            return err
         }
-        return res
     } catch (error: any) {
         console.log(error.message)
         const err: ErrorResponse = {
@@ -313,25 +342,55 @@ export async function rewardWithNFT(getCompany: GetCompany, reward: RewardWithTo
         const provider = new ethers.providers.JsonRpcProvider(network?.rpc)
         const signer = new ethers.Wallet(network?.private_key || '', provider)
         const user: User = await pg('users').where({id: reward.user_id}).first()
-        const signature = await signNFTReward(nftReward.image ? nftReward.image : '', user.wallet, signer, nftReward.address ? nftReward.address : '')
-        const rewardEvent = await pg('reward_event_erc721').insert({
-            status: 1,//Accrued
-            reward_id: reward.reward_id,
-            user_id: reward.user_id,
-            comment: reward.comment,
-            v: signature.v,
-            r: signature.r,
-            s: signature.s
-        }, '*')
-        const res: SuccessResponse = {
-            code: CODES.OK.code,
-            body: {
-                message: 'The NFT reward event was successfully added',
-                type: SuccessResponseTypes.object,
-                data: rewardEvent[0]
+        const trx = await pg.transaction()
+        console.log(nftReward.image_json)
+        const rewardEvent = await pg('reward_event_erc721')
+            .insert({
+                status: 1,//Accrued
+                reward_id: reward.reward_id,
+                user_id: reward.user_id,
+                comment: reward.comment,
+                v: '',
+                r: '',
+                s: ''
+            }, '*')
+            .then(async (event) => {
+                const signature = await signNFTReward(event[0].id, nftReward.image_json ? nftReward.image_json : '', user.wallet, signer, nftReward.address ? nftReward.address : '')
+                await trx('reward_event_erc721').update({
+                    v: signature.v,
+                    r: signature.r,
+                    s: signature.s
+                }).where('id', event[0].id)
+                return event[0]
+            })
+            .then(async (event) => {
+                await trx.commit()
+                return event
+            })
+            .catch(async (err) => {
+                await trx.rollback()
+                return err.message
+            })
+        if (!(rewardEvent instanceof String)) {
+            const res: SuccessResponse = {
+                code: CODES.OK.code,
+                body: {
+                    message: 'The NFT reward event was successfully added',
+                    type: SuccessResponseTypes.object,
+                    data: rewardEvent
+                }
             }
+            return res
+        } else {
+            const err: ErrorResponse = {
+                code: CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: CODES.INTERNAL_ERROR.name,
+                    message: rewardEvent.toString()
+                }
+            }
+            return err
         }
-        return res
     } catch (error: any) {
         console.log(error.message)
         const err: ErrorResponse = {
@@ -400,7 +459,8 @@ export async function getClaimableToken(rewardEventID: string, user_id: string):
                     'erc20_tokens.address as token_address', 'erc20_tokens.fpmanager', 'rewards_erc20.name as reward_name',
                     'rewards_erc20.description as reward_description', 'rewards_erc20.amount as reward_amount',
                     'erc20_tokens.chainid', 'users.id as user_id', 'users.wallet as user_wallet',
-                    'reward_event_erc20.v','reward_event_erc20.r','reward_event_erc20.s', 'rewards_erc20.status'
+                    'reward_event_erc20.v','reward_event_erc20.r','reward_event_erc20.s', 'rewards_erc20.status',
+                    'reward_event_erc20.id as reward_event_id'
                 ])
         if (claimableToken.status == 1) throw Error('Already taken')
         const res: SuccessResponse = {
@@ -437,11 +497,11 @@ export async function getClaimableNFT(rewardEventID: string, user_id: string): P
                 .leftJoin('erc721_tokens', 'erc721_tokens.address', '=', 'nfts.address')
                 .select([
                     'erc721_tokens.name as collection_name', 'erc721_tokens.address as collection_address',
-                    'nfts.name as nft_name', 'nfts.image as nft_image',
+                    'nfts.name as nft_name', 'nfts.image as nft_image', 'nfts.image_json as nft_json_image',
                     'nfts.description as nft_description', 'erc721_tokens.chainid as chainid',
                     'users.wallet as user_wallet',
                     'reward_event_erc721.v as v', 'reward_event_erc721.s as s', 'reward_event_erc721.r as r',
-                    'erc721_tokens.beneficiary as beneficiary', 'rewards_erc721.status'
+                    'erc721_tokens.beneficiary as beneficiary', 'rewards_erc721.status', 'reward_event_erc721.id as reward_event_id'
                 ])
         if (claimableNFT.status == 1) throw Error('Already taken')
         const res: SuccessResponse = {

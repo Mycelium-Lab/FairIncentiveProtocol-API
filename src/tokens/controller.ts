@@ -47,29 +47,29 @@ export async function tokensPlugin(app: FastifyInstance, opt: FastifyPluginOptio
         },
         async (req: FastifyRequest, reply: FastifyReply) => {
             try {
-                const file: any = await req.file()
+                const body: any = req.body
                 const token: Token = {
-                    name: file.fields.name.value,
-                    symbol: file.fields.symbol.value,
-                    supply_type: file.fields.supply_type.value,
-                    chainid: file.fields.chainid.value,
-                    address: file.fields.address.value,
-                    max_supply: file.fields.max_supply.value === 'null' ? null : file.fields.max_supply.value,
-                    initial_supply: file.fields.initial_supply.value === 'null' ? null : file.fields.initial_supply.value,
-                    pausable: file.fields.pausable.value,
-                    burnable: file.fields.burnable.value,
-                    blacklist: file.fields.blacklist.value,
-                    recoverable: file.fields.recoverable.value,
-                    verified: file.fields.verified.value,
-                    fpmanager: file.fields.fpmanager.value
+                    name: body.name.value,
+                    symbol: body.symbol.value,
+                    supply_type: body.supply_type.value,
+                    chainid: body.chainid.value,
+                    address: body.address.value,
+                    max_supply: body.max_supply.value === 'null' ? null : body.max_supply.value,
+                    initial_supply: body.initial_supply.value === 'null' ? null : body.initial_supply.value,
+                    pausable: body.pausable.value,
+                    burnable: body.burnable.value,
+                    blacklist: body.blacklist.value,
+                    recoverable: body.recoverable.value,
+                    verified: body.verified.value,
+                    fpmanager: body.fpmanager.value
                 }
                 await AddTokenValidation.validateAsync(token)
-                const _file = new File([await file.toBuffer()], file.filename, {type: file.mimetype})
+                const _file = new File([await body.image.toBuffer()], body.image.filename, {type: body.image.mimetype})
                 const storage = new NFTStorage({ token: config.NFT_STORAGE_KEY })
                 const cid = await storage.store({
                     image: _file,
-                    name: file.filename,
-                    description: file.filename
+                    name: token.symbol,
+                    description: token.name
                 })
                 const image = `https://ipfs.io/ipfs/${cid.data.image.host}${cid.data.image.pathname}`
                 token.image = image

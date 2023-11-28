@@ -9,6 +9,12 @@ const networks: Array<Network> = [
         chainid:'80001',
         rpc: 'https://rpc-mumbai.maticvigil.com',
         private_key: process.env.PRIVATE_KEY || ''
+    },
+    {
+        name: 'BNB Test',
+        rpc: "https://bsc-testnet.publicnode.com",
+        chainid: "97",
+        private_key: process.env.PRIVATE_KEY || ''
     }
 ]
 

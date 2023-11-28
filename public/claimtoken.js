@@ -40,10 +40,11 @@ async function main() {
     document.querySelector('#user-address').textContent =  createLongStrView(json.body.data.user_wallet)
     document.querySelector('#token-amount').textContent =  ethers.utils.formatEther(json.body.data.reward_amount)
     document.querySelector('#token-symbol').textContent =  json.body.data.token_symbol
+    console.log(json.body.data)
     if (json.body.data.reward_description) {
-        document.querySelector('#reward-description').textContent = json.claimableNFT.reward_description
+        document.querySelector('#reward-description').textContent = json.body.data.reward_description
     } else {
-        document.querySelector('#reward-description').textContent = 'Description'
+        document.querySelector('#reward-description').textContent = 'Description -'
     }
     document.querySelector('#claim-button').addEventListener('click', async () => {
         try {
@@ -53,7 +54,7 @@ async function main() {
             const contract = new ethers.Contract(json.body.data.fpmanager, fpManagerAbi, signer)
             const tx = await contract.mintSigner(
                 json.body.data.r, json.body.data.v, json.body.data.s, 
-                json.body.data.token_address, json.body.data.reward_amount
+                json.body.data.token_address, json.body.data.reward_amount, json.body.data.reward_event_id
             )
             tx.wait()
                 .then( async () => {
@@ -83,6 +84,9 @@ async function main() {
             
         } catch (error) {
             console.log(error)
+            if (error.data && error.data.message.includes('Already taken')) {
+                alert('Already taken')
+            }
         }
     })
 }

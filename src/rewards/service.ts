@@ -130,7 +130,7 @@ export async function rewardWithToken(getCompany: GetCompany, reward: RewardWith
             }, '*')
             .then(async (event) => {
                 const signature = await signTokenReward(event[0].id, tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address)
-                await pg('reward_event_erc20').update({
+                await trx('reward_event_erc20').update({
                     v: signature.v,
                     r: signature.r,
                     s: signature.s

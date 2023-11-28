@@ -153,7 +153,7 @@ function rewardWithToken(getCompany, reward) {
             }, '*')
                 .then((event) => __awaiter(this, void 0, void 0, function* () {
                 const signature = yield (0, sign_1.signTokenReward)(event[0].id, tokenReward.amount, user.wallet, signer, tokenReward.fpmanager ? tokenReward.fpmanager : '', tokenReward.address);
-                yield (0, db_1.default)('reward_event_erc20').update({
+                yield trx('reward_event_erc20').update({
                     v: signature.v,
                     r: signature.r,
                     s: signature.s

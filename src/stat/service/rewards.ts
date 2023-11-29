@@ -560,7 +560,6 @@ export async function getTotalRewardsDistributionErc20(getCompany: GetCompany, u
     }
 }
 
-
 export async function getTotalRewardsDistributionErc721(getCompany: GetCompany, uuidDateRange: UuidDateRange): Promise<ErrorResponse | SuccessResponse> {
     try {
         const intervals = 30
@@ -589,6 +588,52 @@ export async function getTotalRewardsDistributionErc721(getCompany: GetCompany, 
             code: CODES.OK.code,
             body: {
                 message: 'Total rewards event range ERC721',
+                type: SuccessResponseTypes.array,
+                data: result
+            }
+        }
+        return res;
+    } catch (error: any) {
+        console.log(error.message);
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        };
+        return err;
+    }
+}
+
+export async function getErc721RewardsDistributionOneUser(getCompany: GetCompany, uuidDateRange: UuidDateRange): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const intervals = 30
+        const intervalSize = Math.floor((uuidDateRange.endDate.getTime() - uuidDateRange.startDate.getTime()) / intervals)
+        let dates: any = []
+        for (let i = 0; i <= intervals; i++) {
+            dates.push(new Date(new Date(i === 0 ? uuidDateRange.startDate.toISOString() : dates[i - 1]).getTime() + intervalSize).toISOString())
+        }
+        dates = dates.map((v: any) => `'${v}'`)
+
+        const query = await pg.raw(`
+            SELECT
+            end_date,
+            COUNT(id) AS count
+            FROM (
+            SELECT
+                unnest(ARRAY[${dates.join(', ')}]::timestamptz[]) AS end_date
+            ) AS end_dates
+            LEFT JOIN reward_event_erc721 ON event_datetime <= end_date AND user_id = ?
+            GROUP BY end_date
+            ORDER BY end_date;
+        `, [uuidDateRange.id]);
+
+        const result: Array<DateEnd> = query.rows
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'ERC721 rewards event range for one user',
                 type: SuccessResponseTypes.array,
                 data: result
             }

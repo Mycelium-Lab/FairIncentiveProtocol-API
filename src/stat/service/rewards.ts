@@ -651,3 +651,63 @@ export async function getErc721RewardsDistributionOneUser(getCompany: GetCompany
         return err;
     }
 }
+
+export async function getRewardEventsRangeErc20OneUser(getCompany: GetCompany, uuidDateRange: UuidDateRange): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const intervals = 30;
+        const intervalSize = Math.floor((uuidDateRange.endDate.getTime() - uuidDateRange.startDate.getTime()) / intervals);
+
+        const query = await pg.raw(`
+            WITH all_events AS (
+                (SELECT id, event_datetime FROM reward_event_erc20
+                WHERE event_datetime >= ? AND event_datetime <= ? AND user_id = ? AND reward_id IN (
+                    SELECT id FROM rewards_erc20 WHERE company_id = ?
+                ))
+            )
+            SELECT
+                date_interval_start,
+                date_interval_end,
+                COUNT(id) as count
+            FROM (
+                SELECT
+                    date_interval_start,
+                    date_interval_start + INTERVAL '${intervalSize} milliseconds' as date_interval_end
+                FROM (
+                    SELECT
+                        generate_series(
+                            ?::timestamp,
+                            ?::timestamp,
+                            ?::interval
+                        ) AS date_interval_start
+                ) AS date_intervals
+            ) AS intervals
+            LEFT JOIN all_events ON all_events.event_datetime >= intervals.date_interval_start AND all_events.event_datetime < intervals.date_interval_end
+            GROUP BY date_interval_start, date_interval_end
+            ORDER BY date_interval_start;
+        `, [uuidDateRange.startDate, uuidDateRange.endDate, uuidDateRange.id, getCompany.company_id, uuidDateRange.startDate, uuidDateRange.endDate, `${intervalSize} milliseconds`]);
+
+        const result: Array<DateInterval> = query.rows;
+
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'Reward events range ERC20 one user',
+                type: SuccessResponseTypes.array,
+                data: result
+            }
+        }
+
+        return res;
+    } catch (error: any) {
+        console.log(error.message);
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+
+        return err;
+    }
+}

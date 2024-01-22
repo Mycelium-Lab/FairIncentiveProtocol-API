@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTokensDistRange = exports.getCount24h = exports.getTotalCount = void 0;
+exports.getOneTokenDistRange = exports.getTokensDistRange = exports.getCount24h = exports.getTotalCount = void 0;
 const ethers_1 = require("ethers");
 const db_1 = __importDefault(require("../../config/db"));
 const constants_1 = require("../../utils/constants");
@@ -144,3 +144,57 @@ function getTokensDistRange(getCompany, dateRange) {
     });
 }
 exports.getTokensDistRange = getTokensDistRange;
+function getOneTokenDistRange(getCompany, tokenForDist) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const intervals = 30;
+            const intervalSize = Math.floor((tokenForDist.endDate.getTime() - tokenForDist.startDate.getTime()) / intervals);
+            const query = yield db_1.default.raw(`
+            WITH date_intervals AS (
+                SELECT
+                    date_interval_start,
+                    date_interval_start + INTERVAL '${intervalSize} milliseconds' as date_interval_end
+                FROM (
+                    SELECT
+                        generate_series(
+                            ?::timestamp,
+                            ?::timestamp,
+                            ?::interval
+                        ) AS date_interval_start
+                ) AS date_intervals
+            )
+            SELECT
+                date_interval_start,
+                date_interval_end,
+                COALESCE(SUM(CASE WHEN r.company_id = ? THEN r.amount ELSE 0 END), 0) as count
+            FROM date_intervals
+            LEFT JOIN reward_event_erc20 AS e ON e.event_datetime >= date_intervals.date_interval_start AND e.event_datetime < date_intervals.date_interval_end
+            LEFT JOIN rewards_erc20 AS r ON e.reward_id = r.id AND r.address = ? AND r.chainid = ?
+            GROUP BY date_interval_start, date_interval_end
+            ORDER BY date_interval_start
+        `, [tokenForDist.startDate, tokenForDist.endDate, `${intervalSize} milliseconds`, getCompany.company_id, tokenForDist.address, tokenForDist.chainid]);
+            const result = query.rows;
+            const res = {
+                code: constants_1.CODES.OK.code,
+                body: {
+                    message: 'One token dist range',
+                    type: constants_1.SuccessResponseTypes.array,
+                    data: result
+                }
+            };
+            return res;
+        }
+        catch (error) {
+            console.log(error.message);
+            const err = {
+                code: constants_1.CODES.INTERNAL_ERROR.code,
+                error: {
+                    name: constants_1.CODES.INTERNAL_ERROR.name,
+                    message: error.message
+                }
+            };
+            return err;
+        }
+    });
+}
+exports.getOneTokenDistRange = getOneTokenDistRange;

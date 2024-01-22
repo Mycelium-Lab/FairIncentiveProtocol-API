@@ -92,6 +92,36 @@ function statTokensController(app, opt) {
                     .send({ error: prettyError.error });
             }
         }));
+        app.get('/one_token_dist_range', {
+            preHandler: app.authenticate,
+            schema: {
+                headers: response_description_1.authorizationTokenDescription,
+                querystring: {
+                    $ref: 'TokenForDist'
+                }
+            }
+        }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = req.routeConfig.jwtData;
+                const tokenForDist = req.query;
+                tokenForDist.startDate = new Date(tokenForDist.startDate);
+                tokenForDist.endDate = new Date(tokenForDist.endDate);
+                yield schemas_1.TokenForDistValidation.validateAsync(tokenForDist);
+                const res = yield (0, tokens_1.getOneTokenDistRange)({ email: data === null || data === void 0 ? void 0 : data.email, phone: data === null || data === void 0 ? void 0 : data.phone, company_id: data === null || data === void 0 ? void 0 : data.company_id }, tokenForDist);
+                reply
+                    .code(res.code)
+                    .type('application/json; charset=utf-8')
+                    .send('body' in res ? { body: res.body } : { error: res.error });
+            }
+            catch (error) {
+                console.log(error.message);
+                const prettyError = (0, errors_1.prettyStatTokensError)(error.message);
+                reply
+                    .code(prettyError.code)
+                    .type('application/json; charset=utf-8')
+                    .send({ error: prettyError.error });
+            }
+        }));
     });
 }
 exports.statTokensController = statTokensController;

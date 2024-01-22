@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import pg from "../../config/db";
-import { DateInterval, DateRange, ErrorResponse, GetCompany, SuccessResponse } from "../../entities";
+import { DateInterval, DateRange, ErrorResponse, GetCompany, SuccessResponse, TokenForDist } from "../../entities";
 import { CODES, SuccessResponseTypes } from "../../utils/constants";
 
 export async function getTotalCount(getCompany: GetCompany) {
@@ -106,6 +106,61 @@ export async function getTokensDistRange(getCompany: GetCompany, dateRange: Date
             code: CODES.OK.code,
             body: {
                 message: 'Tokens dist range',
+                type: SuccessResponseTypes.array,
+                data: result
+            }
+        }
+
+        return res;
+    } catch (error: any) {
+        console.log(error.message);
+        const err: ErrorResponse = {
+            code: CODES.INTERNAL_ERROR.code,
+            error: {
+                name: CODES.INTERNAL_ERROR.name,
+                message: error.message
+            }
+        }
+
+        return err;
+    }
+}
+
+export async function getOneTokenDistRange(getCompany: GetCompany, tokenForDist: TokenForDist): Promise<ErrorResponse | SuccessResponse> {
+    try {
+        const intervals = 30;
+        const intervalSize = Math.floor((tokenForDist.endDate.getTime() - tokenForDist.startDate.getTime()) / intervals);
+
+        const query = await pg.raw(`
+            WITH date_intervals AS (
+                SELECT
+                    date_interval_start,
+                    date_interval_start + INTERVAL '${intervalSize} milliseconds' as date_interval_end
+                FROM (
+                    SELECT
+                        generate_series(
+                            ?::timestamp,
+                            ?::timestamp,
+                            ?::interval
+                        ) AS date_interval_start
+                ) AS date_intervals
+            )
+            SELECT
+                date_interval_start,
+                date_interval_end,
+                COALESCE(SUM(CASE WHEN r.company_id = ? THEN r.amount ELSE 0 END), 0) as count
+            FROM date_intervals
+            LEFT JOIN reward_event_erc20 AS e ON e.event_datetime >= date_intervals.date_interval_start AND e.event_datetime < date_intervals.date_interval_end
+            LEFT JOIN rewards_erc20 AS r ON e.reward_id = r.id AND r.address = ? AND r.chainid = ?
+            GROUP BY date_interval_start, date_interval_end
+            ORDER BY date_interval_start
+        `, [tokenForDist.startDate, tokenForDist.endDate, `${intervalSize} milliseconds`, getCompany.company_id, tokenForDist.address, tokenForDist.chainid]);
+        const result: Array<DateInterval> = query.rows;
+
+        const res: SuccessResponse = {
+            code: CODES.OK.code,
+            body: {
+                message: 'One token dist range',
                 type: SuccessResponseTypes.array,
                 data: result
             }

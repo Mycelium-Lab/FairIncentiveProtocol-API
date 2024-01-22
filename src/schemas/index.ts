@@ -23,6 +23,7 @@ import { ChangeCompanyRepname } from "./company/repname";
 import { DateRange } from "./stat/dateRange";
 import { GetOneCollectionNft } from './nfts/getOneCollectionNft'
 import { UuidDateRange } from "./stat/uuidDateRange";
+import { TokenForDist } from "./stat/tokenForDist";
 export { SignUpValidation } from './auth/SignUp'
 export { SignInValidation } from './auth/SignIn'
 export { ChangeCompanyNameValidation } from './company/name'
@@ -47,6 +48,7 @@ export { ChangeCompanyRepnameValidation } from './company/repname'
 export { DateRangeValidation } from './stat/dateRange'
 export { GetOneCollectionNftValidation } from './nfts/getOneCollectionNft'
 export { UuidDateRangeValidation } from "./stat/uuidDateRange";
+export { TokenForDistValidation } from './stat/tokenForDist'
 
 export function addSchemas(app: FastifyInstance) {
     app.addSchema(SignUp)
@@ -73,4 +75,5 @@ export function addSchemas(app: FastifyInstance) {
     app.addSchema(DateRange)
     app.addSchema(GetOneCollectionNft)
     app.addSchema(UuidDateRange)
+    app.addSchema(TokenForDist)
 }

@@ -4,7 +4,8 @@ export interface Config {
     SECRET_KEY: string,
     DB_CONNECTION: string,
     NFT_STORAGE_KEY: string,
-    networks: Array<Network>
+    networks: Array<Network>,
+    MAILGUN_API_KEY: string
 }
 
 export interface Network {

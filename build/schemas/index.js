@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addSchemas = exports.TokenForDistValidation = exports.UuidDateRangeValidation = exports.GetOneCollectionNftValidation = exports.DateRangeValidation = exports.ChangeCompanyRepnameValidation = exports.DeleteApiKeyValidation = exports.StatusValidation = exports.UpdateUserValidation = exports.UpdateNFTRewardValidation = exports.UpdateTokenRewardValidation = exports.AddNFTRewardValidation = exports.AddNFTValidation = exports.RewardWithTokenValidation = exports.UuidValidation = exports.AddTokenRewardValidation = exports.AddNFTCollectionValidation = exports.AddTokenValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
+exports.addSchemas = exports.ForgotPassEmailValidation = exports.TokenForDistValidation = exports.UuidDateRangeValidation = exports.GetOneCollectionNftValidation = exports.DateRangeValidation = exports.ChangeCompanyRepnameValidation = exports.DeleteApiKeyValidation = exports.StatusValidation = exports.UpdateUserValidation = exports.UpdateNFTRewardValidation = exports.UpdateTokenRewardValidation = exports.AddNFTRewardValidation = exports.AddNFTValidation = exports.RewardWithTokenValidation = exports.UuidValidation = exports.AddTokenRewardValidation = exports.AddNFTCollectionValidation = exports.AddTokenValidation = exports.AddUserValidation = exports.ChangeCompanyWalletValidation = exports.ChangeCompanyPhoneValidation = exports.ChangeCompanyPasswordValidation = exports.ChangeCompanyEmailValidation = exports.ChangeCompanyNameValidation = exports.SignInValidation = exports.SignUpValidation = void 0;
 const SignUp_1 = require("./auth/SignUp");
 const SignIn_1 = require("./auth/SignIn");
 const name_1 = require("./company/name");
@@ -26,6 +26,7 @@ const dateRange_1 = require("./stat/dateRange");
 const getOneCollectionNft_1 = require("./nfts/getOneCollectionNft");
 const uuidDateRange_1 = require("./stat/uuidDateRange");
 const tokenForDist_1 = require("./stat/tokenForDist");
+const forgot_1 = require("./pass_reset/forgot");
 var SignUp_2 = require("./auth/SignUp");
 Object.defineProperty(exports, "SignUpValidation", { enumerable: true, get: function () { return SignUp_2.SignUpValidation; } });
 var SignIn_2 = require("./auth/SignIn");
@@ -76,6 +77,8 @@ var uuidDateRange_2 = require("./stat/uuidDateRange");
 Object.defineProperty(exports, "UuidDateRangeValidation", { enumerable: true, get: function () { return uuidDateRange_2.UuidDateRangeValidation; } });
 var tokenForDist_2 = require("./stat/tokenForDist");
 Object.defineProperty(exports, "TokenForDistValidation", { enumerable: true, get: function () { return tokenForDist_2.TokenForDistValidation; } });
+var forgot_2 = require("./pass_reset/forgot");
+Object.defineProperty(exports, "ForgotPassEmailValidation", { enumerable: true, get: function () { return forgot_2.ForgotPassEmailValidation; } });
 function addSchemas(app) {
     app.addSchema(SignUp_1.SignUp);
     app.addSchema(SignIn_1.SignIn);
@@ -102,5 +105,6 @@ function addSchemas(app) {
     app.addSchema(getOneCollectionNft_1.GetOneCollectionNft);
     app.addSchema(uuidDateRange_1.UuidDateRange);
     app.addSchema(tokenForDist_1.TokenForDist);
+    app.addSchema(forgot_1.ForgotPassEmail);
 }
 exports.addSchemas = addSchemas;

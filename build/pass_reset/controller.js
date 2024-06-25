@@ -40,14 +40,15 @@ function passResetPlugin(app, opt) {
                 }
                 else {
                     const jwtPayload = { email: body.email, company_id: companyChecker.id, company: true, address: companyChecker.wallet };
-                    const signatureForReset = app.jwt.sign(jwtPayload, { expiresIn: '1h' });
-                    yield mg.messages.create('sandbox0deba8e9ece34f7b9226a60bb58ab4a6.mailgun.org', {
-                        from: "Excited User <mailgun@sandbox0deba8e9ece34f7b9226a60bb58ab4a6.mailgun.org>",
+                    const signatureForReset = app.jwt.sign(jwtPayload, { expiresIn: '240s' });
+                    const msg = yield mg.messages.create(config_1.config.MAILGUN_DOMAIN, {
+                        from: `Password Recover <${config_1.config.MAILGUN_USER}>`,
                         to: [body.email],
-                        subject: "Password Recovery",
-                        text: "Password Recovery",
-                        html: `<h1>${signatureForReset}</h1>`
+                        subject: "Fair Protocol password recovery",
+                        text: "Password recovery",
+                        html: `<a href="http://localhost:3001/?tokenreset=${signatureForReset}" rel="noreferrer" target="_blank">Reset Password</a>`
                     });
+                    console.log(msg);
                     const res = {
                         code: constants_1.CODES.OK.code,
                         body: {

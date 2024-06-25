@@ -5,7 +5,9 @@ export interface Config {
     DB_CONNECTION: string,
     NFT_STORAGE_KEY: string,
     networks: Array<Network>,
-    MAILGUN_API_KEY: string
+    MAILGUN_API_KEY: string,
+    MAILGUN_DOMAIN: string,
+    MAILGUN_USER: string
 }
 
 export interface Network {

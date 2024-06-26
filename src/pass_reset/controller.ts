@@ -28,7 +28,7 @@ export async function passResetPlugin(app: FastifyInstance, opt: FastifyPluginOp
                         .send({error: res.error})
                 } else {
                     const jwtPayload: JWTPayload = {email: body.email, company_id: companyChecker.id, company: true, address: companyChecker.wallet}
-                    const signatureForReset = app.jwt.sign(jwtPayload, { expiresIn: '240s' })
+                    const signatureForReset = app.jwt.sign(jwtPayload, { expiresIn: '600s' })
                     const msg = await mg.messages.create(config.MAILGUN_DOMAIN, {
                         from: `Password Recover <${config.MAILGUN_USER}>`,
                         to: [body.email],

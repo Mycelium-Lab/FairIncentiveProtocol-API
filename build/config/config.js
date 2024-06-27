@@ -30,5 +30,8 @@ exports.config = {
             `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`
         :
             `postgresql://${process.env.TEST_DB_USER}:${process.env.TEST_DB_PASSWORD}@${process.env.TEST_DB_HOST}/${process.env.TEST_DB_NAME}`,
-    networks
+    networks,
+    MAILGUN_API_KEY: process.env.MAILGUN_API_KEY || 'MAILGUN_API_KEY',
+    MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN || 'MAILGUN_DOMAIN',
+    MAILGUN_USER: process.env.MAILGUN_USER || 'MAILGUN_USER'
 };

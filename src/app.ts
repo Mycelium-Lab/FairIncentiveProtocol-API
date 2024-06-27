@@ -19,6 +19,7 @@ import { apiKeysPlugin } from './api_keys/controller'
 import { checkApiKey } from './api_keys/service'
 import { statNftsController, statRewardsController, statTokensController, statUsersController } from './stat/controller'
 import fastifyMultipart from '@fastify/multipart'
+import { passResetPlugin } from './pass_reset/controller'
 
 export type AppOptions = Partial<FastifyServerOptions>
 
@@ -82,6 +83,7 @@ export async function build(opt: AppOptions = {}) {
     app.register(statUsersController, { prefix: '/stat' })
     app.register(statTokensController, { prefix: '/stat' })
     app.register(statNftsController, { prefix: '/stat' })
+    app.register(passResetPlugin, { prefix: '/pass_reset' })
     app.register(cors, {
         origin: "*",
         methods: ["GET", "POST"]

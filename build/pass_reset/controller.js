@@ -40,7 +40,7 @@ function passResetPlugin(app, opt) {
                 }
                 else {
                     const jwtPayload = { email: body.email, company_id: companyChecker.id, company: true, address: companyChecker.wallet };
-                    const signatureForReset = app.jwt.sign(jwtPayload, { expiresIn: '600s' });
+                    const signatureForReset = app.jwt.sign(jwtPayload, { expiresIn: '1800s' });
                     const msg = yield mg.messages.create(config_1.config.MAILGUN_DOMAIN, {
                         from: `Password Recover <${config_1.config.MAILGUN_USER}>`,
                         to: [body.email],

@@ -33,6 +33,7 @@ const controller_8 = require("./api_keys/controller");
 const service_1 = require("./api_keys/service");
 const controller_9 = require("./stat/controller");
 const multipart_1 = __importDefault(require("@fastify/multipart"));
+const controller_10 = require("./pass_reset/controller");
 function build(opt = {}) {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, fastify_1.default)(opt);
@@ -99,6 +100,7 @@ function build(opt = {}) {
         app.register(controller_9.statUsersController, { prefix: '/stat' });
         app.register(controller_9.statTokensController, { prefix: '/stat' });
         app.register(controller_9.statNftsController, { prefix: '/stat' });
+        app.register(controller_10.passResetPlugin, { prefix: '/pass_reset' });
         app.register(cors_1.default, {
             origin: "*",
             methods: ["GET", "POST"]

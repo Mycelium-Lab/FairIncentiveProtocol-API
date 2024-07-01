@@ -46,7 +46,7 @@ function passResetPlugin(app, opt) {
                         to: [body.email],
                         subject: "Fair Protocol password recovery",
                         text: "Password recovery",
-                        html: `<a href="http://localhost:3001/?tokenreset=${signatureForReset}" rel="noreferrer" target="_blank">Reset Password</a>`
+                        html: `<a href="https://fairprotocol.netlify.app/?tokenreset=${signatureForReset}" rel="noreferrer" target="_blank">Reset Password</a>`
                     });
                     console.log(msg);
                     const res = {
